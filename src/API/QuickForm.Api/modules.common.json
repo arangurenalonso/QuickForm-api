@@ -1,0 +1,15 @@
+{
+  "Common": {
+    "AzureBlobStorage": {
+      "ConnectionString": ""
+    },
+    "AzureCommunicationEmail": {
+      "ConnectionString": "",
+      "FromEmail": ""
+    },
+    "ApplicationUrls": {
+      "WebUrl": "",
+      "CurrentApplicationURL": ""
+    }
+  }
+}

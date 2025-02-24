@@ -1,0 +1,68 @@
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore;
+using QuickForm.Modules.Users.Domain;
+
+namespace QuickForm.Modules.Users.Persistence;
+public class AuthActionTokenConfiguration : IEntityTypeConfiguration<AuthActionTokenDomain>
+{
+    public void Configure(EntityTypeBuilder<AuthActionTokenDomain> builder)
+    {
+        builder.ToTable("AuthActionTokens");
+
+        builder.HasKey(uat => uat.Id);
+
+        builder.Property(uat => uat.Id)
+            .HasConversion(
+                new ValueConverter<AuthActionTokenId, Guid>(
+                    userActionTokenId => userActionTokenId.Value,
+                    guid => new AuthActionTokenId(guid)
+                ))
+            .IsRequired();
+
+        builder.Property(uat => uat.IdUser)
+            .HasConversion(
+                new ValueConverter<UserId, Guid>(
+                    userId => userId.Value,
+                    guid => new UserId(guid)
+                ))
+            .IsRequired();
+
+        builder.Property(uat => uat.IdUserAction)
+            .HasConversion(
+                new ValueConverter<AuthActionId, Guid>(
+                    userActionId => userActionId.Value,
+                    guid => new AuthActionId(guid)
+                ))
+            .IsRequired();
+
+        builder.OwnsOne(uat => uat.Token, tokenBuilder =>
+        {
+            tokenBuilder.Property(t => t.Value)
+                .HasColumnName("Token")
+                .HasMaxLength(255)
+                .IsRequired();
+        });
+
+        builder.OwnsOne(uat => uat.ExpiresAt, expiresAtBuilder =>
+        {
+            expiresAtBuilder.Property(e => e.Value)
+                .HasColumnName("ExpiresAt")
+                .IsRequired();
+        });
+
+        builder.Property(uat => uat.Used)
+            .HasColumnName("Used")
+            .IsRequired();
+
+        builder.HasOne(uat => uat.User)
+            .WithMany(u => u.AuthActionTokens)
+            .HasForeignKey(uat => uat.IdUser)
+            .IsRequired();
+
+        builder.HasOne(uat => uat.Action)
+            .WithMany(ua => ua.UserActionTokens)
+            .HasForeignKey(uat => uat.IdUserAction)
+            .IsRequired();
+    }
+}

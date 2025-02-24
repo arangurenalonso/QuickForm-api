@@ -1,0 +1,6 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Common\02-Presentation\QuickForm.Common.Presentation\QuickForm.Common.Presentation.csproj" />
+    <ProjectReference Include="..\..\04-Core\QuickForm.Modules.Users.Application\QuickForm.Modules.Users.Application.csproj" />
+  </ItemGroup>
+</Project>

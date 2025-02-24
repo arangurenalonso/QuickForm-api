@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.13" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\QuickForm.Modules.Users.Infrastructure\QuickForm.Modules.Users.Persistence.csproj" />
+    <ProjectReference Include="..\QuickForm.Modules.Users.Options\QuickForm.Modules.Users.Options.csproj" />
+  </ItemGroup>
+</Project>

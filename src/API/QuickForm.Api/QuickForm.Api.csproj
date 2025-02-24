@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>88aa8a4b-d262-47aa-8b81-875bb7140c1d</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..\..</DockerfileContext>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\02-Presentation\QuickForm.Common.Presentation\QuickForm.Common.Presentation.csproj" />
+    <ProjectReference Include="..\..\Common\03-Infrastructure\QuickForm.Common.Services\QuickForm.Common.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Survey\01-Host\QuickForm.Modules.Survey.Host\QuickForm.Modules.Survey.Host.csproj" />
+    <ProjectReference Include="..\..\Modules\Users\01-Host\QuickForm.Modules.Users.Module\QuickForm.Modules.Users.Host.csproj" />
+  </ItemGroup>
+
+</Project>

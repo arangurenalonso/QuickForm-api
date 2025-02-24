@@ -1,0 +1,22 @@
+{
+  "Users": {
+    "Outbox": {
+      "IntervalInSeconds": 15,
+      "BatchSize": 20
+    },
+    "Inbox": {
+      "IntervalInSeconds": 15,
+      "BatchSize": 20
+    },
+    "ConnectionStrings": {
+      "Database": ""
+    },
+    "Jwt": {
+      "Issuer": "ApiSecurity",
+      "Audience": "MaquisistemasApis",
+      "SecretKey": "@Xu356c63@0~RA::Zpcm#AAdiwqmd33232423",
+      "Subject": "JWTAuthToken",
+      "ExpirationTimeInHours": 12
+    }
+  }
+}

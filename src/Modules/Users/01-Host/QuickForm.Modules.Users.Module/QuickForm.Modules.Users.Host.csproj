@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="Scrutor" Version="5.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\02-Presentation\QuickForm.Modules.Users.Presentation\QuickForm.Modules.Users.Presentation.csproj" />
+    <ProjectReference Include="..\..\03-Infrastructure\QuickForm.Modules.Users.Infrastructure\QuickForm.Modules.Users.Persistence.csproj" />
+    <ProjectReference Include="..\..\03-Infrastructure\QuickForm.Modules.Users.Jobs\QuickForm.Modules.Users.Jobs.csproj" />
+    <ProjectReference Include="..\..\03-Infrastructure\QuickForm.Modules.Users.Options\QuickForm.Modules.Users.Options.csproj" />
+    <ProjectReference Include="..\..\03-Infrastructure\QuickForm.Modules.Users.Service\QuickForm.Modules.Users.Service.csproj" />
+  </ItemGroup>
+</Project>

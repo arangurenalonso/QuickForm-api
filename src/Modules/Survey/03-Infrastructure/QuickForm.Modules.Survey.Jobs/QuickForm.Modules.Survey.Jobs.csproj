@@ -1,0 +1,7 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\02-Presentation\QuickForm.Modules.Survey.Presentation\QuickForm.Modules.Survey.Presentation.csproj" />
+    <ProjectReference Include="..\QuickForm.Modules.Survey.Options\QuickForm.Modules.Survey.Options.csproj" />
+    <ProjectReference Include="..\QuickForm.Modules.Survey.Persistence\QuickForm.Modules.Survey.Persistence.csproj" />
+  </ItemGroup>
+</Project>

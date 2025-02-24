@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<ItemGroup>
+		<PackageReference Include="Dapper" Version="2.1.35" />
+	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Common\03-Infrastructure\QuickForm.Common.Services\QuickForm.Common.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\04-Core\QuickForm.Modules.Survey.Application\QuickForm.Modules.Survey.Application.csproj" />
+  </ItemGroup>
+
+</Project>

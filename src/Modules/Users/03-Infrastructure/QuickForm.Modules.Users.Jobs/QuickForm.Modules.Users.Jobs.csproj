@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\02-Presentation\QuickForm.Modules.Users.Presentation\QuickForm.Modules.Users.Presentation.csproj" />
+    <ProjectReference Include="..\QuickForm.Modules.Users.Infrastructure\QuickForm.Modules.Users.Persistence.csproj" />
+    <ProjectReference Include="..\QuickForm.Modules.Users.Options\QuickForm.Modules.Users.Options.csproj" />
+  </ItemGroup>
+
+</Project>
