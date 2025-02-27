@@ -1,10 +1,10 @@
 ﻿namespace QuickForm.Common.Application;
-public sealed class ResultResponse
+public class ResultResponse
 {
     public bool IsSuccess { get; }
     public string? Message { get; }
 
-    private ResultResponse(bool isSuccess, string? message = null)
+    protected ResultResponse(bool isSuccess, string? message = null)
     {
         IsSuccess = isSuccess;
         Message = message;

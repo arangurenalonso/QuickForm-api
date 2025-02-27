@@ -27,6 +27,6 @@ internal sealed class FormRegisterCommandHandler(IFormRepository formRepository,
         }
         var formId = formCreated.Value.Id; // Asegúrate de que `Id` existe en `FormDomain`
 
-        return ResultResponse.Success($"Form created successfully id '{formId}'.");
+        return ResultTResponse<Guid>.Success(formId.Value,$"Form created successfully id '{formId}'.");
     }
 }
