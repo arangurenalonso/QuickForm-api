@@ -32,7 +32,7 @@ public class ResetPasswordCommandHandler(
         _userRepository.Update(user);
         _authActionTokenRepository.Update(authActionToken);
 
-        var result = await ConfirmTransaction(cancellationToken);
+        var result = await _unitOfWork.SaveChangesWithResultAsync(cancellationToken);
         if (result.IsFailure)
         {
             return ResultT<ResultResponse>.Failure(result.ResultType,result.Errors);
@@ -85,12 +85,5 @@ public class ResetPasswordCommandHandler(
             return ResultT<UserDomain>.Failure(ResultType.NotFound,error);
         }
         return user;
-    }
-
-    private async Task<Result> ConfirmTransaction(CancellationToken cancellationToken)
-    {
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return Result.Success();
     }
 }

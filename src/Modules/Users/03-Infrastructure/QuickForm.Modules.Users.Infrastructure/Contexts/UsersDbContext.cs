@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using QuickForm.Common.Domain;
+using QuickForm.Common.Domain.Method;
 using QuickForm.Common.Infrastructure;
 using QuickForm.Modules.Users.Application;
 using QuickForm.Modules.Users.Domain;
@@ -23,4 +25,18 @@ public sealed class UsersDbContext(DbContextOptions<UsersDbContext> options) : D
         modelBuilder.ApplyConfiguration(new OutboxMessageConsumerConfiguration());
         base.OnModelCreating(modelBuilder);
     }
+    public async Task<ResultT<int>> SaveChangesWithResultAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var result = await base.SaveChangesAsync(cancellationToken);
+            return ResultT<int>.Success(result);
+        }
+        catch (Exception e)
+        {
+            var listResultError= CommonMethods.ConvertExceptionToResult(e, "Database Transaction");
+            return ResultT<int>.Failure(ResultType.DataBaseTransaction,listResultError);
+        }
+    }
+
 }

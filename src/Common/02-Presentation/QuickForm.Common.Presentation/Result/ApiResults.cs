@@ -32,6 +32,7 @@ public static class ApiResults
                ResultType.InternalServerError => StatusCodes.Status500InternalServerError,
                ResultType.Unauthorized => StatusCodes.Status401Unauthorized,
                ResultType.Forbidden => StatusCodes.Status403Forbidden,
+               ResultType.DataBaseTransaction => StatusCodes.Status422UnprocessableEntity,
                _ => StatusCodes.Status500InternalServerError
            };
 
@@ -47,6 +48,7 @@ public static class ApiResults
             ResultType.InternalServerError => "Internal Server Error",
             ResultType.Unauthorized => "Unauthorized",
             ResultType.Forbidden => "Forbidden",
+            ResultType.DataBaseTransaction => "DataBase Transaction Error",
             _ => "Internal Server Error - Unspecified Error"
         };
 }

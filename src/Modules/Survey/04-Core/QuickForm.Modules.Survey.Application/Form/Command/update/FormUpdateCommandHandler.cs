@@ -5,7 +5,7 @@ using QuickForm.Modules.Survey.Domain.Form;
 namespace QuickForm.Modules.Survey.Application;
 
 
-internal sealed class FormUpdateCommandHandler(IFormRepository formRepository, IUnitOfWork unitOfWork)
+internal sealed class FormUpdateCommandHandler(IFormRepository formRepository, IUnitOfWork _unitOfWork)
     : ICommandHandler<FormUpdateCommand, ResultResponse>
 {
     public async Task<ResultT<ResultResponse>> Handle(FormUpdateCommand request, CancellationToken cancellationToken)
@@ -25,7 +25,11 @@ internal sealed class FormUpdateCommandHandler(IFormRepository formRepository, I
             return ResultT<ResultResponse>.Failure(ResultType.DomainValidation, resultUpdate.Errors);
         }
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(cancellationToken);
+        if (resultTransaction.IsFailure)
+        {
+            return ResultT<ResultResponse>.Failure(resultTransaction.ResultType, resultTransaction.Errors);
+        }
 
         return ResultResponse.Success($"Form id '{request.Id}' Updated successfully.");
     }

@@ -5,4 +5,4 @@ public sealed record FormRegisterCommand(
         string Name, 
         string? Description
     )
-    : ICommand<Guid>;
+    : ICommand<ResultResponse>;

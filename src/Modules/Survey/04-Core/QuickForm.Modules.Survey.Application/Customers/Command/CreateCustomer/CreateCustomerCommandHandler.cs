@@ -4,7 +4,7 @@ using QuickForm.Modules.Survey.Domain.Customers;
 
 namespace QuickForm.Modules.Survey.Application;
 
-internal sealed class CreateCustomerCommandHandler(ICustomerRepository customerRepository, IUnitOfWork unitOfWork)
+internal sealed class CreateCustomerCommandHandler(ICustomerRepository customerRepository, IUnitOfWork _unitOfWork)
     : ICommandHandler<CreateCustomerCommand>
 {
     public async Task<Result> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
@@ -13,7 +13,11 @@ internal sealed class CreateCustomerCommandHandler(ICustomerRepository customerR
 
         customerRepository.Insert(customer);
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(cancellationToken);
+        if (resultTransaction.IsFailure)
+        {
+            return Result.Failure(resultTransaction.ResultType, resultTransaction.Errors);
+        }
 
         return Result.Success();
     }

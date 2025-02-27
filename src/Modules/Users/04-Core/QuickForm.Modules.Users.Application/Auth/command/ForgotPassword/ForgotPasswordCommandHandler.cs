@@ -25,7 +25,7 @@ public class ForgotPasswordCommandHandler(
 
         userRepository.Update(user);
 
-        var result = await ConfirmTransaction(cancellationToken);
+        var result = await _unitOfWork.SaveChangesWithResultAsync(cancellationToken);
         if (result.IsFailure)
         {
             return ResultT<ResultResponse>.Failure(result.ResultType,result.Errors);
@@ -44,12 +44,6 @@ public class ForgotPasswordCommandHandler(
         return user;
     }
 
-    private async Task<Result> ConfirmTransaction(CancellationToken cancellationToken)
-    {
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return Result.Success();
-    }
 
 
 }

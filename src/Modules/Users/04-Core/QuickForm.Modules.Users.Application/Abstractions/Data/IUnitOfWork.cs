@@ -1,5 +1,7 @@
-﻿namespace QuickForm.Modules.Users.Application;
+﻿using QuickForm.Common.Domain;
+
+namespace QuickForm.Modules.Users.Application;
 public interface IUnitOfWork
 {
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    Task<ResultT<int>> SaveChangesWithResultAsync(CancellationToken cancellationToken = default);
 }

@@ -2,6 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
+using QuickForm.Common.Domain.Method;
 using QuickForm.Modules.Users.Application;
 using QuickForm.Modules.Users.Options;
 using System.IdentityModel.Tokens.Jwt;
@@ -130,21 +131,7 @@ public class TokenService(
         }
         catch (Exception e)
         {
-            var listErrors = new List<ResultError>();
-            if (e.StackTrace is not null)
-            {
-                listErrors.Add(ResultError.Exception("Token", $"StackTrace: {e.StackTrace}"));
-            }
-            if (e.InnerException is not null)
-            {
-                listErrors.Add(ResultError.Exception("Token", $"InnerException-Message: {e.InnerException.Message}"));
-                if (e.InnerException.StackTrace is not null)
-                {
-                    listErrors.Add(ResultError.Exception("Token", $"InnerException-StackTrace: {e.InnerException.StackTrace}"));
-                }
-            }
-            listErrors.Add(ResultError.Exception("Token", $"ErrorMessage: {e.Message}"));
-            return listErrors;
+            return CommonMethods.ConvertExceptionToResult(e, "Token");
 
         }
     }

@@ -29,7 +29,8 @@ public class RegisterCommandHandler(
             return ResultT<ResultResponse>.Failure(newUserResult.ResultType,newUserResult.Errors);
         }
 
-        var transactionResut = await ConfirmTransaction(cancellationToken);
+        var transactionResut = await _unitOfWork.SaveChangesWithResultAsync(cancellationToken);
+
         if (transactionResut.IsFailure)
         {
             return ResultT<ResultResponse>.Failure(transactionResut.ResultType,transactionResut.Errors);
@@ -71,18 +72,4 @@ public class RegisterCommandHandler(
         return userDomain;
     }
 
-    private async Task<Result> ConfirmTransaction(CancellationToken cancellationToken)
-    {
-        try
-        {
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-        }
-
-        return Result.Success();
-    }
 }
