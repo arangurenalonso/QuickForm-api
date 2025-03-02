@@ -4,7 +4,7 @@ using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
 
 namespace QuickForm.Common.Infrastructure;
-public class AuditableEntitySaveChangesInterceptor(
+public class AuditFieldsInterceptor(
         IDateTimeProvider _dateTimeService
     ) : SaveChangesInterceptor
 {
@@ -23,6 +23,7 @@ public class AuditableEntitySaveChangesInterceptor(
     public void UpdateEntities(DbContext context)
     {
 
+        var now = _dateTimeService.UtcNow;
         foreach (var entry in context.ChangeTracker.Entries<BaseAuditableEntity>())
         {
             var userConnected = "System";
@@ -30,12 +31,11 @@ public class AuditableEntitySaveChangesInterceptor(
             switch (entry.State)
             {
                 case EntityState.Added:
-                    entry.Entity.SetCreationAudit(userConnected, _dateTimeService.UtcNow);
+                    entry.Entity.SetCreationAudit(userConnected, now);
                     break;
                 case EntityState.Modified:
-                    entry.Entity.SetModificationAudit(userConnected, _dateTimeService.UtcNow);
+                    entry.Entity.SetModificationAudit(userConnected, now);
                     break;
-
                 case EntityState.Detached:
                     break;
                 case EntityState.Unchanged:

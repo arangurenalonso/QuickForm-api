@@ -1,6 +1,8 @@
-﻿namespace QuickForm.Modules.Users.Domain;
+﻿using QuickForm.Common.Domain;
 
-public sealed record AuthActionTokenId(Guid Value)
+namespace QuickForm.Modules.Users.Domain;
+
+public sealed record AuthActionTokenId(Guid Value) : EntityId(Value)
 {
     public static AuthActionTokenId Create() => new AuthActionTokenId(Guid.NewGuid());
 }

@@ -7,6 +7,7 @@ using QuickForm.Common.Infrastructure;
 using QuickForm.Modules.Survey.Domain.Customers;
 using QuickForm.Modules.Survey.Application;
 using QuickForm.Modules.Survey.Domain.Form;
+using QuickForm.Common.Infrastructure.Persistence;
 
 namespace QuickForm.Modules.Survey.Persistence;
 public static class SurveyPersistenceServiceRegistration
@@ -16,17 +17,19 @@ public static class SurveyPersistenceServiceRegistration
         var connectionString = configuration.GetSection("Survey:ConnectionStrings:Database").Value;
 
 
-        services.AddScoped<AuditableEntitySaveChangesInterceptor>();
+        services.AddScoped<AuditFieldsInterceptor>();
         services.AddScoped<InsertOutboxMessagesInterceptor>();
-        
+        services.AddScoped<AuditLogInterceptor>();
+
 
         services.AddDbContext<SurveyDbContext>((sp, options) =>
         {
-            var interceptor1 = sp.GetRequiredService<AuditableEntitySaveChangesInterceptor>();
+            var interceptor1 = sp.GetRequiredService<AuditFieldsInterceptor>();
             var interceptor2 = sp.GetRequiredService<InsertOutboxMessagesInterceptor>();
+            var interceptor3 = sp.GetRequiredService<AuditLogInterceptor>();
 
             options.UseSqlServer(connectionString)
-                   .AddInterceptors(interceptor1, interceptor2);
+                   .AddInterceptors(interceptor1, interceptor2, interceptor3);
         });
         services.AddTransient<IDbConnection>(sp => new SqlConnection(connectionString));
 

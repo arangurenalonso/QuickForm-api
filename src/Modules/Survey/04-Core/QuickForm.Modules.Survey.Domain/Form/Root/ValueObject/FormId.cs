@@ -1,6 +1,8 @@
-﻿namespace QuickForm.Modules.Survey.Domain.Form;
+﻿using QuickForm.Common.Domain;
 
-public sealed record FormId(Guid Value)
+namespace QuickForm.Modules.Survey.Domain.Form;
+
+public sealed record FormId(Guid Value) : EntityId(Value)
 {
     public static FormId Create() => new FormId(Guid.NewGuid());
 }

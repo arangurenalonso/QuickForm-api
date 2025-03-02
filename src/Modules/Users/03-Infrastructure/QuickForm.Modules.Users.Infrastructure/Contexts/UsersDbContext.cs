@@ -12,7 +12,7 @@ public sealed class UsersDbContext(DbContextOptions<UsersDbContext> options) : D
     public required DbSet<UserDomain> Users { get; set; }
     public required DbSet<AuthActionDomain> AuthAction { get; set; }
     public required DbSet<AuthActionTokenDomain> AuthActionToken { get; set; }
-
+    public required DbSet<AuditLog> Audit { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schemas.Auth);

@@ -14,7 +14,7 @@ public sealed class UserDomain : BaseDomainEntity<UserId>
     #region Many-to-Many Relationship
     public ICollection<AuthActionTokenDomain> AuthActionTokens { get; private set; } = [];
     #endregion
-    private UserDomain() { }
+    public UserDomain() { }
 
     private UserDomain(
         UserId id,
@@ -105,5 +105,5 @@ public sealed class UserDomain : BaseDomainEntity<UserId>
     {
         IsEmailVerify = true;
     }
-
+    
 }

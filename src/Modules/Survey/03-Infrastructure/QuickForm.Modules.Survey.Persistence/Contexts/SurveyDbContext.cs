@@ -13,6 +13,7 @@ public sealed class SurveyDbContext(DbContextOptions<SurveyDbContext> options) :
     public required DbSet<Customer> Customers { get; set; }
     public required DbSet<FormDomain> Form { get; set; }
 
+    public required DbSet<AuditLog> Audit { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

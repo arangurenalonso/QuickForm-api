@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuickForm.Modules.Users.Persistence;
 
@@ -11,9 +12,11 @@ using QuickForm.Modules.Users.Persistence;
 namespace QuickForm.Modules.Users.Persistence.Migrations
 {
     [DbContext(typeof(UsersDbContext))]
-    partial class UsersDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250302152455_AuditTable")]
+    partial class AuditTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -259,7 +262,7 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
 
             modelBuilder.Entity("QuickForm.Modules.Users.Domain.AuthActionDomain", b =>
                 {
-                    b.OwnsOne("QuickForm.Modules.Users.Domain.AuthActionDomain.Description#QuickForm.Modules.Users.Domain.ActionDescriptionVO", "Description", b1 =>
+                    b.OwnsOne("QuickForm.Modules.Users.Domain.ActionDescriptionVO", "Description", b1 =>
                         {
                             b1.Property<Guid>("AuthActionDomainId")
                                 .HasColumnType("uniqueidentifier");
@@ -296,7 +299,7 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("QuickForm.Modules.Users.Domain.AuthActionTokenDomain.ExpiresAt#QuickForm.Modules.Users.Domain.ExpirationDate", "ExpiresAt", b1 =>
+                    b.OwnsOne("QuickForm.Modules.Users.Domain.ExpirationDate", "ExpiresAt", b1 =>
                         {
                             b1.Property<Guid>("AuthActionTokenDomainId")
                                 .HasColumnType("uniqueidentifier");
@@ -313,7 +316,7 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                                 .HasForeignKey("AuthActionTokenDomainId");
                         });
 
-                    b.OwnsOne("QuickForm.Modules.Users.Domain.AuthActionTokenDomain.Token#QuickForm.Modules.Users.Domain.TokenVO", "Token", b1 =>
+                    b.OwnsOne("QuickForm.Modules.Users.Domain.TokenVO", "Token", b1 =>
                         {
                             b1.Property<Guid>("AuthActionTokenDomainId")
                                 .HasColumnType("uniqueidentifier");
@@ -345,7 +348,7 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
 
             modelBuilder.Entity("QuickForm.Modules.Users.Domain.UserDomain", b =>
                 {
-                    b.OwnsOne("QuickForm.Modules.Users.Domain.UserDomain.Email#QuickForm.Modules.Users.Domain.EmailVO", "Email", b1 =>
+                    b.OwnsOne("QuickForm.Modules.Users.Domain.EmailVO", "Email", b1 =>
                         {
                             b1.Property<Guid>("UserDomainId")
                                 .HasColumnType("uniqueidentifier");
@@ -364,7 +367,7 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                                 .HasForeignKey("UserDomainId");
                         });
 
-                    b.OwnsOne("QuickForm.Modules.Users.Domain.UserDomain.LastName#QuickForm.Modules.Users.Domain.LastNameVO", "LastName", b1 =>
+                    b.OwnsOne("QuickForm.Modules.Users.Domain.LastNameVO", "LastName", b1 =>
                         {
                             b1.Property<Guid>("UserDomainId")
                                 .HasColumnType("uniqueidentifier");
@@ -382,7 +385,7 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                                 .HasForeignKey("UserDomainId");
                         });
 
-                    b.OwnsOne("QuickForm.Modules.Users.Domain.UserDomain.Name#QuickForm.Modules.Users.Domain.NameVO", "Name", b1 =>
+                    b.OwnsOne("QuickForm.Modules.Users.Domain.NameVO", "Name", b1 =>
                         {
                             b1.Property<Guid>("UserDomainId")
                                 .HasColumnType("uniqueidentifier");
@@ -400,7 +403,7 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                                 .HasForeignKey("UserDomainId");
                         });
 
-                    b.OwnsOne("QuickForm.Modules.Users.Domain.UserDomain.PasswordHash#QuickForm.Modules.Users.Domain.PasswordVO", "PasswordHash", b1 =>
+                    b.OwnsOne("QuickForm.Modules.Users.Domain.PasswordVO", "PasswordHash", b1 =>
                         {
                             b1.Property<Guid>("UserDomainId")
                                 .HasColumnType("uniqueidentifier");

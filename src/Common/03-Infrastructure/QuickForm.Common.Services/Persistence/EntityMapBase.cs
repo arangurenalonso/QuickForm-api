@@ -1,12 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore;
 using QuickForm.Common.Domain;
 
-namespace QuickForm.Modules.Users.Persistence;
+namespace QuickForm.Common.Infrastructure.Persistence;
 public abstract class EntityMapBase<TEntity, TEntityId>
        : IEntityTypeConfiguration<TEntity>
            where TEntity : BaseDomainEntity<TEntityId>
-           where TEntityId : class
+           where TEntityId : EntityId
 {
     void IEntityTypeConfiguration<TEntity>.Configure(EntityTypeBuilder<TEntity> builder)
     {
