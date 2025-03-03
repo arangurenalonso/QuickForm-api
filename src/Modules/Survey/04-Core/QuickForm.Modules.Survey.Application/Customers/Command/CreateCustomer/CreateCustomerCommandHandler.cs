@@ -12,8 +12,7 @@ internal sealed class CreateCustomerCommandHandler(ICustomerRepository customerR
         var customer = Customer.Create(request.CustomerId, request.Email, request.FirstName, request.LastName);
 
         customerRepository.Insert(customer);
-
-        var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(cancellationToken);
+        var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(nameof(CreateCustomerCommandHandler),cancellationToken);
         if (resultTransaction.IsFailure)
         {
             return Result.Failure(resultTransaction.ResultType, resultTransaction.Errors);

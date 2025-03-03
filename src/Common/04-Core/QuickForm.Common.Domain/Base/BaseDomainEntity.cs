@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using QuickForm.Common.Domain.Base;
 
 namespace QuickForm.Common.Domain;
@@ -14,9 +14,19 @@ public abstract class BaseDomainEntity<TEntityId> : BaseAuditableEntity, IBaseDo
 
     protected BaseDomainEntity() { }
 
+    [NotMapped]
     public Guid EntityId =>  Id.Value;
-    public virtual Dictionary<string, object?> GetProperties()
+
+    [NotMapped]
+
+    private string _originClass = string.Empty;
+
+    [NotMapped]
+    public string OriginClass
     {
-        return new Dictionary<string, object?> { { "Id", Id.Value } };
-    }
+        get => _originClass;
+        set => _originClass = value;
+    }   
+
 }
+

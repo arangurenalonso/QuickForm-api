@@ -25,7 +25,7 @@ public class ResentEmailConfirmationCommandHandler(
 
         userRepository.Update(user);
 
-        var result = await _unitOfWork.SaveChangesWithResultAsync(cancellationToken);
+        var result = await _unitOfWork.SaveChangesWithResultAsync(nameof(ResentEmailConfirmationCommandHandler),cancellationToken);
          
         if (result.IsFailure)
         {
@@ -36,7 +36,12 @@ public class ResentEmailConfirmationCommandHandler(
     }
     private async Task<ResultT<UserDomain>> GetUser(string email)
     {
-        var user = await userRepository.GetByEmailWithActiveAuthActionsAsync(email, _dateTimeProvider.UtcNow);
+        var emailVO = EmailVO.Create(email);
+        if (emailVO.IsFailure)
+        {
+            return ResultT<UserDomain>.Failure(ResultType.DomainValidation, emailVO.Errors);
+        }
+        var user = await userRepository.GetByEmailWithActiveAuthActionsAsync(emailVO.Value, _dateTimeProvider.UtcNow);
         if (user is null)
         {
             var error = ResultError.InvalidInput("Email", $"User with email '{email}' not found");

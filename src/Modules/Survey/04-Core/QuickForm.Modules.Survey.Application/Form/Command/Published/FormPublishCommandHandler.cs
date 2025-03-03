@@ -23,7 +23,7 @@ internal sealed class FormPublishCommandHandler(IFormRepository formRepository, 
             return ResultT<ResultResponse>.Failure(ResultType.DomainValidation, resultUpdate.Errors);
         }
 
-        var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(cancellationToken);
+        var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(nameof(FormPublishCommandHandler),cancellationToken);
         if (resultTransaction.IsFailure)
         {
             return ResultT<ResultResponse>.Failure(resultTransaction.ResultType, resultTransaction.Errors);

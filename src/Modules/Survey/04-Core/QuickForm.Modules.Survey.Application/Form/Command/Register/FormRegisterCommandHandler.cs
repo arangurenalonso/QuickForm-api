@@ -20,7 +20,7 @@ internal sealed class FormRegisterCommandHandler(IFormRepository formRepository,
         formRepository.Insert(formCreated.Value);
 
 
-        var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(cancellationToken);
+        var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(nameof(FormRegisterCommandHandler),cancellationToken);
         if (resultTransaction.IsFailure)
         {
             return ResultT<ResultResponse>.Failure(resultTransaction.ResultType, resultTransaction.Errors);

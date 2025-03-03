@@ -25,7 +25,10 @@ public record ExpirationDate
 
         return new ExpirationDate(expirationDate.Value);
     }
-
+    public static ExpirationDate FromDatabase(DateTime value)
+    {
+        return new ExpirationDate(value);
+    }
     public bool IsExpired() => DateTime.UtcNow >= Value;
 
     public static implicit operator DateTime(ExpirationDate expirationDate) => expirationDate.Value;

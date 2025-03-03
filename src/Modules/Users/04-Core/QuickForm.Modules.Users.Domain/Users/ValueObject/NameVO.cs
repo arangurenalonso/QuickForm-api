@@ -1,7 +1,7 @@
 ﻿using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Users.Domain;
-public sealed record NameVO
+public sealed record NameVO 
 {
 
     public string Value { get; }
@@ -9,6 +9,10 @@ public sealed record NameVO
     private NameVO(string value)
     {
         Value = value;
+    }
+
+    public NameVO()
+    {
     }
 
     public static ResultT<NameVO> Create(string? name)

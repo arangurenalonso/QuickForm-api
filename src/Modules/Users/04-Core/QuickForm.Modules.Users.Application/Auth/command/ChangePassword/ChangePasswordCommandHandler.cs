@@ -38,7 +38,7 @@ public class ChangePasswordCommandHandler(
             return ResultT<ResultResponse>.Failure(transactionResut.ResultType,transactionResut.Errors);
         }
 
-        var confirmTransactionResult =await _unitOfWork.SaveChangesWithResultAsync(cancellationToken);
+        var confirmTransactionResult =await _unitOfWork.SaveChangesWithResultAsync(nameof(ChangePasswordCommandHandler), cancellationToken);
         if (confirmTransactionResult.IsFailure)
         {
             return ResultT<ResultResponse>.Failure(transactionResut.ResultType, transactionResut.Errors);

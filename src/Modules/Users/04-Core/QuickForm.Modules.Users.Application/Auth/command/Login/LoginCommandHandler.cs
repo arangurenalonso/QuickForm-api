@@ -30,7 +30,12 @@ public class LoginCommandHandler(
     }
     private async Task<ResultT<UserDomain>> ValidateInputData(string email)
     {
-        var user = await _userRepository.GetByEmailAsync(email);
+        var emailVO = EmailVO.Create(email);
+        if (emailVO.IsFailure)
+        {
+            return ResultT<UserDomain>.Failure(ResultType.DomainValidation, emailVO.Errors);
+        }
+        var user = await _userRepository.GetByEmailAsync(emailVO.Value);
         if (user is null)
         {
             var error = ResultError.NullValue("Email", $"User with email '{email}' not found.");
@@ -59,7 +64,7 @@ public class LoginCommandHandler(
     }
     private ResultT<string> CreateAuthenticationResult(UserDomain user)
     {
-        var resultTokenGenerate= _tokenService.GenerateToken(user.Id.Value,user.Name.Value,user.LastName?.Value,user.Email);
+        var resultTokenGenerate= _tokenService.GenerateToken(user.Id.Value,user.Name.Value,user.LastName?.Value,user.Email.Value);
         if (resultTokenGenerate.IsFailure)
         {
             return ResultT<string>.Failure(resultTokenGenerate.ResultType, resultTokenGenerate.Errors);

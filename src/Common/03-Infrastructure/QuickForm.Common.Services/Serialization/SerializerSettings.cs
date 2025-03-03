@@ -12,7 +12,7 @@ public static class SerializerSettings
     {
         TypeNameHandling = TypeNameHandling.None, // ✅ Evita agregar metadatos innecesarios
         MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
-        NullValueHandling = NullValueHandling.Ignore, // Opcional: Ignorar valores nulos
+        NullValueHandling = NullValueHandling.Include, // Opcional: Ignorar valores nulos
         Formatting = Formatting.None // Opcional: Para evitar espacios innecesarios
     };
 }

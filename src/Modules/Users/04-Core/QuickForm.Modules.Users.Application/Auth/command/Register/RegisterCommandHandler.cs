@@ -29,7 +29,7 @@ public class RegisterCommandHandler(
             return ResultT<ResultResponse>.Failure(newUserResult.ResultType,newUserResult.Errors);
         }
 
-        var transactionResut = await _unitOfWork.SaveChangesWithResultAsync(cancellationToken);
+        var transactionResut = await _unitOfWork.SaveChangesWithResultAsync(nameof(RegisterCommandHandler),cancellationToken);
 
         if (transactionResut.IsFailure)
         {
@@ -39,7 +39,12 @@ public class RegisterCommandHandler(
     }
     private async Task<Result> ValidateInputData(string email)
     {
-        if (await _userRepository.IsEmailExistsAsync(email))
+        var emailVO = EmailVO.Create(email);
+        if (emailVO.IsFailure)
+        {
+            return ResultT<UserDomain>.Failure(ResultType.DomainValidation, emailVO.Errors);
+        }
+        if (await _userRepository.IsEmailExistsAsync(emailVO.Value))
         {
             var error = ResultError.DuplicateValueAlreadyInUse("Email",  $"User with email '{email}' already exist");
             return Result.Failure(ResultType.Conflict,error);

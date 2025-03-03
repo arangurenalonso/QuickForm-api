@@ -33,7 +33,7 @@ public class EmailConfirmationCommandHandler(
         _userRepository.Update(user);
         _authActionTokenRepository.Update(authActionToken);
 
-        var result = await _unitOfWork.SaveChangesWithResultAsync(cancellationToken);
+        var result = await _unitOfWork.SaveChangesWithResultAsync(nameof(EmailConfirmationCommandHandler), cancellationToken);
         if (result.IsFailure)
         {
             return ResultT<ResultResponse>.Failure(result.ResultType,result.Errors);

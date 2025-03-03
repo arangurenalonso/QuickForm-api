@@ -21,32 +21,38 @@ public class UserConfiguration : EntityMapBase<UserDomain, UserId>
 
         builder.HasKey(p => p.Id);
 
-        builder.OwnsOne(p => p.Email, emailBuilder =>
-        {
-            emailBuilder.Property(e => e.Value)
+
+        builder.Property(p => p.Email)
                 .HasColumnName("Email")
                 .HasMaxLength(255)
-                .IsRequired();
-        });
+                .IsRequired()
+                .HasConversion(
+                    emailVO => emailVO.Value, 
+                    emailString => EmailVO.Create(emailString).Value
+                    );
 
-        builder.OwnsOne(p => p.PasswordHash, passwordBuilder =>
-        {
-            passwordBuilder.Property(p => p.Value)
+        builder.Property(p => p.PasswordHash)
                 .HasColumnName("PasswordHash")
-                .IsRequired();
-        });
+                .IsRequired()
+                .HasConversion(
+                    passwordVO => passwordVO.Value,
+                    passwordString => PasswordVO.Create(passwordString,null).Value
+                    );
 
-        builder.OwnsOne(p => p.Name, nameBuilder =>
-        {
-            nameBuilder.Property(n => n.Value)
-                .HasColumnName("Name");
-        });
+        builder.Property(p => p.Name)
+                .HasColumnName("Name")
+                .HasConversion(
+                    nameVO => nameVO.Value,
+                    nameString => NameVO.Create(nameString).Value
+                    );
 
-        builder.OwnsOne(p => p.LastName, lastNameBuilder =>
-        {
-            lastNameBuilder.Property(l => l.Value)
-                .HasColumnName("LastName");
-        });
+        builder.Property(p => p.LastName)
+                .HasColumnName("LastName")
+                .HasConversion(
+                    lastNameVO => lastNameVO==null?null: lastNameVO.Value,
+                    lastNameString => LastNameVO.Create(lastNameString).Value
+                    );
+
         builder.HasMany(ua => ua.AuthActionTokens)
             .WithOne(uat => uat.User)
             .HasForeignKey(uat => uat.IdUser)

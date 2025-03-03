@@ -1,9 +1,13 @@
 ﻿using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Users.Domain;
-public sealed class EmailVO
+public sealed record EmailVO 
 {
     public string Value { get; }
+
+    public EmailVO()
+    {
+    }
 
     private EmailVO(string value)
     {

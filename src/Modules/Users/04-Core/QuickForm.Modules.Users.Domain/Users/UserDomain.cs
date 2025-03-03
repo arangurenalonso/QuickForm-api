@@ -63,7 +63,7 @@ public sealed class UserDomain : BaseDomainEntity<UserId>
 
     public Result ChangePassword(
         string newPassword, 
-        IPasswordHashingService passwordHashingService)
+        IPasswordHashingService? passwordHashingService=null)
     {
         var passwordResult = PasswordVO.Create(newPassword, passwordHashingService);
         if (passwordResult.IsFailure)

@@ -61,7 +61,7 @@ internal sealed class AuthActionDomainEventHandler(
         var personalizedHtml = htmlTemplate
             .Replace("{{name}}", user.Name)
             .Replace("{{link_confirm}}", $"{_commonOptionsProvider.GetFrontEndApplicationUrl().ToString()}auth/email-confirmation?token={token}&email={user.Email.Value}");
-        await _azureCommunicationEmailService.SendEmailAsync(user.Email, "Email Confirmation", personalizedHtml);
+        await _azureCommunicationEmailService.SendEmailAsync(user.Email.Value, "Email Confirmation", personalizedHtml);
 
     }
 
@@ -82,6 +82,6 @@ internal sealed class AuthActionDomainEventHandler(
         var personalizedHtml = htmlTemplate
             .Replace("{{link_reset}}", $"{_commonOptionsProvider.GetFrontEndApplicationUrl().ToString()}auth/reset-password?token={token}&email={user.Email.Value}");
 
-        await _azureCommunicationEmailService.SendEmailAsync(user.Email, "Password Reset", personalizedHtml);
+        await _azureCommunicationEmailService.SendEmailAsync(user.Email.Value, "Password Reset", personalizedHtml);
     }
 }

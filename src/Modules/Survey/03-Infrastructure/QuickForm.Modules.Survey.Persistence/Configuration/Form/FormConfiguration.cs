@@ -20,20 +20,25 @@ public class FormConfiguration : IEntityTypeConfiguration<FormDomain>
 
         builder.HasKey(p => p.Id);
 
-        builder.OwnsOne(p => p.Name, nameBuilder =>
-        {
-            nameBuilder.Property(n => n.Value)
+
+        builder.Property(p => p.Name)
                 .HasColumnName("Name")
                 .HasMaxLength(255)
-                .IsRequired();
-        });
+                .IsRequired()
+                .HasConversion(
+                    nameVO => nameVO.Value,
+                    nameString => FormNameVO.Create(nameString).Value
+                    );
 
-        builder.OwnsOne(p => p.Description, descriptionBuilder =>
-        {
-            descriptionBuilder.Property(d => d.Value)
+        builder.Property(p => p.Description)
                 .HasColumnName("Description")
-                .HasMaxLength(500);
-        });
+                .HasMaxLength(500)
+                .IsRequired()
+                .HasConversion(
+                    formDescriptionVO => formDescriptionVO.Value,
+                    formDescription => FormDescription.Create(formDescription).Value
+                    );
+
 
         builder.Property(p => p.IsPublished)
             .HasColumnName("IsPublished")

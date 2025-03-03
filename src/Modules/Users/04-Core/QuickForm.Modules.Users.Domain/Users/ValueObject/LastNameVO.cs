@@ -1,7 +1,7 @@
 ﻿using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Users.Domain;
-public sealed record LastNameVO
+public sealed record LastNameVO 
 {
 
     public string Value { get; }
@@ -10,11 +10,9 @@ public sealed record LastNameVO
     {
         Value = value;
     }
-    private LastNameVO()
+    public LastNameVO()
     {
-        Value = string.Empty;
     }
-
     public static ResultT<LastNameVO> Create(string? name)
     {
         if (string.IsNullOrWhiteSpace(name))

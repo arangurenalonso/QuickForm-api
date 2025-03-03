@@ -36,20 +36,24 @@ public class AuthActionTokenConfiguration : IEntityTypeConfiguration<AuthActionT
                 ))
             .IsRequired();
 
-        builder.OwnsOne(uat => uat.Token, tokenBuilder =>
-        {
-            tokenBuilder.Property(t => t.Value)
+
+        builder.Property(p => p.Token)
                 .HasColumnName("Token")
                 .HasMaxLength(255)
-                .IsRequired();
-        });
+                .IsRequired()
+                .HasConversion(
+                    tokenVO => tokenVO.Value,
+                    tokenStirng => TokenVO.Create(tokenStirng).Value
+                    );
 
-        builder.OwnsOne(uat => uat.ExpiresAt, expiresAtBuilder =>
-        {
-            expiresAtBuilder.Property(e => e.Value)
+        builder.Property(p => p.ExpiresAt)
                 .HasColumnName("ExpiresAt")
-                .IsRequired();
-        });
+                .IsRequired()
+                .HasConversion(
+                    new ValueConverter<ExpirationDate, DateTime>(
+                        dateEnd => dateEnd.Value,
+                        date => ExpirationDate.FromDatabase(date) 
+                    ));
 
         builder.Property(uat => uat.Used)
             .HasColumnName("Used")

@@ -19,7 +19,7 @@ public class AuditLog
     public string? ChangesValue { get; private set; }
     public Guid TransactionId { get; private set; }
     public string UserTransaction { get; private set; }
-
+    public string OriginClass { get; private set; }
     private AuditLog()
     {
     }
@@ -34,7 +34,8 @@ public class AuditLog
         string? currentValue,
         string? changesValue,
         Guid transactionId,
-        string userTransaction
+        string userTransaction,
+        string originClass
         ) 
     {
         Id = id;
@@ -48,6 +49,7 @@ public class AuditLog
         ChangesValue = changesValue;
         TransactionId = transactionId;
         UserTransaction = userTransaction;
+        OriginClass = originClass;
 
     }
 
@@ -61,7 +63,8 @@ public class AuditLog
                                    string? currentValue,
                                    string? changesValue,
                                    Guid transactionId,
-                                   string userTransaction)
+                                   string userTransaction,
+                                   string originClass)
     {
         var auditLog = new AuditLog(id,
                                     idEntity,
@@ -73,7 +76,8 @@ public class AuditLog
                                     currentValue,
                                     type == AuditOperacionType.Added ? null : changesValue,
                                     transactionId,
-                                    userTransaction);
+                                    userTransaction,
+                                    originClass);
         return auditLog;
     }
 }

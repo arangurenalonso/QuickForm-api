@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 
 namespace QuickForm.Modules.Users.Domain;
-public sealed record PasswordVO
+public sealed record PasswordVO 
 {
     public string Value { get; }
 
@@ -17,11 +17,20 @@ public sealed record PasswordVO
         Value = value;
     }
 
-    public static ResultT<PasswordVO> Create(string? password, IPasswordHashingService passwordHashingService)
+    public PasswordVO()
+    {
+    }
+
+    public static ResultT<PasswordVO> Create(string? password,
+        IPasswordHashingService? passwordHashingService = null)
     {
         if (string.IsNullOrWhiteSpace(password))
         {
             return ResultError.EmptyValue("Password", "Password cannot be null or empty.");
+        }
+        if (passwordHashingService is null)
+        {
+            return new PasswordVO(password);
         }
 
         var reasons = ValidatePassword(password);

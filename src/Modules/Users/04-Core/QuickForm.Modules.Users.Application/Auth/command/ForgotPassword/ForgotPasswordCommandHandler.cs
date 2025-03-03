@@ -25,7 +25,7 @@ public class ForgotPasswordCommandHandler(
 
         userRepository.Update(user);
 
-        var result = await _unitOfWork.SaveChangesWithResultAsync(cancellationToken);
+        var result = await _unitOfWork.SaveChangesWithResultAsync(nameof(ForgotPasswordCommandHandler),cancellationToken);
         if (result.IsFailure)
         {
             return ResultT<ResultResponse>.Failure(result.ResultType,result.Errors);
@@ -35,7 +35,12 @@ public class ForgotPasswordCommandHandler(
     }
     private async Task<ResultT<UserDomain>> GetUser(string email)
     {
-        var user = await userRepository.GetByEmailWithActiveAuthActionsAsync(email, _dateTimeProvider.UtcNow);
+        var emailVO=EmailVO.Create(email);
+        if (emailVO.IsFailure)
+        {
+            return ResultT<UserDomain>.Failure(ResultType.DomainValidation, emailVO.Errors);
+        }
+        var user = await userRepository.GetByEmailWithActiveAuthActionsAsync(emailVO.Value, _dateTimeProvider.UtcNow);
         if (user is null)
         {
             var error = ResultError.InvalidInput("Email", $"User with email '{email}' not found");
