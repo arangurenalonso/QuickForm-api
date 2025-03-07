@@ -9,7 +9,6 @@ public static class OptionsServiceRegistration
 
         services.ConfigureOptions<OutboxOptionsSetup>();
         services.ConfigureOptions<InboxOptionsSetup>();
-        services.ConfigureOptions<JwtOptionsSetup>();
         return services;
     }
 }

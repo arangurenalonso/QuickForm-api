@@ -1,5 +1,5 @@
 ﻿
-namespace QuickForm.Modules.Users.Options;
+namespace QuickForm.Common.Infrastructure;
 public class JwtOptions
 {
     public string Issuer { get; init; }

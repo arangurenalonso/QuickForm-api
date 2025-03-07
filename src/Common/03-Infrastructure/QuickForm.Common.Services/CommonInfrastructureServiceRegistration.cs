@@ -1,8 +1,11 @@
-﻿using Azure.Storage.Blobs;
+﻿using System.Text;
+using Azure.Storage.Blobs;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.IdentityModel.Tokens;
 using Quartz;
 using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
@@ -16,6 +19,7 @@ public static class CommonInfrastructureServiceRegistration
         IConfiguration configuration
         )
     {
+        services.AddAuthenticationInternal();
         services.AddSingleton(x => new BlobServiceClient(configuration["Common:AzureBlobStorage:ConnectionString"]));
 
         services.ConfigureOptions<ApplicationUrlsOptionsSetUp>();
@@ -23,7 +27,6 @@ public static class CommonInfrastructureServiceRegistration
 
         services.AddScoped<IDateTimeProvider, DateTimeProvider>();
         services.AddScoped<IPasswordHashingService, PasswordHashingService>();
-        services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IAzureBlobStorageService, AzureBlobStorageService>();
         services.AddScoped<IAzureCommunicationEmailService, AzureCommunicationEmailService>();
         services.AddScoped<ICommonOptionsProvider, CommonOptionsProvider>();
@@ -39,6 +42,58 @@ public static class CommonInfrastructureServiceRegistration
         services.AddQuartz();
         services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
 
+        return services;
+    }
+    private static IServiceCollection AddAuthenticationInternal(this IServiceCollection services)
+    {
+        services.ConfigureOptions<JwtOptionsSetup>();
+
+        services.AddAuthorization();
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+            .AddJwtBearer(options =>
+            {
+                var provider = services.BuildServiceProvider();
+                var jwtOptions = provider.GetRequiredService<JwtOptions>();
+
+                options.RequireHttpsMetadata = true;
+                /*
+                 * Si está en true (por defecto):
+                 *  - Requiere HTTPS para obtener los metadatos del Issuer (proveedor de identidad)
+                 *  - Rechaza HTTP y lanza una excepción si el servidor de autenticación no usa https://.
+                 * Si está en false:
+                 *  - Permite HTTP para obtener metadatos, útil en entornos de desarrollo donde no hay HTTPS
+                 * Cuándo ponerlo en false
+                 *  - Entornos de desarrollo donde el servidor de autenticación aún no usa HTTPS
+                 */
+                // Asegurar HTTPS (ajustar si necesario)
+                options.SaveToken = true;
+                options.TokenValidationParameters = new()
+                {
+                    ValidAudience = jwtOptions.Audience,
+                    ValidIssuer = jwtOptions.Issuer,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                    /* 
+                     * Define un margen de tiempo permitido para compensar posibles diferencias de reloj 
+                     * entre el emisor del token (Identity Provider) y el servidor que lo valida
+                     * Por defecto, el valor es 5 minutos.
+                     * ClockSkew = TimeSpan.Zero => Elimina ese margen de tolerancia.
+                     */
+                };
+            });
+
+        services.AddHttpContextAccessor();
+
+        services.TryAddSingleton<ICurrentUserService, CurrentUserService>();
         return services;
     }
     private static IServiceCollection AddIntegrationEvents(

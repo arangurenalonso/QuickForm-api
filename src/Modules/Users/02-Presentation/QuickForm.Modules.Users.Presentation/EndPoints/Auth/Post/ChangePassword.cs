@@ -20,7 +20,7 @@ internal sealed class ChangePassword : IEndpoint
 
             return result.Match(Results.Ok, ApiResults.Problem);
         })
-        .AllowAnonymous()
+        .RequireAuthorization()
         .WithTags(Tags.Auth);
     }
 

@@ -10,6 +10,13 @@
     "ApplicationUrls": {
       "WebUrl": "",
       "CurrentApplicationURL": ""
+    },
+    "Jwt": {
+      "Issuer": "",
+      "Audience": "",
+      "SecretKey": "",
+      "Subject": "",
+      "ExpirationTimeInHours": 8
     }
   }
 }

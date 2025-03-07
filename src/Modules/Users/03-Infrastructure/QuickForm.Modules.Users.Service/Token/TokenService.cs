@@ -4,7 +4,6 @@ using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
 using QuickForm.Common.Domain.Method;
 using QuickForm.Modules.Users.Application;
-using QuickForm.Modules.Users.Options;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;

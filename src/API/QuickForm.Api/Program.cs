@@ -42,9 +42,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.MapEndpoints();
+
 app.UseExceptionHandler();
 
-app.MapEndpoints();
+app.UseAuthentication();    
+app.UseAuthorization();
 
 app.Run();
 
