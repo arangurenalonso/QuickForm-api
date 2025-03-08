@@ -30,8 +30,9 @@ public class CurrentUserService(IHttpContextAccessor _httpContextAccessor) : ICu
             {
                 return string.Empty;
             }
-            var token = authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
-                ? authorizationHeader.Substring("Bearer ".Length).Trim()
+            const string bearerPrefix = "Bearer ";
+            var token = authorizationHeader.StartsWith(bearerPrefix, StringComparison.OrdinalIgnoreCase)
+                ? authorizationHeader.Substring(bearerPrefix.Length).Trim()
                 : string.Empty;
 
             return token;

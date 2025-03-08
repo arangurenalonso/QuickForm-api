@@ -19,14 +19,17 @@ Assembly[] moduleApplicationAssemblies = [
     QuickForm.Modules.Survey.Application.AssemblyReference.Assembly,
     ];
 
-builder.Services.AddCommonServicesServices(
-    [
-        SurveyModule.ConfigureConsumers
-    ], builder.Configuration);
-builder.Services.AddApplication(moduleApplicationAssemblies);
+
 
 builder.Configuration.AddModuleConfiguration(["users", "survey", "common"]);
 
+string environment = builder.Configuration["Common:environment"] ?? "";
+
+builder.Services.AddCommonServicesServices(
+    [
+        SurveyModule.ConfigureConsumers
+    ], builder.Configuration, environment);
+builder.Services.AddApplication(moduleApplicationAssemblies);
 builder.Services.AddUsersModule(builder.Configuration);
 builder.Services.AddSurveyModule(builder.Configuration);
 

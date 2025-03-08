@@ -1,5 +1,6 @@
 ﻿using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
+using QuickForm.Common.Domain.Method;
 using QuickForm.Modules.Users.Domain;
 
 namespace QuickForm.Modules.Users.Application;
@@ -64,11 +65,20 @@ public class LoginCommandHandler(
     }
     private ResultT<string> CreateAuthenticationResult(UserDomain user)
     {
-        var resultTokenGenerate= _tokenService.GenerateToken(user.Id.Value,user.Name.Value,user.LastName?.Value,user.Email.Value);
-        if (resultTokenGenerate.IsFailure)
+
+        try
         {
-            return ResultT<string>.Failure(resultTokenGenerate.ResultType, resultTokenGenerate.Errors);
+            var resultTokenGenerate = _tokenService.GenerateToken(user.Id.Value, user.Name.Value, user.LastName?.Value, user.Email.Value);
+
+            if (resultTokenGenerate.IsFailure)
+            {
+                return ResultT<string>.Failure(resultTokenGenerate.ResultType, resultTokenGenerate.Errors);
+            }
+            return resultTokenGenerate.Value;
         }
-        return resultTokenGenerate.Value;
+        catch (Exception e)
+        {
+            return CommonMethods.ConvertExceptionToResult(e, "Token");
+        }
     }
 }
