@@ -45,7 +45,7 @@ public sealed class SurveyDbContext(DbContextOptions<SurveyDbContext> options) :
         catch (Exception e)
         {
             var listResultError = CommonMethods.ConvertExceptionToResult(e, "Database Transaction");
-            return ResultT<int>.Failure(ResultType.DataBaseTransaction, listResultError);
+            return ResultT<int>.FailureT(ResultType.DataBaseTransaction, listResultError);
         }
     }
 }

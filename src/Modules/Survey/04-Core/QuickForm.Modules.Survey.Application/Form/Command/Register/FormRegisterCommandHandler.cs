@@ -14,7 +14,7 @@ internal sealed class FormRegisterCommandHandler(IFormRepository formRepository,
 
         if (formCreated.IsFailure)
         {
-            return ResultT<ResultResponse>.Failure(ResultType.DomainValidation, formCreated.Errors);
+            return ResultT<ResultResponse>.FailureT(ResultType.DomainValidation, formCreated.Errors);
         }
 
         formRepository.Insert(formCreated.Value);
@@ -23,7 +23,7 @@ internal sealed class FormRegisterCommandHandler(IFormRepository formRepository,
         var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(nameof(FormRegisterCommandHandler),cancellationToken);
         if (resultTransaction.IsFailure)
         {
-            return ResultT<ResultResponse>.Failure(resultTransaction.ResultType, resultTransaction.Errors);
+            return ResultT<ResultResponse>.FailureT(resultTransaction.ResultType, resultTransaction.Errors);
         }
         var formId = formCreated.Value.Id; // Asegúrate de que `Id` existe en `FormDomain`
 

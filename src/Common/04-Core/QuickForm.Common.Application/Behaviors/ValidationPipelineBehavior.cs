@@ -22,7 +22,7 @@ internal sealed class ValidationPipelineBehavior<TRequest, TResponse>(
             return await next();
         }
 
-        var errors = validationFailures.Select(validationFailure => 
+        List<ResultError> errors = validationFailures.Select(validationFailure => 
                                                     ResultError.InvalidInput(
                                                         validationFailure.PropertyName,
                                                         validationFailure.ErrorMessage
@@ -35,11 +35,11 @@ internal sealed class ValidationPipelineBehavior<TRequest, TResponse>(
 
             MethodInfo? failureMethod = typeof(ResultT<>)
                 .MakeGenericType(resultType)
-                .GetMethod(nameof(ResultT<object>.Failure));
+                .GetMethod(nameof(ResultT<object>.FailureTListResultError));
 
             if (failureMethod is not null)
             {
-                return (TResponse)failureMethod.Invoke(null, new object[] { errors,ResultType.FluentValidation });
+                return (TResponse)failureMethod.Invoke(null, new object[] { ResultType.FluentValidation,errors });
             }
         }
         else if (typeof(TResponse) == typeof(Result))

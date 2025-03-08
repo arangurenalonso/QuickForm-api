@@ -9,43 +9,49 @@ public class LoginCommandHandler(
     IPasswordHashingService _passwordHashingService,
     ITokenService _tokenService,
     IUserRepository _userRepository
-    ) : ICommandHandler<LoginCommand, string>
+    ) : ICommandHandler<LoginCommand, ResultTResponse<string>>
 {
 
-    public async Task<ResultT<string>> Handle(LoginCommand request, CancellationToken cancellationToken)
+    public async Task<ResultT<ResultTResponse<string>>> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
         var resultUser = await ValidateInputData(request.Email);
         if (resultUser.IsFailure)
         {
-            return ResultT<string>.Failure(resultUser.ResultType, resultUser.Errors);
+            return ResultT<ResultTResponse<string>>.FailureT(resultUser.ResultType, resultUser.Errors);
         }
         var user = resultUser.Value;
 
         var resultPassword = ValidatePassword(user, request.Password);
         if (resultPassword.IsFailure)
         {
-            return ResultT<string>.Failure(resultPassword.ResultType,resultPassword.Errors);
+            return ResultT<ResultTResponse<string>>.FailureT(resultPassword.ResultType,resultPassword.Errors);
         }
 
-        return CreateAuthenticationResult(user);
+        var resultToken = CreateAuthenticationResult(user);
+        if (resultToken.IsFailure)
+        {
+            return ResultT<ResultTResponse<string>>.FailureT(resultToken.ResultType, resultToken.Errors);
+        }
+        var token = resultToken.Value;
+        return ResultTResponse<string>.Success(token);
     }
     private async Task<ResultT<UserDomain>> ValidateInputData(string email)
     {
         var emailVO = EmailVO.Create(email);
         if (emailVO.IsFailure)
         {
-            return ResultT<UserDomain>.Failure(ResultType.DomainValidation, emailVO.Errors);
+            return ResultT<UserDomain>.FailureT(ResultType.DomainValidation, emailVO.Errors);
         }
         var user = await _userRepository.GetByEmailAsync(emailVO.Value);
         if (user is null)
         {
             var error = ResultError.NullValue("Email", $"User with email '{email}' not found.");
-            return ResultT<UserDomain>.Failure(ResultType.NotFound,error);
+            return ResultT<UserDomain>.FailureT(ResultType.NotFound,error);
         }
         if (!user.IsEmailVerify)
         {
             var error = ResultError.InvalidOperation("Email", "Email has not been verified. Please verify your email to proceed.");
-            return ResultT<UserDomain>.Failure(ResultType.DomainValidation, error);
+            return ResultT<UserDomain>.FailureT(ResultType.DomainValidation, error);
 
         }
         return user;
@@ -72,7 +78,7 @@ public class LoginCommandHandler(
 
             if (resultTokenGenerate.IsFailure)
             {
-                return ResultT<string>.Failure(resultTokenGenerate.ResultType, resultTokenGenerate.Errors);
+                return ResultT<string>.FailureT(resultTokenGenerate.ResultType, resultTokenGenerate.Errors);
             }
             return resultTokenGenerate.Value;
         }

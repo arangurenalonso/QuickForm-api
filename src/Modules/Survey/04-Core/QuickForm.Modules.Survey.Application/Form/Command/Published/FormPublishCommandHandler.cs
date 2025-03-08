@@ -13,20 +13,20 @@ internal sealed class FormPublishCommandHandler(IFormRepository formRepository, 
         if (form == null)
         {
             var error = ResultError.NullValue("FormId", $"Form with id '{request.Id}' not found.");
-            return ResultT<ResultResponse>.Failure(ResultType.NotFound, error);
+            return ResultT<ResultResponse>.FailureT(ResultType.NotFound, error);
         }
 
         var resultUpdate = form.Publish(false);
 
         if (resultUpdate.IsFailure)
         {
-            return ResultT<ResultResponse>.Failure(ResultType.DomainValidation, resultUpdate.Errors);
+            return ResultT<ResultResponse>.FailureT(ResultType.DomainValidation, resultUpdate.Errors);
         }
 
         var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(nameof(FormPublishCommandHandler),cancellationToken);
         if (resultTransaction.IsFailure)
         {
-            return ResultT<ResultResponse>.Failure(resultTransaction.ResultType, resultTransaction.Errors);
+            return ResultT<ResultResponse>.FailureT(resultTransaction.ResultType, resultTransaction.Errors);
         }
 
         return ResultResponse.Success($"Form id '{request.Id}' published successfully.");

@@ -15,7 +15,7 @@ public static class ApplicationConfiguration
             config.RegisterServicesFromAssemblies(moduleApplicationAssemblies);
 
             config.AddOpenBehavior(typeof(ExceptionHandlingPipelineBehavior<,>));
-            config.AddOpenBehavior(typeof(RequestLoggingPipelineBehavior<,>));
+            //config.AddOpenBehavior(typeof(RequestLoggingPipelineBehavior<,>))
             config.AddOpenBehavior(typeof(ValidationPipelineBehavior<,>));
         });
 

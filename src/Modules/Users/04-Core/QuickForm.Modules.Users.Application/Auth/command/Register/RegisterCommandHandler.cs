@@ -16,7 +16,7 @@ public class RegisterCommandHandler(
         var resultValidateInputData = await ValidateInputData(request.Email);
         if (resultValidateInputData.IsFailure)
         {
-            return ResultT<ResultResponse>.Failure(resultValidateInputData.ResultType,resultValidateInputData.Errors);
+            return ResultT<ResultResponse>.FailureT(resultValidateInputData.ResultType,resultValidateInputData.Errors);
         }
 
         var newUserResult = CreateUser(
@@ -26,14 +26,14 @@ public class RegisterCommandHandler(
             request.Password);
         if (newUserResult.IsFailure)
         {
-            return ResultT<ResultResponse>.Failure(newUserResult.ResultType,newUserResult.Errors);
+            return ResultT<ResultResponse>.FailureT(newUserResult.ResultType,newUserResult.Errors);
         }
 
         var transactionResut = await _unitOfWork.SaveChangesWithResultAsync(nameof(RegisterCommandHandler),cancellationToken);
 
         if (transactionResut.IsFailure)
         {
-            return ResultT<ResultResponse>.Failure(transactionResut.ResultType,transactionResut.Errors);
+            return ResultT<ResultResponse>.FailureT(transactionResut.ResultType,transactionResut.Errors);
         }
         return ResultResponse.Success("User created successfully.");
     }
@@ -42,7 +42,7 @@ public class RegisterCommandHandler(
         var emailVO = EmailVO.Create(email);
         if (emailVO.IsFailure)
         {
-            return ResultT<UserDomain>.Failure(ResultType.DomainValidation, emailVO.Errors);
+            return ResultT<UserDomain>.FailureT(ResultType.DomainValidation, emailVO.Errors);
         }
         if (await _userRepository.IsEmailExistsAsync(emailVO.Value))
         {
@@ -69,7 +69,7 @@ public class RegisterCommandHandler(
         if (userDomainResult.IsFailure)
         {
             var errorList = userDomainResult.Errors;
-            return ResultT<UserDomain>.Failure(ResultType.DomainValidation,errorList);
+            return ResultT<UserDomain>.FailureT(ResultType.DomainValidation,errorList);
         }
         var userDomain = userDomainResult.Value;
 

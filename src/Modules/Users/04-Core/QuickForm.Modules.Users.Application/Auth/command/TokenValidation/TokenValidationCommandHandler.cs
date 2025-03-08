@@ -12,7 +12,7 @@ public class TokenValidationCommandHandler(
 
         if (!resultTokenResult.IsSuccess)
         {
-            return ResultT<ResultResponse>.Failure(ResultType.MismatchValidation,resultTokenResult.Errors);
+            return ResultT<ResultResponse>.FailureT(ResultType.MismatchValidation,resultTokenResult.Errors);
         }
 
         return await Task.FromResult(ResultResponse.Success("Validation Token successful."));

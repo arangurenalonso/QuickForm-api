@@ -15,7 +15,7 @@ public class ForgotPasswordCommandHandler(
         var resultUser = await GetUser(request.Email);
         if (resultUser.IsFailure)
         {
-            return ResultT<ResultResponse>.Failure(resultUser.ResultType, resultUser.Errors);
+            return ResultT<ResultResponse>.FailureT(resultUser.ResultType, resultUser.Errors);
         }
         var user = resultUser.Value;
 
@@ -28,7 +28,7 @@ public class ForgotPasswordCommandHandler(
         var result = await _unitOfWork.SaveChangesWithResultAsync(nameof(ForgotPasswordCommandHandler),cancellationToken);
         if (result.IsFailure)
         {
-            return ResultT<ResultResponse>.Failure(result.ResultType,result.Errors);
+            return ResultT<ResultResponse>.FailureT(result.ResultType,result.Errors);
         }
 
         return ResultResponse.Success("Password recovery email sent successfully.");
@@ -38,13 +38,13 @@ public class ForgotPasswordCommandHandler(
         var emailVO=EmailVO.Create(email);
         if (emailVO.IsFailure)
         {
-            return ResultT<UserDomain>.Failure(ResultType.DomainValidation, emailVO.Errors);
+            return ResultT<UserDomain>.FailureT(ResultType.DomainValidation, emailVO.Errors);
         }
         var user = await userRepository.GetByEmailWithActiveAuthActionsAsync(emailVO.Value, _dateTimeProvider.UtcNow);
         if (user is null)
         {
             var error = ResultError.InvalidInput("Email", $"User with email '{email}' not found");
-            return ResultT<UserDomain>.Failure(ResultType.NotFound, error);
+            return ResultT<UserDomain>.FailureT(ResultType.NotFound, error);
         }
         return user;
     }

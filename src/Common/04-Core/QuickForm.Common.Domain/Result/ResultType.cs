@@ -13,6 +13,6 @@ public enum ResultType
     InternalServerError = 22,
     Unauthorized = 23,
     Forbidden = 24,
-    DataBaseTransaction=30
-
+    DataBaseTransaction=30,
+    UnexpectedError=31,
 }

@@ -43,7 +43,7 @@ public sealed class UsersDbContext(DbContextOptions<UsersDbContext> options) : D
         catch (Exception e)
         {
             var listResultError= CommonMethods.ConvertExceptionToResult(e, "Database Transaction");
-            return ResultT<int>.Failure(ResultType.DataBaseTransaction,listResultError);
+            return ResultT<int>.FailureT(ResultType.DataBaseTransaction,listResultError);
         }
     }
 

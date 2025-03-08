@@ -33,6 +33,7 @@ public static class ApiResults
                ResultType.Unauthorized => StatusCodes.Status401Unauthorized,
                ResultType.Forbidden => StatusCodes.Status403Forbidden,
                ResultType.DataBaseTransaction => StatusCodes.Status422UnprocessableEntity,
+               ResultType.UnexpectedError => StatusCodes.Status500InternalServerError,
                _ => StatusCodes.Status500InternalServerError
            };
 

@@ -13,7 +13,7 @@ internal sealed class GetUserQueryHandler(IUserDapperRepository _userDapperRepos
         if (user is null)
         {
             var error = ResultError.NullValue("User", $"User with Id '{request.UserId}' Not Found");
-            return ResultT<UserResponse>.Failure(ResultType.NotFound, error);
+            return ResultT<UserResponse>.FailureT(ResultType.NotFound, error);
         }
 
         return user;

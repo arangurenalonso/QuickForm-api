@@ -14,7 +14,7 @@ public class CurrentUserService(IHttpContextAccessor _httpContextAccessor) : ICu
             {
 
                 var error = ResultError.InvalidInput("UserId", $"User ID not found or invalid. Ensure the authentication token includes 'userId' in its claims");
-                return ResultT<Guid>.Failure(ResultType.NotFound, error);
+                return ResultT<Guid>.FailureT(ResultType.NotFound, error);
             }
 
             return userIdGuid;

@@ -17,14 +17,14 @@ public class EmailConfirmationCommandHandler(
         var authActionTokenResult = await GetAuthActionTokenByToken(request.Token);
         if (authActionTokenResult.IsFailure)
         {
-            return ResultT<ResultResponse>.Failure(authActionTokenResult.ResultType,authActionTokenResult.Errors);
+            return ResultT<ResultResponse>.FailureT(authActionTokenResult.ResultType,authActionTokenResult.Errors);
         }
 
         var authActionToken = authActionTokenResult.Value;
         var userDomainResult = await ValidateInputData(authActionToken.IdUser);
         if (userDomainResult.IsFailure)
         {
-            return ResultT<ResultResponse>.Failure(userDomainResult.ResultType,userDomainResult.Errors);
+            return ResultT<ResultResponse>.FailureT(userDomainResult.ResultType,userDomainResult.Errors);
         }
         var user = userDomainResult.Value;
         user.ConfirmEmail();
@@ -36,7 +36,7 @@ public class EmailConfirmationCommandHandler(
         var result = await _unitOfWork.SaveChangesWithResultAsync(nameof(EmailConfirmationCommandHandler), cancellationToken);
         if (result.IsFailure)
         {
-            return ResultT<ResultResponse>.Failure(result.ResultType,result.Errors);
+            return ResultT<ResultResponse>.FailureT(result.ResultType,result.Errors);
         }
         return ResultResponse.Success("Email confirmed successfully.");
 
@@ -52,7 +52,7 @@ public class EmailConfirmationCommandHandler(
                 "AuthActionToken",
                 $"The email confirmation token '{token}' could not be found. Please ensure that you have entered a valid token."
             );
-            return ResultT<AuthActionTokenDomain>.Failure(ResultType.NotFound, error);
+            return ResultT<AuthActionTokenDomain>.FailureT(ResultType.NotFound, error);
         }
 
         if (authActionToken.Used)
@@ -61,7 +61,7 @@ public class EmailConfirmationCommandHandler(
                 "AuthActionToken",
                 $"The email confirmation token '{token}' has already been used. Please request a new token if needed."
             );
-            return ResultT<AuthActionTokenDomain>.Failure(ResultType.DomainValidation, error);
+            return ResultT<AuthActionTokenDomain>.FailureT(ResultType.DomainValidation, error);
         }
 
         if (authActionToken.ExpiresAt.Value <= _dateTimeProvider.UtcNow)
@@ -70,7 +70,7 @@ public class EmailConfirmationCommandHandler(
                 "AuthActionToken",
                 $"The email confirmation token '{token}' has expired. Please request a new token to proceed with the confirmation."
             );
-            return ResultT<AuthActionTokenDomain>.Failure(ResultType.MismatchValidation,error);
+            return ResultT<AuthActionTokenDomain>.FailureT(ResultType.MismatchValidation,error);
         }
 
         return authActionToken;
@@ -82,13 +82,13 @@ public class EmailConfirmationCommandHandler(
         if (user is null)
         {
             var error = ResultError.NullValue("UserId", $"User with id '{userId}' not found.");
-            return ResultT<UserDomain>.Failure(ResultType.NotFound, error);
+            return ResultT<UserDomain>.FailureT(ResultType.NotFound, error);
         }
         if (user.IsEmailVerify)
         {
             var error = ResultError.InvalidOperation("Email", $"The email associated with the user ID '{userId}' has already been verified. No further action is required.");
 
-            return ResultT<UserDomain>.Failure(ResultType.DomainValidation, error);
+            return ResultT<UserDomain>.FailureT(ResultType.DomainValidation, error);
 
         }
         return user;

@@ -27,7 +27,7 @@ public class AzureBlobStorageService : IAzureBlobStorageService
         if (!await blobClient.ExistsAsync())
         {
             var error = ResultError.NullValue("Blob", $"The Blob '{blobName}' not found.");
-            return ResultT<(Stream, string)>.Failure(ResultType.NotFound, error);
+            return ResultT<(Stream, string)>.FailureT(ResultType.NotFound, error);
         }
 
         Stream contentStream;
@@ -114,7 +114,7 @@ public class AzureBlobStorageService : IAzureBlobStorageService
         if (!containerExist)
         {
             var error = ResultError.NullValue("BlobContainer", $"The BlobContainer '{blobContainerName}' not found.");
-            return ResultT<(Stream, string)>.Failure(ResultType.NotFound, error);
+            return ResultT<(Stream, string)>.FailureT(ResultType.NotFound, error);
 
         }
         return Result.Success();

@@ -33,12 +33,13 @@ public class ResultT<TValue> : Result
     public static implicit operator ResultT<TValue>(ResultErrorList errors) => new ResultT<TValue>(errors);
 
     public static ResultT<TValue> Success(TValue value) => new(value);
-    public static new ResultT<TValue> Failure(ResultError error) => new(error, null);
-    public static new ResultT<TValue> Failure(List<ResultError> errors) => new(errors, null);
-    public static new ResultT<TValue> Failure(ResultErrorList errors) => new(errors, null);
-    public static new ResultT<TValue> Failure(ResultType resultType, ResultError error) => new(error, resultType);
-    public static new ResultT<TValue> Failure(ResultType resultType, List<ResultError> errors) => new(errors, resultType);
-    public static new ResultT<TValue> Failure(ResultType resultType, ResultErrorList errors) => new(errors, resultType);
+    public static ResultT<TValue> FailureT(ResultError error) => new(error, null);
+    public static ResultT<TValue> FailureT(List<ResultError> errors) => new(errors, null);
+    public static ResultT<TValue> FailureT(ResultErrorList errors) => new(errors, null);
+    public static ResultT<TValue> FailureT(ResultType resultType, ResultError error) => new(error, resultType);
+    public static ResultT<TValue> FailureTListResultError(ResultType resultType, List<ResultError> errors) => new(errors, resultType);
+    public static ResultT<TValue> FailureT(ResultType resultType, List<ResultError> errors) => new(errors, resultType);
+    public static ResultT<TValue> FailureT(ResultType resultType, ResultErrorList errors) => new(errors, resultType);
 
 
 }

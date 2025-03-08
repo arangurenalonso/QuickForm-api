@@ -17,31 +17,31 @@ public class ChangePasswordCommandHandler(
         var userConnected = _currentUserService.UserId;
         if (userConnected.IsFailure)
         {
-            return ResultT<ResultResponse>.Failure(userConnected.ResultType,userConnected.Errors);
+            return ResultT<ResultResponse>.FailureT(userConnected.ResultType,userConnected.Errors);
         }
 
         var resultUser = await ValidateInputData(userConnected.Value);
         if (resultUser.IsFailure)
         {
-            return ResultT<ResultResponse>.Failure(resultUser.ResultType,resultUser.Errors);
+            return ResultT<ResultResponse>.FailureT(resultUser.ResultType,resultUser.Errors);
         }
         var user = resultUser.Value;
 
         var resultPassword = ValidatePassword(user, request.CurrentPassword);
         if (resultPassword.IsFailure)
         {
-            return ResultT<ResultResponse>.Failure(resultPassword.ResultType,resultPassword.Errors);
+            return ResultT<ResultResponse>.FailureT(resultPassword.ResultType,resultPassword.Errors);
         }
         var transactionResut = UpdatePassword(user, request.NewPassword);
         if (transactionResut.IsFailure)
         {
-            return ResultT<ResultResponse>.Failure(transactionResut.ResultType,transactionResut.Errors);
+            return ResultT<ResultResponse>.FailureT(transactionResut.ResultType,transactionResut.Errors);
         }
 
         var confirmTransactionResult =await _unitOfWork.SaveChangesWithResultAsync(nameof(ChangePasswordCommandHandler), cancellationToken);
         if (confirmTransactionResult.IsFailure)
         {
-            return ResultT<ResultResponse>.Failure(transactionResut.ResultType, transactionResut.Errors);
+            return ResultT<ResultResponse>.FailureT(transactionResut.ResultType, transactionResut.Errors);
         }
         return ResultResponse.Success("Password changed successfully.");
     }
@@ -52,7 +52,7 @@ public class ChangePasswordCommandHandler(
         if (user is null)
         {
             var error = ResultError.InvalidInput("UserId", $"User with id '{userId}' not found");
-            return ResultT<UserDomain>.Failure(ResultType.NotFound, error);
+            return ResultT<UserDomain>.FailureT(ResultType.NotFound, error);
         }
         return user;
     }
