@@ -9,31 +9,25 @@ public class LoginCommandHandler(
     IPasswordHashingService _passwordHashingService,
     ITokenService _tokenService,
     IUserRepository _userRepository
-    ) : ICommandHandler<LoginCommand, ResultTResponse<string>>
+    ) : ICommandHandler<LoginCommand, string>
 {
 
-    public async Task<ResultT<ResultTResponse<string>>> Handle(LoginCommand request, CancellationToken cancellationToken)
+    public async Task<ResultT<string>> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
         var resultUser = await ValidateInputData(request.Email);
         if (resultUser.IsFailure)
         {
-            return ResultT<ResultTResponse<string>>.FailureT(resultUser.ResultType, resultUser.Errors);
+            return ResultT<string>.FailureT(resultUser.ResultType, resultUser.Errors);
         }
         var user = resultUser.Value;
 
         var resultPassword = ValidatePassword(user, request.Password);
         if (resultPassword.IsFailure)
         {
-            return ResultT<ResultTResponse<string>>.FailureT(resultPassword.ResultType,resultPassword.Errors);
+            return ResultT<string>.FailureT(resultPassword.ResultType,resultPassword.Errors);
         }
 
-        var resultToken = CreateAuthenticationResult(user);
-        if (resultToken.IsFailure)
-        {
-            return ResultT<ResultTResponse<string>>.FailureT(resultToken.ResultType, resultToken.Errors);
-        }
-        var token = resultToken.Value;
-        return ResultTResponse<string>.Success(token);
+        return CreateAuthenticationResult(user);
     }
     private async Task<ResultT<UserDomain>> ValidateInputData(string email)
     {
