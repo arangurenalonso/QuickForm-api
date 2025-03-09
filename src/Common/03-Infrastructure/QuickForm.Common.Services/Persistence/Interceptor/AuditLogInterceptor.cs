@@ -5,15 +5,12 @@ using QuickForm.Common.Domain;
 using QuickForm.Common.Domain.Base;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using MassTransit;
-using Microsoft.EntityFrameworkCore.Metadata;
-using System.Diagnostics;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Reflection;
 
 namespace QuickForm.Common.Infrastructure.Persistence;
 
 public class AuditLogInterceptor(
-        IDateTimeProvider _dateTimeService
+        IDateTimeProvider _dateTimeService,
+        ICurrentUserService _currentUserService
     ) : SaveChangesInterceptor
 {
     public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
@@ -33,17 +30,21 @@ public class AuditLogInterceptor(
         }
         var now = _dateTimeService.UtcNow;
         var auditList = new List<AuditLog>();
-        var transactionId = Guid.NewGuid();
 
         var userConnected = "System";
-       
+        string userFullName = _currentUserService.UserFullName;
+        ResultT<Guid> resultUserId = _currentUserService.UserId;
+        if (resultUserId.IsSuccess)
+        {
+            userConnected = $"{resultUserId.Value.ToString()}|{userFullName}";
+        }
+
         foreach (var entry in context.ChangeTracker.Entries())
         {
-            if (entry.Entity is IBaseDomainEntity)
+            if (entry.Entity is BaseDomainEntity<EntityId> entity)
             {
-                var entityBase = entry.Entity as dynamic;
-                var idEntity = entityBase.EntityId;
-                var originClass = entityBase.OriginClass;
+                Guid idEntity = entity.Id.Value;
+                string originClass = entity.ClassOrigin;
                 switch (entry.State)
                 {
                     case EntityState.Added:
@@ -57,7 +58,7 @@ public class AuditLogInterceptor(
                             null, 
                             JsonPrototype.Serialize(GetPropertiesToDictionary(entry.CurrentValues), SerializerSettings.CleanInstance),
                             null,
-                            transactionId,
+                            entity.TransactionId,
                             userConnected,
                             originClass
                         );
@@ -81,7 +82,7 @@ public class AuditLogInterceptor(
                             JsonPrototype.Serialize(GetPropertiesToDictionary(entry.OriginalValues), SerializerSettings.CleanInstance),
                             JsonPrototype.Serialize(GetPropertiesToDictionary(entry.CurrentValues), SerializerSettings.CleanInstance),
                             JsonPrototype.Serialize(changedValues, SerializerSettings.CleanInstance),
-                            transactionId,
+                            entity.TransactionId,
                             userConnected,
                             originClass
                         );
@@ -101,7 +102,7 @@ public class AuditLogInterceptor(
                             JsonPrototype.Serialize(GetPropertiesToDictionary(entry.OriginalValues), SerializerSettings.CleanInstance),
                             null,
                             null,
-                            transactionId,
+                            entity.TransactionId,
                             userConnected,
                             originClass
                         );

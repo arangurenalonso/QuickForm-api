@@ -18,6 +18,7 @@ public abstract class BaseDomainEventEntity
     {
         _domainEvents.Add(domainEvent);
     }
+    public abstract TrackingInfo GetTrackingInfo();
 
 }
 

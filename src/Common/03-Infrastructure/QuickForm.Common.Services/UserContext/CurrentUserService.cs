@@ -20,6 +20,15 @@ public class CurrentUserService(IHttpContextAccessor _httpContextAccessor) : ICu
             return userIdGuid;
         }
     }
+    public string UserFullName
+    {
+        get
+        {
+            var name= _httpContextAccessor.HttpContext?.User.GetClaim("name") ?? string.Empty;
+            var lastName = _httpContextAccessor.HttpContext?.User.GetClaim("lastName") ?? string.Empty;
+            return $"{name} {lastName}";
+        }
+    }
     public List<string> Roles => _httpContextAccessor?.HttpContext?.User?.FindAll("rol").Select(c => c.Value).ToList() ?? [];
     public string AuthenticationToken
     {

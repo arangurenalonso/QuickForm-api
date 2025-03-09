@@ -4,13 +4,13 @@ namespace QuickForm.Modules.Users.IntegrationEvents;
 public sealed class UserRegisteredIntegrationEvent : IntegrationEvent
 {
     public UserRegisteredIntegrationEvent(
-        Guid id,
+        Guid idDomainEvent,
         DateTime occurredOnUtc,
         Guid userId,
         string email,
         string firstName,
         string lastName)
-        : base(id, occurredOnUtc)
+        : base(Guid.NewGuid(), occurredOnUtc, idDomainEvent)
     {
         UserId = userId;
         Email = email;

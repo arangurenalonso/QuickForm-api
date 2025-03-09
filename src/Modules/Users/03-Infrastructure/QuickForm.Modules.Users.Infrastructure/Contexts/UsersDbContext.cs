@@ -26,15 +26,17 @@ public sealed class UsersDbContext(DbContextOptions<UsersDbContext> options) : D
         modelBuilder.ApplyConfiguration(new OutboxMessageConsumerConfiguration());
         base.OnModelCreating(modelBuilder);
     }
-    public async Task<ResultT<int>> SaveChangesWithResultAsync(string originClass, CancellationToken cancellationToken = default)
+    public async Task<ResultT<int>> SaveChangesWithResultAsync(string classOrigin, CancellationToken cancellationToken = default)
     {
         try
         {
+            Guid transactionId=Guid.NewGuid();
             foreach (var entry in ChangeTracker.Entries())
             {
-                if (entry.Entity is IBaseDomainEntity)
+                if (entry.Entity is ITrackableEntity entity)
                 {
-                    (entry.Entity as dynamic).OriginClass = originClass;
+                    entity.ClassOrigin = classOrigin;
+                    entity.TransactionId = transactionId;
                 }
             }
             var result = await base.SaveChangesAsync(cancellationToken);

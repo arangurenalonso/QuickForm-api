@@ -5,7 +5,8 @@ using QuickForm.Common.Domain;
 
 namespace QuickForm.Common.Infrastructure;
 public class AuditFieldsInterceptor(
-        IDateTimeProvider _dateTimeService
+        IDateTimeProvider _dateTimeService,
+        ICurrentUserService _currentUserService
     ) : SaveChangesInterceptor
 {
     public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
@@ -22,11 +23,16 @@ public class AuditFieldsInterceptor(
 
     public void UpdateEntities(DbContext context)
     {
-
+        var userConnected = "System";
+        string userFullName = _currentUserService.UserFullName;
+        ResultT<Guid> resultUserId= _currentUserService.UserId;
+        if (resultUserId.IsSuccess)
+        {
+            userConnected = $"{resultUserId.Value.ToString()}|{userFullName}";
+        }
         var now = _dateTimeService.UtcNow;
         foreach (var entry in context.ChangeTracker.Entries<BaseAuditableEntity>())
         {
-            var userConnected = "System";
 
             switch (entry.State)
             {

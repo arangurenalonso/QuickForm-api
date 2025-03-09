@@ -10,4 +10,6 @@ public sealed class OutboxMessage
     public OutboxStatus Status { get; set; }
     public DateTime? ProcessedOnUtc { get; init; }
     public string? Error { get; init; }
+    public string ClassOrigin { get; set; }
+    public Guid TransactionId { get; set; }
 }

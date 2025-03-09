@@ -3,7 +3,7 @@ using QuickForm.Common.Domain.Base;
 
 namespace QuickForm.Common.Domain;
 
-public abstract class BaseDomainEntity<TEntityId> : BaseAuditableEntity, IBaseDomainEntity
+public abstract class BaseDomainEntity<TEntityId> : BaseAuditableEntity, ITrackableEntity
     where TEntityId : EntityId
 {
     public TEntityId Id { get; init; }
@@ -14,19 +14,15 @@ public abstract class BaseDomainEntity<TEntityId> : BaseAuditableEntity, IBaseDo
 
     protected BaseDomainEntity() { }
 
-    [NotMapped]
-    public Guid EntityId =>  Id.Value;
+
 
     [NotMapped]
-
-    private string _originClass = string.Empty;
+    public string ClassOrigin { get; set; }
 
     [NotMapped]
-    public string OriginClass
-    {
-        get => _originClass;
-        set => _originClass = value;
-    }   
+    public Guid TransactionId { get;set; }
 
+    public override TrackingInfo GetTrackingInfo()
+        => new TrackingInfo(ClassOrigin, TransactionId);
 }
 

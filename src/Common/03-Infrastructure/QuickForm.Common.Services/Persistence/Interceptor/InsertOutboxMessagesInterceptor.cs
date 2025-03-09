@@ -23,7 +23,7 @@ public sealed class InsertOutboxMessagesInterceptor : SaveChangesInterceptor
     {
 
         // Get the tracked entities of type BaseDomainModel<AuditableEntity>
-        var trackedEntities = context.ChangeTracker
+        List<BaseDomainEventEntity> trackedEntities = context.ChangeTracker
             .Entries<BaseDomainEventEntity>()
             .Select(entry => entry.Entity)
             .ToList();
@@ -38,26 +38,39 @@ public sealed class InsertOutboxMessagesInterceptor : SaveChangesInterceptor
                 // Clear domain events from the entity
                 entity.ClearDomainEvents();
 
-                return domainEvents;
+                return new
+                {
+                    Entity = entity,
+                    DomainEvents = domainEvents
+                };
             })
             .ToList(); // Convert to list for easier debugging
 
         // Merge all domain events into a single list
         var allDomainEvents = domainEventsList
-            .SelectMany(domainEvents => domainEvents)
-            .ToList(); // Convert to list for easier debugging
+           .SelectMany(e => e.DomainEvents.Select(domainEvent => new
+           {
+               DomainEvent = domainEvent,
+               TrackingInfo = e.Entity.GetTrackingInfo() // Obtener ClassOrigin y TransactionId
+           }))
+           .ToList(); // Convert to list for easier debugging
 
         // Create outbox messages from domain events
-        var outboxMessages = allDomainEvents
-             .Select(domainEvent => new OutboxMessage
-             {
-                 Id = domainEvent.Id,
-                 Type = domainEvent.GetType().Name,
-                 Content = JsonPrototype.Serialize(domainEvent),
-                 OccurredOnUtc = domainEvent.OccurredOnUtc,
-                 Status = OutboxStatus.NotProcessed
-             })
-            .ToList(); // Convert to list for easier debugging
+        List<OutboxMessage> outboxMessages = allDomainEvents
+              .Select(entry =>
+              {
+                  return new OutboxMessage
+                  {
+                      Id = entry.DomainEvent.Id,
+                      Type = entry.DomainEvent.GetType().Name,
+                      Content = JsonPrototype.Serialize(entry.DomainEvent),
+                      OccurredOnUtc = entry.DomainEvent.OccurredOnUtc,
+                      Status = OutboxStatus.NotProcessed,
+                      TransactionId = entry.TrackingInfo.TransactionId, // Obtener TransactionId
+                      ClassOrigin = entry.TrackingInfo.ClassOrigin // Obtener ClassOrigin
+                  };
+              })
+             .ToList(); // Convert to list for easier debugging
 
         if (outboxMessages.Any())
         {

@@ -19,7 +19,7 @@ public class AuditLog
     public string? ChangesValue { get; private set; }
     public Guid TransactionId { get; private set; }
     public string UserTransaction { get; private set; }
-    public string OriginClass { get; private set; }
+    public string ClassOrigin { get; private set; }
     private AuditLog()
     {
     }
@@ -49,7 +49,7 @@ public class AuditLog
         ChangesValue = changesValue;
         TransactionId = transactionId;
         UserTransaction = userTransaction;
-        OriginClass = originClass;
+        ClassOrigin = originClass;
 
     }
 
