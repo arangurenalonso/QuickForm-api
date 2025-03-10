@@ -10,6 +10,7 @@ using System.Data;
 using System.Data.Common;
 using QuickForm.Modules.Survey.Options;
 using QuickForm.Modules.Survey.Persistence;
+using QuickForm.Common.Domain.Method;
 
 namespace QuickForm.Modules.Survey.Jobs;
 
@@ -32,7 +33,7 @@ internal sealed class ProcessOutboxJob(
         
         foreach (OutboxMessageResponse outboxMessage in outboxMessages)
         {
-            Exception? exception = null;
+            List<ResultError> listResultError = new List<ResultError>();
 
             try
             {
@@ -58,10 +59,10 @@ internal sealed class ProcessOutboxJob(
                     Schemas.Survey,
                     outboxMessage.Id);
 
-                exception = caughtException;
+                listResultError = CommonMethods.ConvertExceptionToResult(caughtException, "OutBox");
             }
 
-            await UpdateOutboxMessageAsync(connection, transaction, outboxMessage, exception);
+            await UpdateOutboxMessageAsync(connection, transaction, outboxMessage, listResultError);
         }
 
         await transaction.CommitAsync();
@@ -97,9 +98,9 @@ internal sealed class ProcessOutboxJob(
                 IDbConnection connection,
                 IDbTransaction transaction,
                 OutboxMessageResponse outboxMessage,
-                Exception? exception)
+                List<ResultError> listResultError)
     {
-        string? exceptionDetails = exception != null ? JsonPrototype.Serialize(exception) : null;
+        string? exceptionDetails = listResultError.Any() ? JsonPrototype.Serialize(listResultError, SerializerSettings.CleanInstance) : null;
 
         const string sql = $"""
                                 UPDATE {Schemas.Survey}.[outbox_messages]
@@ -117,7 +118,7 @@ internal sealed class ProcessOutboxJob(
                 outboxMessage.Id,
                 ProcessedOnUtc = _dateTimeProvider.UtcNow,
                 Error = exceptionDetails,
-                Status = exception == null ? OutboxStatus.Processed : OutboxStatus.Failed
+                Status = listResultError.Any() ? OutboxStatus.Failed : OutboxStatus.Processed
             },
             transaction: transaction
         );

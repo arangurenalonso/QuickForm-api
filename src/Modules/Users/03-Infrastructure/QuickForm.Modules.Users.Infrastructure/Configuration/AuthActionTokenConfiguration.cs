@@ -28,6 +28,7 @@ public class AuthActionTokenConfiguration : IEntityTypeConfiguration<AuthActionT
                 ))
             .IsRequired();
 
+        
         builder.Property(uat => uat.IdUserAction)
             .HasConversion(
                 new ValueConverter<AuthActionId, Guid>(
@@ -52,7 +53,7 @@ public class AuthActionTokenConfiguration : IEntityTypeConfiguration<AuthActionT
                 .HasConversion(
                     new ValueConverter<ExpirationDate, DateTime>(
                         dateEnd => dateEnd.Value,
-                        date => ExpirationDate.FromDatabase(date) 
+                        date => ExpirationDate.Restore(date) 
                     ));
 
         builder.Property(uat => uat.Used)

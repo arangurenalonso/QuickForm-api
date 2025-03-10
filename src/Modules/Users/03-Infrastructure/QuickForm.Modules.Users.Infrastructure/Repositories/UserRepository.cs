@@ -18,39 +18,55 @@ public class UserRepository(
         return usuario;
     }
 
-    public async Task<bool> IsEmailExistsAsync(EmailVO email, Guid? idUsuario = null)
+    public async Task<bool> IsEmailExistsAsync(EmailVO email, UserId? userId = null)
     {
         return await _context.Users
                                 .AsNoTracking()
                                 .AnyAsync(usuario =>
-                                (idUsuario == null || usuario.Id.Value != idUsuario) &&
+                                (userId == null || usuario.Id != userId) &&
                                 usuario.Email == email &&
                                 usuario.IsActive);
     }
 
     public async Task<UserDomain?> GetByEmailWithActiveAuthActionsAsync(EmailVO email, DateTime currentDatetime)
     {
+        var currentDateTimeVO = ExpirationDate.Restore(currentDatetime);
         var usuario = await _context.Users
                                     .Include(usuario => usuario.AuthActionTokens.Where(x =>
-                                                                                    x.IsActive &&
-                                                                                    !x.Used &&
-                                                                                    x.ExpiresAt.Value > currentDatetime
-                                                                                    ))
+                                                                                            x.IsActive &&
+                                                                                            !x.Used &&
+                                                                                            x.ExpiresAt > currentDateTimeVO
+                                                                                            )
+                                                )
                                     .ThenInclude(userActionToken => userActionToken.Action)
                                     .FirstOrDefaultAsync(usuario => usuario.Email == email && usuario.IsActive);
         return usuario;
     }
     public async Task<UserDomain?> GetByIdWithActiveAuthActionsAsync(UserId userId, DateTime currentDatetime)
     {
-        var usuario = await _context.Users
-                                    .Include(usuario => usuario.AuthActionTokens.Where(x =>
-                                                                                    x.IsActive &&
-                                                                                    !x.Used &&
-                                                                                    x.ExpiresAt.Value > currentDatetime
-                                                                                    ))
-                                    .ThenInclude(userActionToken => userActionToken.Action)
-                                    .FirstOrDefaultAsync(usuario => usuario.Id == userId && usuario.IsActive);
-        return usuario;
+        try
+        {
+            var currentDateTimeVO = ExpirationDate.Restore(currentDatetime);
+            var usuario = await _context.Users
+                                        .Include(usuario => usuario.AuthActionTokens.Where(x=>
+                                                                                                x.IsActive &&
+                                                                                                !x.Used&&
+                                                                                                x.ExpiresAt> currentDateTimeVO
+                                                                                                )
+                                                    )
+                                        .ThenInclude(userActionToken => userActionToken.Action)
+                                        .Where(usuario => usuario.Id == userId && usuario.IsActive)
+                                        .AsSplitQuery()
+                                        .FirstOrDefaultAsync();
+            return usuario;
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);   
+
+            throw;
+        }
     }
 
     public void Insert(UserDomain user)
