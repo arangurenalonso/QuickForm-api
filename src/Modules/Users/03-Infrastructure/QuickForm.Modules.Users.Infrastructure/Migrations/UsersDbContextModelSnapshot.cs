@@ -32,6 +32,10 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                     b.Property<string>("ChangesValue")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ClassOrigin")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime2");
 
@@ -40,10 +44,6 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
 
                     b.Property<Guid>("IdEntity")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("OriginClass")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OriginalValue")
                         .HasColumnType("nvarchar(max)");
@@ -120,6 +120,10 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("ClassOrigin")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -135,6 +139,9 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<Guid>("TransactionId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -197,6 +204,10 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("ExpiresAt");
+
                     b.Property<Guid>("IdUser")
                         .HasColumnType("uniqueidentifier");
 
@@ -211,6 +222,12 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("Token");
 
                     b.Property<bool>("Used")
                         .HasColumnType("bit")
@@ -320,49 +337,7 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("QuickForm.Modules.Users.Domain.ExpirationDate", "ExpiresAt", b1 =>
-                        {
-                            b1.Property<Guid>("AuthActionTokenDomainId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<DateTime>("Value")
-                                .HasColumnType("datetime2")
-                                .HasColumnName("ExpiresAt");
-
-                            b1.HasKey("AuthActionTokenDomainId");
-
-                            b1.ToTable("AuthActionTokens", "Auth");
-
-                            b1.WithOwner()
-                                .HasForeignKey("AuthActionTokenDomainId");
-                        });
-
-                    b.OwnsOne("QuickForm.Modules.Users.Domain.TokenVO", "Token", b1 =>
-                        {
-                            b1.Property<Guid>("AuthActionTokenDomainId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<string>("Value")
-                                .IsRequired()
-                                .HasMaxLength(255)
-                                .HasColumnType("nvarchar(255)")
-                                .HasColumnName("Token");
-
-                            b1.HasKey("AuthActionTokenDomainId");
-
-                            b1.ToTable("AuthActionTokens", "Auth");
-
-                            b1.WithOwner()
-                                .HasForeignKey("AuthActionTokenDomainId");
-                        });
-
                     b.Navigation("Action");
-
-                    b.Navigation("ExpiresAt")
-                        .IsRequired();
-
-                    b.Navigation("Token")
-                        .IsRequired();
 
                     b.Navigation("User");
                 });

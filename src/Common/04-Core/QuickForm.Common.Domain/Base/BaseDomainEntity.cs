@@ -21,6 +21,8 @@ public abstract class BaseDomainEntity<TEntityId> : BaseAuditableEntity, ITracka
 
     [NotMapped]
     public Guid TransactionId { get;set; }
+    [NotMapped]
+    public Guid EntityId => Id.Value;
 
     public override TrackingInfo GetTrackingInfo()
         => new TrackingInfo(ClassOrigin, TransactionId);

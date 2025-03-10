@@ -41,9 +41,10 @@ public class AuditLogInterceptor(
 
         foreach (var entry in context.ChangeTracker.Entries())
         {
-            if (entry.Entity is BaseDomainEntity<EntityId> entity)
+
+            if (entry.Entity is ITrackableEntity entity)
             {
-                Guid idEntity = entity.Id.Value;
+                Guid idEntity = entity.EntityId;
                 string originClass = entity.ClassOrigin;
                 switch (entry.State)
                 {
