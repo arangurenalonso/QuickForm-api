@@ -1,6 +1,6 @@
 ﻿using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
-using QuickForm.Modules.Survey.Domain.Customers;
+using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Application;
 

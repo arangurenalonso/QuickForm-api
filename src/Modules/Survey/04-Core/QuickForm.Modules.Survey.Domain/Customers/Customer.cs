@@ -1,14 +1,19 @@
 ﻿using QuickForm.Common.Domain;
 
-namespace QuickForm.Modules.Survey.Domain.Customers;
+namespace QuickForm.Modules.Survey.Domain;
 
-public sealed class Customer : BaseDomainEventEntity
+public sealed class Customer : BaseDomainEntity<CustomerId>
 {
     private Customer()
     {
     }
+    private Customer(CustomerId id, string email, string firstName, string lastName) : base(id)
+    {
+        Email = email;
+        FirstName = firstName;
+        LastName = lastName;
+    }
 
-    public Guid Id { get; private set; }
 
     public string Email { get; private set; }
 
@@ -18,13 +23,9 @@ public sealed class Customer : BaseDomainEventEntity
 
     public static Customer Create(Guid id, string email, string firstName, string lastName)
     {
-        return new Customer
-        {
-            Id = id,
-            Email = email,
-            FirstName = firstName,
-            LastName = lastName
-        };
+        CustomerId customerId =new CustomerId(id);
+
+        return new Customer(customerId, email, firstName, lastName);
     }
 
     public void Update(string firstName, string lastName)

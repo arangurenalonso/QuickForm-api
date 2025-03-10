@@ -4,9 +4,9 @@ using QuickForm.Common.Domain.Method;
 using QuickForm.Common.Domain;
 using QuickForm.Common.Infrastructure;
 using QuickForm.Modules.Survey.Application;
-using QuickForm.Modules.Survey.Domain.Customers;
 using QuickForm.Modules.Survey.Domain.Form;
 using QuickForm.Common.Domain.Base;
+using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Persistence;
 public sealed class SurveyDbContext(DbContextOptions<SurveyDbContext> options) : DbContext(options), IUnitOfWork
