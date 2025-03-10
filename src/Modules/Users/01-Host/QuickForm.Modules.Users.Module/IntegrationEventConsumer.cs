@@ -21,7 +21,8 @@ internal sealed class IntegrationEventConsumer<TIntegrationEvent>(IDbConnectionF
             Id = integrationEvent.Id,
             Type = integrationEvent.GetType().Name,
             Content = JsonPrototype.Serialize(integrationEvent),
-            OccurredOnUtc = integrationEvent.OccurredOnUtc
+            OccurredOnUtc = integrationEvent.OccurredOnUtc,
+            IdDomainEvent = integrationEvent.IdDomainEvent,
         };
 
         const string sql =
