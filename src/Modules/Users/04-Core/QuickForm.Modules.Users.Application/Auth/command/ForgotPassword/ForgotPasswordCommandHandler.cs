@@ -25,7 +25,7 @@ public class ForgotPasswordCommandHandler(
 
         userRepository.Update(user);
 
-        var result = await _unitOfWork.SaveChangesWithResultAsync(nameof(ForgotPasswordCommandHandler),cancellationToken);
+        var result = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
         if (result.IsFailure)
         {
             return ResultT<ResultResponse>.FailureT(result.ResultType,result.Errors);

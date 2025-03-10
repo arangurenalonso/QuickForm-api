@@ -29,7 +29,7 @@ public class RegisterCommandHandler(
             return ResultT<ResultResponse>.FailureT(newUserResult.ResultType,newUserResult.Errors);
         }
 
-        var transactionResut = await _unitOfWork.SaveChangesWithResultAsync(nameof(RegisterCommandHandler),cancellationToken);
+        var transactionResut = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
 
         if (transactionResut.IsFailure)
         {

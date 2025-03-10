@@ -25,7 +25,7 @@ public class ResentEmailConfirmationCommandHandler(
 
         userRepository.Update(user);
 
-        var result = await _unitOfWork.SaveChangesWithResultAsync(nameof(ResentEmailConfirmationCommandHandler),cancellationToken);
+        var result = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
          
         if (result.IsFailure)
         {

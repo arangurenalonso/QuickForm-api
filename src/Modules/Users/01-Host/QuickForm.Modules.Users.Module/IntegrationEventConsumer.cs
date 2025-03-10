@@ -22,15 +22,15 @@ internal sealed class IntegrationEventConsumer<TIntegrationEvent>(IDbConnectionF
             Type = integrationEvent.GetType().Name,
             Content = JsonPrototype.Serialize(integrationEvent),
             OccurredOnUtc = integrationEvent.OccurredOnUtc,
-            IdDomainEvent = integrationEvent.IdDomainEvent,
+            IdOutboxMessage = integrationEvent.IdOutboxMessage,
         };
 
         const string sql =
             $"""
             INSERT INTO {Schemas.Auth}.[inbox_messages]
-                (id, type, content, OccurredOnUtc)
+                (id, type, content, OccurredOnUtc,Status,IdOutboxMessage)
             VALUES 
-                (@Id, @Type, @Content, @OccurredOnUtc)
+                (@Id, @Type, @Content, @OccurredOnUtc,0,@IdOutboxMessage)
             """;
 
         await connection.ExecuteAsync(sql, inboxMessage);

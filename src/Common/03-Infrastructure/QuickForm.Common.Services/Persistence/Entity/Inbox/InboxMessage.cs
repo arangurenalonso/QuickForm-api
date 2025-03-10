@@ -11,5 +11,5 @@ public sealed class InboxMessage
     public DateTime? ProcessedOnUtc { get; init; }
 
     public string? Error { get; init; }
-    public Guid IdDomainEvent { get; init; }
+    public Guid IdOutboxMessage { get; init; }
 }

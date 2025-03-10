@@ -82,6 +82,9 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                     b.Property<string>("Error")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("IdOutboxMessage")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("OccurredOnUtc")
                         .HasColumnType("datetime2");
 

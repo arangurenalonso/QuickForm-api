@@ -3,21 +3,24 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using QuickForm.Modules.Survey.Persistence;
+using QuickForm.Modules.Users.Persistence;
 
 #nullable disable
 
-namespace QuickForm.Modules.Survey.Persistence.Migrations
+namespace QuickForm.Modules.Users.Persistence.Migrations
 {
-    [DbContext(typeof(SurveyDbContext))]
-    partial class SurveyDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(UsersDbContext))]
+    [Migration("20250310023425_ChangeNameIdDomainEventToIdOutboxMessage")]
+    partial class ChangeNameIdDomainEventToIdOutboxMessage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("Survey")
+                .HasDefaultSchema("Auth")
                 .HasAnnotation("ProductVersion", "8.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
@@ -66,7 +69,7 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Audit", "Survey");
+                    b.ToTable("Audit", "Auth");
                 });
 
             modelBuilder.Entity("QuickForm.Common.Infrastructure.InboxMessage", b =>
@@ -100,7 +103,7 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("inbox_messages", "Survey");
+                    b.ToTable("inbox_messages", "Auth");
                 });
 
             modelBuilder.Entity("QuickForm.Common.Infrastructure.InboxMessageConsumer", b =>
@@ -114,7 +117,7 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasKey("InboxMessageId", "Name");
 
-                    b.ToTable("inbox_message_consumers", "Survey");
+                    b.ToTable("inbox_message_consumers", "Auth");
                 });
 
             modelBuilder.Entity("QuickForm.Common.Infrastructure.OutboxMessage", b =>
@@ -152,7 +155,7 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("outbox_messages", "Survey");
+                    b.ToTable("outbox_messages", "Auth");
                 });
 
             modelBuilder.Entity("QuickForm.Common.Infrastructure.OutboxMessageConsumer", b =>
@@ -166,10 +169,10 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasKey("OutboxMessageId", "Name");
 
-                    b.ToTable("outbox_message_consumers", "Survey");
+                    b.ToTable("outbox_message_consumers", "Auth");
                 });
 
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.Customer", b =>
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.AuthActionDomain", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -177,87 +180,182 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AuthActions", "Auth");
+                });
+
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.AuthActionTokenDomain", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("ExpiresAt");
+
+                    b.Property<Guid>("IdUser")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("IdUserAction")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("Token");
+
+                    b.Property<bool>("Used")
+                        .HasColumnType("bit")
+                        .HasColumnName("Used");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdUser");
+
+                    b.HasIndex("IdUserAction");
+
+                    b.ToTable("AuthActionTokens", "Auth");
+                });
+
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.UserDomain", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("Email");
 
                     b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsEmailVerify")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPasswordChanged")
                         .HasColumnType("bit");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("LastName");
 
                     b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Customers", "Survey");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.Form.FormDomain", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateEnd")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("DateEnd");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("Description");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsClosed")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsClosed");
-
-                    b.Property<bool>("IsPublished")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsPublished");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("Name");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("PasswordHash");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Forms", "Survey");
+                    b.ToTable("Users", "Auth");
+                });
+
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.AuthActionDomain", b =>
+                {
+                    b.OwnsOne("QuickForm.Modules.Users.Domain.ActionDescriptionVO", "Description", b1 =>
+                        {
+                            b1.Property<Guid>("AuthActionDomainId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(255)
+                                .HasColumnType("nvarchar(255)")
+                                .HasColumnName("Description");
+
+                            b1.HasKey("AuthActionDomainId");
+
+                            b1.ToTable("AuthActions", "Auth");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AuthActionDomainId");
+                        });
+
+                    b.Navigation("Description")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.AuthActionTokenDomain", b =>
+                {
+                    b.HasOne("QuickForm.Modules.Users.Domain.UserDomain", "User")
+                        .WithMany("AuthActionTokens")
+                        .HasForeignKey("IdUser")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QuickForm.Modules.Users.Domain.AuthActionDomain", "Action")
+                        .WithMany("UserActionTokens")
+                        .HasForeignKey("IdUserAction")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Action");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.AuthActionDomain", b =>
+                {
+                    b.Navigation("UserActionTokens");
+                });
+
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.UserDomain", b =>
+                {
+                    b.Navigation("AuthActionTokens");
                 });
 #pragma warning restore 612, 618
         }

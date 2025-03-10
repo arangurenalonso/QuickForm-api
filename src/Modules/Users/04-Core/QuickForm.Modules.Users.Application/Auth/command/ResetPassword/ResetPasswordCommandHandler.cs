@@ -32,7 +32,7 @@ public class ResetPasswordCommandHandler(
         _userRepository.Update(user);
         _authActionTokenRepository.Update(authActionToken);
 
-        var result = await _unitOfWork.SaveChangesWithResultAsync(nameof(ResetPasswordCommandHandler),cancellationToken);
+        var result = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
         if (result.IsFailure)
         {
             return ResultT<ResultResponse>.FailureT(result.ResultType,result.Errors);

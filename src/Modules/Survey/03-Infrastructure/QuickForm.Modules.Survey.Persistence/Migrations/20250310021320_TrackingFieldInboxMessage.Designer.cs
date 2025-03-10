@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuickForm.Modules.Survey.Persistence;
 
@@ -11,9 +12,11 @@ using QuickForm.Modules.Survey.Persistence;
 namespace QuickForm.Modules.Survey.Persistence.Migrations
 {
     [DbContext(typeof(SurveyDbContext))]
-    partial class SurveyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250310021320_TrackingFieldInboxMessage")]
+    partial class TrackingFieldInboxMessage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,7 +85,7 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                     b.Property<string>("Error")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("IdOutboxMessage")
+                    b.Property<Guid>("IdDomainEvent")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("OccurredOnUtc")

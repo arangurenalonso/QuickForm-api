@@ -23,7 +23,7 @@ internal sealed class FormCloseCommandHandler(IFormRepository formRepository, IU
             return ResultT<ResultResponse>.FailureT(ResultType.DomainValidation, resultUpdate.Errors);
         }
 
-        var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(nameof(FormCloseCommandHandler),cancellationToken);
+        var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
         if (resultTransaction.IsFailure)
         {
             return ResultT<ResultResponse>.FailureT(resultTransaction.ResultType, resultTransaction.Errors);
