@@ -15,7 +15,7 @@ public class AuthActionConfiguration : IEntityTypeConfiguration<AuthActionDomain
         builder.Property(ua => ua.Id)
             .HasConversion(
                 new ValueConverter<AuthActionId, Guid>(
-                    userActionId => userActionId.Value,
+                    idVO => idVO.Value,
                     guid => new AuthActionId(guid)
                 ))
             .IsRequired();

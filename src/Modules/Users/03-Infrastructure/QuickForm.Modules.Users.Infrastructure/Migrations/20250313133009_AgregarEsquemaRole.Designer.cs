@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuickForm.Modules.Users.Persistence;
 
@@ -11,9 +12,11 @@ using QuickForm.Modules.Users.Persistence;
 namespace QuickForm.Modules.Users.Persistence.Migrations
 {
     [DbContext(typeof(UsersDbContext))]
-    partial class UsersDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250313133009_AgregarEsquemaRole")]
+    partial class AgregarEsquemaRole
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -249,118 +252,6 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                     b.ToTable("AuthActionTokens", "Auth");
                 });
 
-            modelBuilder.Entity("QuickForm.Modules.Users.Domain.PermissionResourcesDomain", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("Description");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PermissionResources", "Auth");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Users.Domain.PermissionsActionsDomain", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("Description");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PermissionsActions", "Auth");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Users.Domain.PermissionsDomain", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("IdAction")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("IdResources")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdAction");
-
-                    b.HasIndex("IdResources");
-
-                    b.ToTable("Permissions", "Auth");
-                });
-
             modelBuilder.Entity("QuickForm.Modules.Users.Domain.RoleDomain", b =>
                 {
                     b.Property<Guid>("Id")
@@ -484,11 +375,17 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("IdRole");
+                    b.HasIndex("RoleId");
 
-                    b.HasIndex("IdUser");
+                    b.HasIndex("UserId");
 
                     b.ToTable("UserRole", "Auth");
                 });
@@ -537,36 +434,17 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("QuickForm.Modules.Users.Domain.PermissionsDomain", b =>
-                {
-                    b.HasOne("QuickForm.Modules.Users.Domain.PermissionsActionsDomain", "Action")
-                        .WithMany("Permissions")
-                        .HasForeignKey("IdAction")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("QuickForm.Modules.Users.Domain.PermissionResourcesDomain", "Resources")
-                        .WithMany("Permissions")
-                        .HasForeignKey("IdResources")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Action");
-
-                    b.Navigation("Resources");
-                });
-
             modelBuilder.Entity("QuickForm.Modules.Users.Domain.UserRoleDomain", b =>
                 {
                     b.HasOne("QuickForm.Modules.Users.Domain.RoleDomain", "Role")
                         .WithMany("UserRole")
-                        .HasForeignKey("IdRole")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("QuickForm.Modules.Users.Domain.UserDomain", "User")
                         .WithMany("UserRole")
-                        .HasForeignKey("IdUser")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -578,16 +456,6 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
             modelBuilder.Entity("QuickForm.Modules.Users.Domain.AuthActionDomain", b =>
                 {
                     b.Navigation("UserActionTokens");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Users.Domain.PermissionResourcesDomain", b =>
-                {
-                    b.Navigation("Permissions");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Users.Domain.PermissionsActionsDomain", b =>
-                {
-                    b.Navigation("Permissions");
                 });
 
             modelBuilder.Entity("QuickForm.Modules.Users.Domain.RoleDomain", b =>

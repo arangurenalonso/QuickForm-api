@@ -14,7 +14,7 @@ public class UserConfiguration : EntityMapBase<UserDomain, UserId>
         builder.Property(p => p.Id)
             .HasConversion(
                 new ValueConverter<UserId, Guid>(
-                    userId => userId.Value,
+                    idVO => idVO.Value,
                     guid => new UserId(guid)
                 ))
             .IsRequired();

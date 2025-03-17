@@ -2,11 +2,12 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore;
 using QuickForm.Modules.Users.Domain;
+using QuickForm.Common.Infrastructure.Persistence;
 
 namespace QuickForm.Modules.Users.Persistence;
-public class AuthActionTokenConfiguration : IEntityTypeConfiguration<AuthActionTokenDomain>
+public class AuthActionTokenConfiguration : EntityMapBase<AuthActionTokenDomain, AuthActionTokenId>
 {
-    public void Configure(EntityTypeBuilder<AuthActionTokenDomain> builder)
+    protected override void Configure(EntityTypeBuilder<AuthActionTokenDomain> builder)
     {
         builder.ToTable("AuthActionTokens");
 
@@ -15,7 +16,7 @@ public class AuthActionTokenConfiguration : IEntityTypeConfiguration<AuthActionT
         builder.Property(uat => uat.Id)
             .HasConversion(
                 new ValueConverter<AuthActionTokenId, Guid>(
-                    userActionTokenId => userActionTokenId.Value,
+                    idVO => idVO.Value,
                     guid => new AuthActionTokenId(guid)
                 ))
             .IsRequired();

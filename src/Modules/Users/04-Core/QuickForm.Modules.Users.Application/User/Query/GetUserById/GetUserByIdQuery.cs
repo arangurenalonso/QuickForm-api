@@ -2,4 +2,4 @@
 
 namespace QuickForm.Modules.Users.Application;
 
-public sealed record GetUserQuery(Guid UserId) : IQuery<UserResponse>;
+public sealed record GetUserByIdQuery(Guid UserId) : IQuery<UserResponse>;

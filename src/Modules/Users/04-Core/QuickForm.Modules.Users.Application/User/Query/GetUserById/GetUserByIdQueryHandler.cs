@@ -3,10 +3,10 @@ using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Users.Application;
 
-internal sealed class GetUserQueryHandler(IUserDapperRepository _userDapperRepository )
-    : IQueryHandler<GetUserQuery, UserResponse>
+internal sealed class GetUserByIdQueryHandler(IUserDapperRepository _userDapperRepository )
+    : IQueryHandler<GetUserByIdQuery, UserResponse>
 {
-    public async Task<ResultT<UserResponse>> Handle(GetUserQuery request, CancellationToken cancellationToken)
+    public async Task<ResultT<UserResponse>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
     {
         UserResponse? user = await _userDapperRepository.GetUserById(request.UserId);
 

@@ -13,6 +13,7 @@ public sealed class UserDomain : BaseDomainEntity<UserId>
 
     #region Many-to-Many Relationship
     public ICollection<AuthActionTokenDomain> AuthActionTokens { get; private set; } = [];
+    public ICollection<UserRoleDomain> UserRole { get; private set; } = [];
     #endregion
     public UserDomain() { }
 

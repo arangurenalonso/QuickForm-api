@@ -45,7 +45,7 @@ public class AuditLogInterceptor(
             if (entry.Entity is ITrackableEntity entity)
             {
                 Guid idEntity = entity.EntityId;
-                string originClass = entity.ClassOrigin;
+                string originClass = entity.ClassOrigin??"";
                 switch (entry.State)
                 {
                     case EntityState.Added:
