@@ -32,9 +32,9 @@ public class PermissionConfiguration : EntityMapBase<PermissionsDomain, Permissi
 
         builder.Property(uat => uat.IdResources)
             .HasConversion(
-                new ValueConverter<PermissionResourcesId, Guid>(
+                new ValueConverter<ResourcesId, Guid>(
                     idVo => idVo.Value,
-                    guid => new PermissionResourcesId(guid)
+                    guid => new ResourcesId(guid)
                 ))
             .IsRequired();
 

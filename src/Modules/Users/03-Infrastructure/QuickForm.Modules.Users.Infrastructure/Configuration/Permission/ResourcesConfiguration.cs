@@ -5,17 +5,17 @@ using QuickForm.Common.Infrastructure.Persistence;
 using QuickForm.Modules.Users.Domain;
 
 namespace QuickForm.Modules.Users.Persistence;
-public class PermissionResourcesConfiguration : EntityMapBase<PermissionResourcesDomain, PermissionResourcesId>
+public class ResourcesConfiguration : EntityMapBase<ResourcesDomain, ResourcesId>
 {
-    protected override void Configure(EntityTypeBuilder<PermissionResourcesDomain> builder)
+    protected override void Configure(EntityTypeBuilder<ResourcesDomain> builder)
     {
-        builder.ToTable("PermissionResources");
+        builder.ToTable("Resources");
 
         builder.Property(p => p.Id)
             .HasConversion(
-                new ValueConverter<PermissionResourcesId, Guid>(
+                new ValueConverter<ResourcesId, Guid>(
                     idVO => idVO.Value,
-                    guid => new PermissionResourcesId(guid)
+                    guid => new ResourcesId(guid)
                 ))
             .IsRequired();
 

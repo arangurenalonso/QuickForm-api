@@ -1,22 +1,22 @@
 ﻿using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Users.Domain;
-public class PermissionResourcesDomain : BaseDomainEntity<PermissionResourcesId>
+public class ResourcesDomain : BaseDomainEntity<ResourcesId>
 {
 
     public PermissionResourcesDescription Description { get; private set; }
 
     public ICollection<PermissionsDomain> Permissions { get; private set; } = [];
-    public PermissionResourcesDomain() { }
+    public ResourcesDomain() { }
 
-    private PermissionResourcesDomain(
-        PermissionResourcesId id,
+    private ResourcesDomain(
+        ResourcesId id,
         PermissionResourcesDescription description) : base(id)
     {
         Description = description;
     }
 
-    public static ResultT<PermissionResourcesDomain> Create(
+    public static ResultT<ResourcesDomain> Create(
             string description
         )
     {
@@ -29,7 +29,7 @@ public class PermissionResourcesDomain : BaseDomainEntity<PermissionResourcesId>
                 );
             return errorList;
         }
-        var newPermissionResource = new PermissionResourcesDomain(PermissionResourcesId.Create(), descriptionResult.Value);
+        var newPermissionResource = new ResourcesDomain(ResourcesId.Create(), descriptionResult.Value);
 
         return newPermissionResource;
     }

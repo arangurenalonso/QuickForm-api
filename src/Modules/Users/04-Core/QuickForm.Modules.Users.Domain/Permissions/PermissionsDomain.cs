@@ -3,22 +3,28 @@
 namespace QuickForm.Modules.Users.Domain;
 public class PermissionsDomain : BaseDomainEntity<PermissionsId>
 {
-    public PermissionResourcesId IdResources { get; set; }
+    public ResourcesId IdResources { get; set; }
     public PermissionsActionsId IdAction { get; set; }
-    public PermissionResourcesDomain Resources { get; private set; }
+    public ResourcesDomain Resources { get; private set; }
     public PermissionsActionsDomain Action { get; private set; }
+
+
+    #region One-to-Many Relationship
+    public ICollection<RolePermissionsDomain> RolePermissions { get; private set; } = [];
+    #endregion
+
     public PermissionsDomain() { }
 
     private PermissionsDomain(
         PermissionsId id,
-        PermissionResourcesDomain resources,
+        ResourcesDomain resources,
         PermissionsActionsDomain action) : base(id)
     {
         IdResources = resources.Id;
         IdAction = action.Id;
     }
     public static ResultT<PermissionsDomain> Create(
-            PermissionResourcesDomain resources,
+            ResourcesDomain resources,
             PermissionsActionsDomain action
        )
     {

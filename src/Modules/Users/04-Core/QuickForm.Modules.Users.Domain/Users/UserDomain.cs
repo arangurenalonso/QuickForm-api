@@ -1,6 +1,4 @@
 ﻿using QuickForm.Common.Domain;
-using QuickForm.Modules.Users.Domain.AuthActionToken.Enum;
-
 namespace QuickForm.Modules.Users.Domain;
 public sealed class UserDomain : BaseDomainEntity<UserId>
 {

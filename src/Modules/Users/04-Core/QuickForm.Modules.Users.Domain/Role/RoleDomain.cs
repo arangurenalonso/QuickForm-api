@@ -4,8 +4,9 @@ public sealed class RoleDomain : BaseDomainEntity<RoleId>
 {
 
     public RoleDescriptionVO Description { get; private set; }
-    #region Many-to-Many Relationship
+    #region One-to-Many Relationship
     public ICollection<UserRoleDomain> UserRole { get; private set; } = [];
+    public ICollection<RolePermissionsDomain> RolePermissions { get; private set; } = [];
     #endregion
     public RoleDomain() { }
 

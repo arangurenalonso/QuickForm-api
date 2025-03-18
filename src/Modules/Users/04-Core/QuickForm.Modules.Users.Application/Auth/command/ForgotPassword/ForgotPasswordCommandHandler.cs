@@ -1,7 +1,6 @@
 ﻿using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
 using QuickForm.Modules.Users.Domain;
-using QuickForm.Modules.Users.Domain.AuthActionToken.Enum;
 
 namespace QuickForm.Modules.Users.Application;
 public class ForgotPasswordCommandHandler(

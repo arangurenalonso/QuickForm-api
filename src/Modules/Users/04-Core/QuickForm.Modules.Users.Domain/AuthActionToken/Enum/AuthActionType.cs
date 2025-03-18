@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel;
 using QuickForm.Common.Domain;
 
-namespace QuickForm.Modules.Users.Domain.AuthActionToken.Enum;
+
+namespace QuickForm.Modules.Users.Domain;
 public enum AuthActionType
 {
     [Detail("RecoveryPassword")]

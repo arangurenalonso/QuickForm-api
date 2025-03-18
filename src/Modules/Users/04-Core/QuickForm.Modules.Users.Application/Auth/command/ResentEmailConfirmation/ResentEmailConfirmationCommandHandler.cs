@@ -1,6 +1,5 @@
 ﻿using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
-using QuickForm.Modules.Users.Domain.AuthActionToken.Enum;
 using QuickForm.Modules.Users.Domain;
 
 namespace QuickForm.Modules.Users.Application;
