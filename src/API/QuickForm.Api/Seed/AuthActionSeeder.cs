@@ -5,44 +5,46 @@ using QuickForm.Modules.Users.Persistence;
 
 namespace QuickForm.Api.Seed;
 
-public class RoleSeeder(UsersDbContext _context, ILogger<RoleSeeder> _logger)
+public class AuthActionSeeder(UsersDbContext _context, ILogger<AuthActionSeeder> _logger)
 {
 
     public async Task SeedAsync()
     {
         _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
+
         var enumTypesArray = Enum.GetValues(typeof(RoleType))
-            .Cast<RoleType>()
+            .Cast<AuthActionType>()
             .Select(enumType => new
             {
-                Id = new RoleId(enumType.GetId()),
+                Id = new AuthActionId(enumType.GetId()),
                 Description = enumType.GetDetail()
             })
             .ToList();
 
         var ids = enumTypesArray.Select(x => x.Id).ToList();
 
-        List<RoleDomain> existingDomains = await _context.Role
+        List<AuthActionDomain> existingDomains = await _context.AuthAction
                                             .Where(x => ids.Contains(x.Id))
                                             .ToListAsync();
-        Guid transactionId= Guid.NewGuid();
+        Guid transactionId = Guid.NewGuid();
         foreach (var enumType in enumTypesArray)
         {
-            RoleId idRole = enumType.Id;
-            RoleDomain? existingDomain = existingDomains.Find(x=>x.Id==idRole);
+            AuthActionId idEnumType = enumType.Id;
+            AuthActionDomain? existingDomain = existingDomains.Find(x => x.Id == idEnumType);
 
             if (existingDomain == null)
             {
-                RoleDomain newDomain = RoleDomain.Create(idRole,enumType.Description).Value;
+                AuthActionDomain newDomain = AuthActionDomain.Create(idEnumType, enumType.Description).Value;
                 newDomain.ClassOrigin = GetType().Name;
                 newDomain.TransactionId = transactionId;
-                _context.Role.Add(newDomain);
+                _context.AuthAction.Add(newDomain);
             }
             else if (existingDomain.Description.Value != enumType.Description)
             {
                 existingDomain.ClassOrigin = GetType().Name;
                 existingDomain.TransactionId = transactionId;
                 existingDomain.Update(enumType.Description);
+                _context.AuthAction.Update(existingDomain);
             }
         }
 

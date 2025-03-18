@@ -27,7 +27,7 @@ public record ActionDescriptionVO
         {
             return textValdiation.Errors;
         }
-        return new ActionDescriptionVO(name.ToUpper(CultureInfo.InvariantCulture));
+        return new ActionDescriptionVO(name);
 
     }
     public static implicit operator string(ActionDescriptionVO name) => name.Value;

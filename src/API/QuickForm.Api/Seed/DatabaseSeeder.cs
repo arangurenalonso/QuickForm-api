@@ -16,6 +16,8 @@ public class DatabaseSeeder(IServiceProvider _serviceProvider, ILogger<DatabaseS
             var usersDbContext = scopedServices.GetRequiredService<UsersDbContext>();
             var roleSeeder = new RoleSeeder(usersDbContext, scopedServices.GetRequiredService<ILogger<RoleSeeder>>());
             await roleSeeder.SeedAsync();
+            var authActionSeeder = new AuthActionSeeder(usersDbContext, scopedServices.GetRequiredService<ILogger<AuthActionSeeder>>());
+            await authActionSeeder.SeedAsync();
 
             // Si tienes más seeders, agrégalos aquí
             // var surveyDbContext = scopedServices.GetRequiredService<SurveyDbContext>()

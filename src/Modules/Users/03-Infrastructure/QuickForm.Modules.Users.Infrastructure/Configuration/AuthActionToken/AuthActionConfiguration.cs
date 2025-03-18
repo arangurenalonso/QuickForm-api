@@ -20,13 +20,15 @@ public class AuthActionConfiguration : IEntityTypeConfiguration<AuthActionDomain
                 ))
             .IsRequired();
 
-        builder.OwnsOne(ua => ua.Description, descriptionBuilder =>
-        {
-            descriptionBuilder.Property(d => d.Value)
+
+        builder.Property(p => p.Description)
                 .HasColumnName("Description")
                 .HasMaxLength(255)
-                .IsRequired();
-        });
+                .IsRequired()
+                .HasConversion(
+                    descriptionVO => descriptionVO.Value,
+                    descriptionString => ActionDescriptionVO.Create(descriptionString).Value
+                    );
 
         builder.HasMany(ua => ua.UserActionTokens)
             .WithOne(uat => uat.Action)

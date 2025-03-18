@@ -32,14 +32,37 @@ public class AuthActionDomain : BaseDomainEntity<AuthActionId>
         }
         return new AuthActionDomain(AuthActionId.Create(), descriptionResult.Value);
     }
-    public static AuthActionDomain Create(string guidString, string description)
+    public static ResultT<AuthActionDomain> Create(AuthActionId id, string description)
     {
-
         var descriptionResult = ActionDescriptionVO.Create(description);
-        Guid newGuid = Guid.Parse(guidString);
 
-        return new AuthActionDomain(new AuthActionId(newGuid), descriptionResult.Value);
+        if (descriptionResult.IsFailure)
+        {
+            var errorList = new ResultErrorList(
+                new List<ResultErrorList>() { descriptionResult.Errors }
+                );
+            return errorList;
+        }
+        return new AuthActionDomain(id, descriptionResult.Value);
 
     }
+
+    public Result Update(
+           string description
+       )
+    {
+        var descriptionResult = ActionDescriptionVO.Create(description);
+
+        if (descriptionResult.IsFailure)
+        {
+            var errorList = new ResultErrorList(
+                new List<ResultErrorList>() { descriptionResult.Errors }
+                );
+            return errorList;
+        }
+        Description = descriptionResult.Value;
+        return Result.Success();
+    }
+
 
 }
