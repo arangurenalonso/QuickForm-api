@@ -5,7 +5,7 @@ using QuickForm.Modules.Users.Persistence;
 
 namespace QuickForm.Api.Seed;
 
-public class RoleSeeder(UsersDbContext _context, ILogger<RoleSeeder> _logger)
+public class RoleSeeder(UsersDbContext _context, ILogger<DatabaseSeeder> _logger)
 {
 
     public async Task SeedAsync()

@@ -14,13 +14,13 @@ builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<DatabaseSeeder>(); 
+
 
 Assembly[] moduleApplicationAssemblies = [
     QuickForm.Modules.Users.Application.AssemblyReference.Assembly,
     QuickForm.Modules.Survey.Application.AssemblyReference.Assembly,
     ];
-
-
 
 builder.Configuration.AddModuleConfiguration(["users", "survey", "common"]);
 
@@ -44,13 +44,6 @@ if (app.Environment.IsDevelopment())
     app.ApplyMigrations();
 }
 
-
-using (var scope = app.Services.CreateScope())
-{
-    var seeder = new DatabaseSeeder(scope.ServiceProvider, scope.ServiceProvider.GetRequiredService<ILogger<DatabaseSeeder>>());
-    await seeder.SeedAsync();
-}
-
 app.UseHttpsRedirection();
 
 app.MapEndpoints();
@@ -59,6 +52,20 @@ app.UseExceptionHandler();
 
 app.UseAuthentication();    
 app.UseAuthorization();
+
+app.MapPost("/api/admin/seed", async (DatabaseSeeder seeder, ILogger<DatabaseSeeder> logger) =>
+{
+    try
+    {
+        await seeder.SeedAsync();
+        return Results.Ok("Database seeding completed successfully.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while executing the seeder.");
+        return Results.Problem("Failed to execute database seeder.");
+    }
+});
 
 await app.RunAsync();
 

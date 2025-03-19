@@ -16,22 +16,36 @@ public class ResourcesDomain : BaseDomainEntity<ResourcesId>
         Description = description;
     }
 
-    public static ResultT<ResourcesDomain> Create(
-            string description
-        )
-    {
-        var descriptionResult = PermissionResourcesDescription.Create(description);
+    public static ResultT<ResourcesDomain> Create(string description)
+        => Create(ResourcesId.Create(), description);
 
+    public static ResultT<ResourcesDomain> Create(ResourcesId id, string description)
+    {
+        var descriptionResult = ValidateDescription(description);
         if (descriptionResult.IsFailure)
         {
-            var errorList = new ResultErrorList(
-                new List<ResultErrorList>() { descriptionResult.Errors }
-                );
-            return errorList;
+            return descriptionResult.Errors;
         }
-        var newPermissionResource = new ResourcesDomain(ResourcesId.Create(), descriptionResult.Value);
 
-        return newPermissionResource;
+        return new ResourcesDomain(id, descriptionResult.Value);
+    }
+
+    private static ResultT<PermissionResourcesDescription> ValidateDescription(string description)
+    {
+        var descriptionResult = PermissionResourcesDescription.Create(description);
+        return descriptionResult.IsFailure ? descriptionResult.Errors : descriptionResult;
+    }
+    public Result Update(
+           string description
+       )
+    {
+        var descriptionResult = ValidateDescription(description);
+        if (descriptionResult.IsFailure)
+        {
+            return descriptionResult.Errors;
+        }
+        Description = descriptionResult.Value;
+        return Result.Success();
     }
 
 }

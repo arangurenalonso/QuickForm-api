@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using QuickForm.Modules.Users.Application;
+using QuickForm.Modules.Users.Domain;
 
 namespace QuickForm.Modules.Users.Presentation;
 
@@ -20,7 +21,7 @@ internal sealed class ChangePassword : IEndpoint
 
             return result.Match(Results.Ok, ApiResults.Problem);
         })
-        .RequireAuthorization()
+        .RequireAuthorization(PredefinedPermissions.Auth_ChangePassword.ToString())
         .WithTags(Tags.Auth);
     }
 

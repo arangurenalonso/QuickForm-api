@@ -2,27 +2,26 @@
 
 namespace QuickForm.Api.Seed;
 
-public class DatabaseSeeder(IServiceProvider _serviceProvider, ILogger<DatabaseSeeder> _logger)
+public class DatabaseSeeder(UsersDbContext _userContext, ILogger<DatabaseSeeder> _logger)
 {
     public async Task SeedAsync()
     {
-        using var scope = _serviceProvider.CreateScope();
-        var scopedServices = scope.ServiceProvider;
 
         try
         {
             _logger.LogInformation("Starting Database seeding.");
-            // Ejecutar todos los seeders aquí
-            var usersDbContext = scopedServices.GetRequiredService<UsersDbContext>(); 
-            var roleSeeder = new RoleSeeder(usersDbContext, scopedServices.GetRequiredService<ILogger<RoleSeeder>>());
+            var roleSeeder = new RoleSeeder(_userContext, _logger);
             await roleSeeder.SeedAsync();
-            var authActionSeeder = new AuthActionSeeder(usersDbContext, scopedServices.GetRequiredService<ILogger<AuthActionSeeder>>());
+            var authActionSeeder = new AuthActionSeeder(_userContext, _logger);
             await authActionSeeder.SeedAsync();
+            var permissionsActionSeeder = new PermissionsActionSeeder(_userContext, _logger);
+            await permissionsActionSeeder.SeedAsync();
+            var resourcesSeeder = new ResourcesSeeder(_userContext, _logger);
+            await resourcesSeeder.SeedAsync();
+            var permissionSeeder = new PermissionSeeder(_userContext, _logger);
+            await permissionSeeder.SeedAsync();
 
-            // Si tienes más seeders, agrégalos aquí
-            // var surveyDbContext = scopedServices.GetRequiredService<SurveyDbContext>()
-            // var surveySeeder = new SurveySeeder(surveyDbContext, scopedServices.GetRequiredService<ILogger<SurveySeeder>>())
-            // await surveySeeder.SeedAsync()
+
 
             _logger.LogInformation("Database seeding completed successfully.");
         }

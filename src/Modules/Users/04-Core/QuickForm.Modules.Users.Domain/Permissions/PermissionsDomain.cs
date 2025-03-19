@@ -1,4 +1,5 @@
-﻿using QuickForm.Common.Domain;
+﻿using System;
+using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Users.Domain;
 public class PermissionsDomain : BaseDomainEntity<PermissionsId>
@@ -17,19 +18,33 @@ public class PermissionsDomain : BaseDomainEntity<PermissionsId>
 
     private PermissionsDomain(
         PermissionsId id,
-        ResourcesDomain resources,
-        PermissionsActionsDomain action) : base(id)
+        ResourcesId idResources,
+        PermissionsActionsId idAction) : base(id)
     {
-        IdResources = resources.Id;
-        IdAction = action.Id;
+        IdResources = idResources;
+        IdAction = idAction;
     }
     public static ResultT<PermissionsDomain> Create(
-            ResourcesDomain resources,
-            PermissionsActionsDomain action
+            PermissionsId permissionsId,
+            ResourcesId idResources,
+            PermissionsActionsId idAction
        )
     {
-        var newPermission = new PermissionsDomain(PermissionsId.Create(), resources, action);
+        var newPermission = new PermissionsDomain(permissionsId, idResources, idAction);
 
         return newPermission;
+    }
+    public static ResultT<PermissionsDomain> Create(ResourcesId idResources,
+            PermissionsActionsId idAction)
+        => Create(PermissionsId.Create(), idResources, idAction);
+
+    public Result Update(
+           ResourcesId idResources,
+           PermissionsActionsId idAction
+       )
+    {
+        IdResources = idResources;
+        IdAction = idAction;
+        return Result.Success();
     }
 }
