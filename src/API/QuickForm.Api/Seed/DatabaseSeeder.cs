@@ -13,7 +13,7 @@ public class DatabaseSeeder(IServiceProvider _serviceProvider, ILogger<DatabaseS
         {
             _logger.LogInformation("Starting Database seeding.");
             // Ejecutar todos los seeders aquí
-            var usersDbContext = scopedServices.GetRequiredService<UsersDbContext>();
+            var usersDbContext = scopedServices.GetRequiredService<UsersDbContext>(); 
             var roleSeeder = new RoleSeeder(usersDbContext, scopedServices.GetRequiredService<ILogger<RoleSeeder>>());
             await roleSeeder.SeedAsync();
             var authActionSeeder = new AuthActionSeeder(usersDbContext, scopedServices.GetRequiredService<ILogger<AuthActionSeeder>>());
