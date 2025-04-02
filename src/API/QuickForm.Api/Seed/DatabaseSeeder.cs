@@ -1,8 +1,13 @@
-﻿using QuickForm.Modules.Users.Persistence;
+﻿using QuickForm.Modules.Survey.Persistence;
+using QuickForm.Modules.Users.Persistence;
 
 namespace QuickForm.Api.Seed;
 
-public class DatabaseSeeder(UsersDbContext _userContext, ILogger<DatabaseSeeder> _logger)
+public class DatabaseSeeder(
+        UsersDbContext _userContext, 
+        SurveyDbContext _surveyDbContext, 
+        ILogger<DatabaseSeeder> _logger
+    )
 {
     public async Task SeedAsync()
     {
@@ -21,7 +26,8 @@ public class DatabaseSeeder(UsersDbContext _userContext, ILogger<DatabaseSeeder>
             var permissionSeeder = new PermissionSeeder(_userContext, _logger);
             await permissionSeeder.SeedAsync();
 
-
+            var datatypeSeeder = new DatatypeSeeder(_surveyDbContext, _logger);
+            await datatypeSeeder.SeedAsync();
 
             _logger.LogInformation("Database seeding completed successfully.");
         }

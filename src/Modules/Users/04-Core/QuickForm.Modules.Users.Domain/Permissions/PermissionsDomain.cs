@@ -1,5 +1,4 @@
-﻿using System;
-using QuickForm.Common.Domain;
+﻿using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Users.Domain;
 public class PermissionsDomain : BaseDomainEntity<PermissionsId>

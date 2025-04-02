@@ -7,7 +7,8 @@ public class RegisterCommandHandler(
         IUnitOfWork _unitOfWork,
         IUserRepository _userRepository,
         IPasswordHashingService _passwordHashingService,
-        IDateTimeProvider _dateTimeProvider
+        IDateTimeProvider _dateTimeProvider,
+        IRoleRepository _roleRepository
     ) : ICommandHandler<RegisterCommand, ResultResponse>
 {
 
@@ -19,7 +20,7 @@ public class RegisterCommandHandler(
             return ResultT<ResultResponse>.FailureT(resultValidateInputData.ResultType,resultValidateInputData.Errors);
         }
 
-        var newUserResult = CreateUser(
+        var newUserResult =await  CreateUser(
             request.FirstName,
             request.LastName,
             request.Email,
@@ -52,19 +53,28 @@ public class RegisterCommandHandler(
         return Result.Success();
     }
 
-    private ResultT<UserDomain> CreateUser(
+    private async Task<ResultT<UserDomain>> CreateUser(
         string firstName,
         string? lastName,
         string email,
         string password)
     {
+        var roleId=new RoleId(RoleType.Menber.GetId());
+        var roleDomain =await  _roleRepository.GetByIdAsync(roleId);
+        if (roleDomain is null)
+        {
+            var error = ResultError.NullValue("Role", $"The role '{roleId.Value}' could not be found.");
+            return ResultT<UserDomain>.FailureT(ResultType.NotFound, error);
+        }
         var userDomainResult = UserDomain.Create(
             firstName,
             lastName,
             email,
             password,
             _passwordHashingService,
-                _dateTimeProvider.UtcNow);
+            _dateTimeProvider.UtcNow,
+            roleDomain
+            );
 
         if (userDomainResult.IsFailure)
         {

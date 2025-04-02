@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using QuickForm.Modules.Users.Application;
-using QuickForm.Modules.Users.Domain;
+using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Users.Presentation;
 

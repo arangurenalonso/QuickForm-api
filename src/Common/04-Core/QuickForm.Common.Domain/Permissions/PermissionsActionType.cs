@@ -1,8 +1,6 @@
 ﻿using System.ComponentModel;
-using QuickForm.Common.Domain;
 
-
-namespace QuickForm.Modules.Users.Domain;
+namespace QuickForm.Common.Domain;
 public enum PermissionsActionType
 {
     [Detail("ChangePassword")]

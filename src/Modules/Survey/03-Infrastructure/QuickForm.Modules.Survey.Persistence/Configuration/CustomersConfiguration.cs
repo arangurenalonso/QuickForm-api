@@ -1,12 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using QuickForm.Common.Infrastructure.Persistence;
 using QuickForm.Modules.Survey.Domain;
+using QuickForm.Modules.Survey.Domain.Form;
 
 namespace QuickForm.Modules.Survey.Persistence;
-internal sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
+internal sealed class CustomerConfiguration : EntityMapBase<Customer, CustomerId>
 {
-    public void Configure(EntityTypeBuilder<Customer> builder)
+    protected override void Configure(EntityTypeBuilder<Customer> builder)
     {
         builder.Property(p => p.Id)
             .HasConversion(

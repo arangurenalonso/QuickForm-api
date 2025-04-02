@@ -11,10 +11,10 @@ public class AuthActionTokenRepository(
 
     public async Task<AuthActionTokenDomain?> GetAuthActionTokenByAuthActionIdAndTokenAsync(
         AuthActionId authActionId,
-        string userActionToken)
+        TokenVO userActionToken)
     {
         var authActionToken = await _context.AuthActionToken.FirstOrDefaultAsync(authActionToken => 
-                                                                            authActionToken.Token.Value == userActionToken &&
+                                                                            authActionToken.Token == userActionToken &&
                                                                             authActionToken.IdUserAction == authActionId &&
                                                                             authActionToken.IsActive);
         return authActionToken;

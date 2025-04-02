@@ -4,7 +4,7 @@ public interface IAuthActionTokenRepository
 {
     Task<AuthActionTokenDomain?> GetAuthActionTokenByAuthActionIdAndTokenAsync(
         AuthActionId authActionId,
-        string userActionToken);
+        TokenVO userActionToken);
     void Insert(AuthActionTokenDomain authActionTokenDomain);
     void Update(AuthActionTokenDomain authActionTokenDomain);
 }

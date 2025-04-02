@@ -1,10 +1,9 @@
 ﻿using System.Reflection;
-using QuickForm.Common.Domain;
 
-namespace QuickForm.Modules.Users.Domain;
+namespace QuickForm.Common.Domain;
 public static class PredefinedPermissions
 {
-    public static PredefinedPermission Auth_ChangePassword => 
+    public static PredefinedPermission Auth_ChangePassword =>
         new PredefinedPermission(Guid.Parse("60FB6B55-DA96-4FFD-9755-B08E11E245B7"), ResourcesType.Auth, PermissionsActionType.ChangePassword);
 
 
@@ -20,10 +19,10 @@ public static class PredefinedPermissions
 
 public class PredefinedPermission
 {
-    public Guid Id { get; init; } 
+    public Guid Id { get; init; }
     public ResourcesType ResourcesType { get; set; }
     public PermissionsActionType PermissionsActionType { get; set; }
-    public PredefinedPermission(Guid id,ResourcesType resourcesType, PermissionsActionType permissionsActionType)
+    public PredefinedPermission(Guid id, ResourcesType resourcesType, PermissionsActionType permissionsActionType)
     {
         Id = id;
         ResourcesType = resourcesType;

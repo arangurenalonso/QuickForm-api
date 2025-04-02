@@ -15,10 +15,11 @@ internal sealed class FormRegister : IEndpoint
         {
             var result = await sender.Send(new FormRegisterCommand(
                 request.Name,
-                request.Description));
+                request.Description
+                ));
             return result.Match(Results.Ok, ApiResults.Problem);
         })
-        .AllowAnonymous()
+        .RequireAuthorization()
         .WithTags(Tags.Form);
     }
 

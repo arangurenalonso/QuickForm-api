@@ -1,20 +1,49 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using QuickForm.Common.Application;
+using QuickForm.Common.Domain;
+using QuickForm.Common.Infrastructure.Authorization;
 
 namespace QuickForm.Common.Infrastructure;
-internal sealed class PermissionRequirementHandler : AuthorizationHandler<PermissionRequirement>
+internal sealed class PermissionRequirementHandler(
+    IPermissionService _permissionService,
+    ICurrentUserService _currentUserService
+    ) : AuthorizationHandler<PermissionRequirement>
 {
-    protected override Task HandleRequirementAsync(
+    protected override async Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
         PermissionRequirement requirement)
     {
-        HashSet<string> permissions = context.User.GetPermissions();
-        // Busca si el usuario tiene el claim "Permission" con el valor del requerimiento
+        ResultT< (string Left, string Right)> result = ValidateAndSplitPermission(requirement.Permission);
 
-        if (permissions.Contains(requirement.Permission))
+        var userIdResult = _currentUserService.UserId;
+        if (result.IsSuccess && userIdResult.IsSuccess)
         {
-            context.Succeed(requirement);// Usuario autorizado
+
+            (string resource, string action) = result.Value;
+            var idUser= userIdResult.Value;
+            bool hasPermission = await _permissionService.HasPermissionAsync(idUser, resource, action);
+
+            if (hasPermission)
+            {
+                context.Succeed(requirement);
+            }
+        }
+    }
+    public ResultT<(string Left, string Right)> ValidateAndSplitPermission(string permission)
+    {
+        if (string.IsNullOrWhiteSpace(permission))
+        {
+            return ResultError.NullValue("Permission","Permission cannot be null or empty.");
         }
 
-        return Task.CompletedTask;  // Si no lo tiene, la autorización falla (403 Forbidden)
+        var parts = permission.Split(':');
+
+        if (parts.Length != 2)
+        {
+            return ResultError.InvalidFormat("Permission", "Invalid permission format. It must be in the format 'Resource:Action'.");
+        }
+
+        return (parts[0], parts[1]);
     }
+
 }

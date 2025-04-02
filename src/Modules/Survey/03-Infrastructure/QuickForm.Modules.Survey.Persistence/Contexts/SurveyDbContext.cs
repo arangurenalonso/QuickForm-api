@@ -16,6 +16,8 @@ public sealed class SurveyDbContext(DbContextOptions<SurveyDbContext> options) :
 
     public required DbSet<AuditLog> Audit { get; set; }
 
+    public required DbSet<DataTypeDomain> DataType { get; set; }
+    public required DbSet<AttributeDomain> Attribute { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schemas.Survey);

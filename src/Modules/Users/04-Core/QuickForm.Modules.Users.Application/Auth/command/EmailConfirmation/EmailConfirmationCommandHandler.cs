@@ -44,7 +44,12 @@ public class EmailConfirmationCommandHandler(
     {
         var idAuthActionEmailVerificacion = AuthActionType.EmailConfirmation.GetId();
         var idAuthAction = new AuthActionId(idAuthActionEmailVerificacion);
-        var authActionToken = await _authActionTokenRepository.GetAuthActionTokenByAuthActionIdAndTokenAsync(idAuthAction, token);
+        var tokenResult = TokenVO.Create(token);
+        if (tokenResult.IsFailure)
+        {
+            return ResultT<AuthActionTokenDomain>.FailureT(ResultType.DomainValidation, tokenResult.Errors);
+        }
+        var authActionToken = await _authActionTokenRepository.GetAuthActionTokenByAuthActionIdAndTokenAsync(idAuthAction, tokenResult.Value);
         if (authActionToken is null)
         {
             var error = ResultError.NullValue(

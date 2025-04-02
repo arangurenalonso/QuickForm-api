@@ -2,11 +2,12 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore;
 using QuickForm.Modules.Survey.Domain.Form;
+using QuickForm.Common.Infrastructure.Persistence;
 
 namespace QuickForm.Modules.Survey.Persistence;
-public class FormConfiguration : IEntityTypeConfiguration<FormDomain>
+public class FormConfiguration : EntityMapBase<FormDomain, FormId>
 {
-    public void Configure(EntityTypeBuilder<FormDomain> builder)
+    protected override void Configure(EntityTypeBuilder<FormDomain> builder)
     {
         builder.ToTable("Forms");
 
@@ -51,11 +52,11 @@ public class FormConfiguration : IEntityTypeConfiguration<FormDomain>
 
         builder.Property(p => p.DateEnd)
                 .HasColumnName("DateEnd")
-                .IsRequired(false) // Permitir valores nulos
+                .IsRequired(false) 
                 .HasConversion(
                     new ValueConverter<DateEnd?, DateTime?>(
                         dateEnd => dateEnd == null ? null : dateEnd.Value,
-                        date => date.HasValue ? DateEnd.FromDatabase(date) : DateEnd.FromDatabase(null) // Manejar nulos de salida
+                        date => date.HasValue ? DateEnd.FromDatabase(date) : DateEnd.FromDatabase(null) 
                     ));
     }
 }
