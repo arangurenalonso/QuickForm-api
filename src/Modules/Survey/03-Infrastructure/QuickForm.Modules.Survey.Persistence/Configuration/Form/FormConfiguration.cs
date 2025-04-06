@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore;
-using QuickForm.Modules.Survey.Domain.Form;
 using QuickForm.Common.Infrastructure.Persistence;
+using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Persistence;
 public class FormConfiguration : EntityMapBase<FormDomain, FormId>
@@ -64,6 +64,6 @@ public class FormConfiguration : EntityMapBase<FormDomain, FormId>
             .WithMany(customer=>customer.Forms)
             .HasForeignKey(from => from.customerId)
             .OnDelete(DeleteBehavior.Cascade)
-            .IsRequired(false);
+            .IsRequired();
     }
 }

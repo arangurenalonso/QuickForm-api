@@ -1,4 +1,4 @@
-﻿namespace QuickForm.Modules.Survey.Domain.Form;
+﻿namespace QuickForm.Modules.Survey.Domain;
 
 public interface IFormRepository
 {

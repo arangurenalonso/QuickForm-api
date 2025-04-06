@@ -1,6 +1,6 @@
 ﻿using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
-using QuickForm.Modules.Survey.Domain.Form;
+using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Application;
 internal sealed class FormPublishCommandHandler(IFormRepository formRepository, IUnitOfWork _unitOfWork)

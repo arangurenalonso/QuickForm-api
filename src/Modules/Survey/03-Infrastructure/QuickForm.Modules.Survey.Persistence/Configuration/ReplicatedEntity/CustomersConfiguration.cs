@@ -1,9 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuickForm.Common.Infrastructure.Persistence;
 using QuickForm.Modules.Survey.Domain;
-using QuickForm.Modules.Survey.Domain.Form;
 
 namespace QuickForm.Modules.Survey.Persistence;
 internal sealed class CustomerConfiguration : EntityMapBase<Customer, CustomerId>

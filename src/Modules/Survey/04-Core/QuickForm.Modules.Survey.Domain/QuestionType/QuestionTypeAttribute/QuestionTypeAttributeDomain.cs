@@ -14,6 +14,9 @@ public class QuestionTypeAttributeDomain : BaseDomainEntity<QuestionTypeAttribut
     #endregion
 
 
+    #region Many to one
+    public ICollection<QuestionAttributeValueDomain> QuestionAttributeValue { get; private set; } = [];
+    #endregion
     private QuestionTypeAttributeDomain() { }
 
     private QuestionTypeAttributeDomain(

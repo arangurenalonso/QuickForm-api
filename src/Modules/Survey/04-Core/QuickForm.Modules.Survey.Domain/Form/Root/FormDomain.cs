@@ -1,6 +1,6 @@
 ﻿using QuickForm.Common.Domain;
 
-namespace QuickForm.Modules.Survey.Domain.Form;
+namespace QuickForm.Modules.Survey.Domain;
 public class FormDomain : BaseDomainEntity<FormId>
 {
 
@@ -10,7 +10,13 @@ public class FormDomain : BaseDomainEntity<FormId>
     public bool IsClosed { get; private set; }
     public DateEnd? DateEnd { get; private set; }
     public CustomerId customerId { get; private set; }
+
+    #region One to Many
     public Customer Customer { get; private set; }
+    #endregion
+    #region Many to One
+    public ICollection<QuestionDomain> Questions { get; private set; } = [];
+    #endregion
     private FormDomain() { }
     private FormDomain(FormId id, FormNameVO name, FormDescription description) : base(id)
     {

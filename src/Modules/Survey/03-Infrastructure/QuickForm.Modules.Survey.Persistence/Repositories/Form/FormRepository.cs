@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using QuickForm.Modules.Survey.Domain.Form;
+using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Persistence;
 
