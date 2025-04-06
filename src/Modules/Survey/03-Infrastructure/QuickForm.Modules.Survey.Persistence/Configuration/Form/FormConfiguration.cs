@@ -52,11 +52,18 @@ public class FormConfiguration : EntityMapBase<FormDomain, FormId>
 
         builder.Property(p => p.DateEnd)
                 .HasColumnName("DateEnd")
-                .IsRequired(false) 
+                .IsRequired(false)
                 .HasConversion(
                     new ValueConverter<DateEnd?, DateTime?>(
                         dateEnd => dateEnd == null ? null : dateEnd.Value,
-                        date => date.HasValue ? DateEnd.FromDatabase(date) : DateEnd.FromDatabase(null) 
+                        date => date.HasValue ? DateEnd.FromDatabase(date) : DateEnd.FromDatabase(null)
                     ));
+
+
+        builder.HasOne(from => from.Customer)
+            .WithMany(customer=>customer.Forms)
+            .HasForeignKey(from => from.customerId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired(false);
     }
 }

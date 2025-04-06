@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using QuickForm.Common.Domain;
+﻿using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Survey.Domain;
 public class AttributeDomain : BaseDomainEntity<AttributeId>
@@ -13,6 +12,9 @@ public class AttributeDomain : BaseDomainEntity<AttributeId>
     public DataTypeDomain DataType { get; private set; }
     #endregion
 
+    #region Many to One
+    public ICollection<QuestionTypeAttributeDomain> QuestionTypeAttributes { get; private set; } = [];
+    #endregion
     private AttributeDomain() { }
 
     private AttributeDomain(

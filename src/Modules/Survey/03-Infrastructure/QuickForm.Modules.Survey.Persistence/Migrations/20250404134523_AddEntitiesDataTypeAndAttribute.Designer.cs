@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuickForm.Modules.Survey.Persistence;
 
@@ -11,9 +12,11 @@ using QuickForm.Modules.Survey.Persistence;
 namespace QuickForm.Modules.Survey.Persistence.Migrations
 {
     [DbContext(typeof(SurveyDbContext))]
-    partial class SurveyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250404134523_AddEntitiesDataTypeAndAttribute")]
+    partial class AddEntitiesDataTypeAndAttribute
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -358,105 +361,12 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("Name");
 
-                    b.Property<Guid?>("customerId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("IsActive")
                         .HasDatabaseName("IX_FormDomain_IsActive");
 
-                    b.HasIndex("customerId");
-
                     b.ToTable("Forms", "Survey");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.QuestionTypeAttributeDomain", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("IdAttribute")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("IdQuestionType")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<bool>("IsRequired")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdAttribute");
-
-                    b.HasIndex("IdQuestionType");
-
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_QuestionTypeAttributeDomain_IsActive");
-
-                    b.ToTable("QuestionTypeAttribute", "Survey");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.QuestionTypeDomain", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("KeyName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("KeyName");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_QuestionTypeDomain_IsActive");
-
-                    b.HasIndex("KeyName")
-                        .IsUnique();
-
-                    b.ToTable("QuestionType", "Survey");
                 });
 
             modelBuilder.Entity("QuickForm.Modules.Survey.Domain.AttributeDomain", b =>
@@ -470,53 +380,9 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                     b.Navigation("DataType");
                 });
 
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.Form.FormDomain", b =>
-                {
-                    b.HasOne("QuickForm.Modules.Survey.Domain.Customer", "Customer")
-                        .WithMany("Forms")
-                        .HasForeignKey("customerId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Customer");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.QuestionTypeAttributeDomain", b =>
-                {
-                    b.HasOne("QuickForm.Modules.Survey.Domain.AttributeDomain", "Attribute")
-                        .WithMany("QuestionTypeAttributes")
-                        .HasForeignKey("IdAttribute")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("QuickForm.Modules.Survey.Domain.QuestionTypeDomain", "QuestionType")
-                        .WithMany("QuestionTypeAttributes")
-                        .HasForeignKey("IdQuestionType")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Attribute");
-
-                    b.Navigation("QuestionType");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.AttributeDomain", b =>
-                {
-                    b.Navigation("QuestionTypeAttributes");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.Customer", b =>
-                {
-                    b.Navigation("Forms");
-                });
-
             modelBuilder.Entity("QuickForm.Modules.Survey.Domain.DataTypeDomain", b =>
                 {
                     b.Navigation("Attributes");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.QuestionTypeDomain", b =>
-                {
-                    b.Navigation("QuestionTypeAttributes");
                 });
 #pragma warning restore 612, 618
         }

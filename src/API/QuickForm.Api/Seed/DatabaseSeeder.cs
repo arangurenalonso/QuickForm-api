@@ -28,6 +28,14 @@ public class DatabaseSeeder(
 
             var datatypeSeeder = new DatatypeSeeder(_surveyDbContext, _logger);
             await datatypeSeeder.SeedAsync();
+            var attributeSeeder = new AttributeSeeder(_surveyDbContext, _logger);
+            await attributeSeeder.SeedAsync();
+            var questionTypeSeeder = new QuestionTypeSeeder(_surveyDbContext, _logger);
+            await questionTypeSeeder.SeedAsync();
+            var questionTypeAttributesSeeder = new QuestionTypeAttributesSeeder(_surveyDbContext, _logger);
+            await questionTypeAttributesSeeder.SeedAsync();
+
+
 
             _logger.LogInformation("Database seeding completed successfully.");
         }

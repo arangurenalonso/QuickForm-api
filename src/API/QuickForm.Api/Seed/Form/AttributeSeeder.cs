@@ -39,17 +39,25 @@ public class AttributeSeeder(SurveyDbContext _context, ILogger<DatabaseSeeder> _
 
             if (existingDomain == null)
             {
-                PermissionsDomain newDomain = PermissionsDomain.Create(idEnumType, value.ResourcesId, value.PermissionsActionsId).Value;
+                AttributeDomain newDomain = AttributeDomain.Create(
+                                                    idEnumType, 
+                                                    value.KeyName, 
+                                                    value.Description,
+                                                    value.DataTypeId
+                                                    ).Value;
                 newDomain.ClassOrigin = GetType().Name;
                 newDomain.TransactionId = transactionId;
                 _context.Attribute.Add(newDomain);
             }
-            else if (existingDomain.IdResources != value.ResourcesId || existingDomain.IdAction != value.PermissionsActionsId)
+            else if (
+                existingDomain.IdDataType != value.DataTypeId || 
+                existingDomain.Description.Value != value.Description||
+                existingDomain.KeyName.Value != value.KeyName
+                )
             {
                 existingDomain.ClassOrigin = GetType().Name;
                 existingDomain.TransactionId = transactionId;
-                existingDomain.Update(value.ResourcesId, value.PermissionsActionsId);
-                _context.Attribute.Update(existingDomain);
+                existingDomain.Update(value.KeyName, value.Description,value.DataTypeId);
             }
         }
 

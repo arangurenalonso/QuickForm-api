@@ -1,49 +1,48 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuickForm.Common.Domain;
-using QuickForm.Modules.Users.Domain;
-using QuickForm.Modules.Users.Persistence;
+using QuickForm.Modules.Survey.Domain;
+using QuickForm.Modules.Survey.Persistence;
 
 namespace QuickForm.Api.Seed;
 
-public class AuthActionSeeder(UsersDbContext _context, ILogger<DatabaseSeeder> _logger)
+public class QuestionTypeSeeder(SurveyDbContext _context, ILogger<DatabaseSeeder> _logger)
 {
 
     public async Task SeedAsync()
     {
         _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
-
-        var enumTypesArray = Enum.GetValues(typeof(AuthActionType))
-            .Cast<AuthActionType>()
+        var enumTypesArray = Enum.GetValues(typeof(QuestionTypeType))
+            .Cast<QuestionTypeType>()
             .Select(enumType => new
             {
-                Id = new AuthActionId(enumType.GetId()),
-                Description = enumType.GetDetail()
+                Id = new QuestionTypeId(enumType.GetId()),
+                KeyName = enumType.GetDetail()
             })
             .ToList();
 
         var ids = enumTypesArray.Select(x => x.Id).ToList();
 
-        List<AuthActionDomain> existingDomains = await _context.AuthAction
+        List<QuestionTypeDomain> existingDomains = await _context.QuestionType
                                             .Where(x => ids.Contains(x.Id))
                                             .ToListAsync();
         Guid transactionId = Guid.NewGuid();
         foreach (var enumType in enumTypesArray)
         {
-            AuthActionId idEnumType = enumType.Id;
-            AuthActionDomain? existingDomain = existingDomains.Find(x => x.Id == idEnumType);
+            QuestionTypeId idVO = enumType.Id;
+            QuestionTypeDomain? existingDomain = existingDomains.Find(x => x.Id == idVO);
 
             if (existingDomain == null)
             {
-                AuthActionDomain newDomain = AuthActionDomain.Create(idEnumType, enumType.Description).Value;
+                QuestionTypeDomain newDomain = QuestionTypeDomain.Create(idVO, enumType.KeyName).Value;
                 newDomain.ClassOrigin = GetType().Name;
                 newDomain.TransactionId = transactionId;
-                _context.AuthAction.Add(newDomain);
+                _context.QuestionType.Add(newDomain);
             }
-            else if (existingDomain.Description.Value != enumType.Description)
+            else if (existingDomain.KeyName.Value != enumType.KeyName)
             {
                 existingDomain.ClassOrigin = GetType().Name;
                 existingDomain.TransactionId = transactionId;
-                existingDomain.Update(enumType.Description);
+                existingDomain.Update(enumType.KeyName);
             }
         }
 

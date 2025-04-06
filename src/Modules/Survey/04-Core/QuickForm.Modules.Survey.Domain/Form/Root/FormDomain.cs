@@ -9,7 +9,8 @@ public class FormDomain : BaseDomainEntity<FormId>
     public bool IsPublished { get; private set; }
     public bool IsClosed { get; private set; }
     public DateEnd? DateEnd { get; private set; }
-
+    public CustomerId customerId { get; private set; }
+    public Customer Customer { get; private set; }
     private FormDomain() { }
     private FormDomain(FormId id, FormNameVO name, FormDescription description) : base(id)
     {

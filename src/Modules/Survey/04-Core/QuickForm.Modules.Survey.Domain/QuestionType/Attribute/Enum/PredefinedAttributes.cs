@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
-using QuickForm.Modules.Survey.Domain;
+using QuickForm.Common.Domain;
+namespace QuickForm.Modules.Survey.Domain;
 
-namespace QuickForm.Common.Domain;
 public static class PredefinedAttributes
 {
     public static PredefinedAttribute Attribute_Name =>
