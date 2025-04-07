@@ -5,12 +5,28 @@ using QuickForm.Modules.Survey.Domain;
 namespace QuickForm.Modules.Survey.Application;
 
 
-internal sealed class FormRegisterCommandHandler(IFormRepository formRepository, IUnitOfWork _unitOfWork)
-    : ICommandHandler<FormRegisterCommand, ResultResponse>
+internal sealed class FormRegisterCommandHandler(
+    IFormRepository formRepository, 
+    IUnitOfWork _unitOfWork,
+    ICurrentUserService currentUserService,
+    ICustomerRepository customerRepository
+    ) : ICommandHandler<FormRegisterCommand, ResultResponse>
 {
     public async Task<ResultT<ResultResponse>> Handle(FormRegisterCommand request, CancellationToken cancellationToken)
     {
-        var formCreated = FormDomain.Create(request.Name,request.Description);
+        var userIdResult = currentUserService.UserId;
+        if (userIdResult.IsFailure)
+        {
+            return ResultT<ResultResponse>.FailureT(ResultType.NotFound, userIdResult.Errors);
+        }
+        var customer = await customerRepository.GetAsync(userIdResult.Value, cancellationToken);
+        if (customer is null)
+        {
+            var error = ResultError.InvalidInput("Customer", $"Customer with id '{userIdResult.Value}' not found");
+            return ResultT<ResultResponse>.FailureT(ResultType.NotFound, error);
+
+        }
+        var formCreated = FormDomain.Create(request.Name,request.Description, customer);
 
         if (formCreated.IsFailure)
         {

@@ -9,7 +9,7 @@ public class FormDomain : BaseDomainEntity<FormId>
     public bool IsPublished { get; private set; }
     public bool IsClosed { get; private set; }
     public DateEnd? DateEnd { get; private set; }
-    public CustomerId customerId { get; private set; }
+    public CustomerId IdCustomer { get; private set; }
 
     #region One to Many
     public Customer Customer { get; private set; }
@@ -18,15 +18,20 @@ public class FormDomain : BaseDomainEntity<FormId>
     public ICollection<QuestionDomain> Questions { get; private set; } = [];
     #endregion
     private FormDomain() { }
-    private FormDomain(FormId id, FormNameVO name, FormDescription description) : base(id)
+    private FormDomain(
+        FormId id, 
+        FormNameVO name, 
+        FormDescription description,
+        CustomerId idCustomer) : base(id)
     {
         Name = name;
         Description = description;
         IsPublished = false;
         IsClosed = false;
+        IdCustomer = idCustomer;
     }
 
-    public static ResultT<FormDomain> Create(string name, string? description)
+    public static ResultT<FormDomain> Create(string name, string? description,Customer customer)
     {
         var nameResult = FormNameVO.Create(name);
         var descriptionResult = FormDescription.Create(description);
@@ -37,7 +42,7 @@ public class FormDomain : BaseDomainEntity<FormId>
                 new List<ResultErrorList>() { nameResult.Errors, descriptionResult.Errors }
                 );
         }
-        var newForm = new FormDomain(FormId.Create(), nameResult.Value, descriptionResult.Value);
+        var newForm = new FormDomain(FormId.Create(), nameResult.Value, descriptionResult.Value,customer.Id);
 
         return newForm;
     }

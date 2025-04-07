@@ -8,7 +8,7 @@ internal sealed class FormCloseCommandHandler(IFormRepository formRepository, IU
 {
     public async Task<ResultT<ResultResponse>> Handle(FormUpdateCommand request, CancellationToken cancellationToken)
     {
-        var form = await formRepository.GetAsync(new FormId(request.Id), cancellationToken);
+        var form = await formRepository.GetAsync(request.Id, cancellationToken);
 
         if (form == null)
         {

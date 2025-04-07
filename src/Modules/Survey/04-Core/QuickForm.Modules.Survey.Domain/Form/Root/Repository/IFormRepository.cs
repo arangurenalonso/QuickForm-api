@@ -2,6 +2,6 @@
 
 public interface IFormRepository
 {
-    Task<FormDomain?> GetAsync(FormId id, CancellationToken cancellationToken = default);
+    Task<FormDomain?> GetAsync(Guid id, CancellationToken cancellationToken = default);
     void Insert(FormDomain form);
 }

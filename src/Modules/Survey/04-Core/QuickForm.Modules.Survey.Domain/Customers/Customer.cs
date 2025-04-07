@@ -1,4 +1,5 @@
-﻿using QuickForm.Common.Domain;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Survey.Domain;
 
@@ -8,6 +9,8 @@ public sealed class Customer : BaseDomainEntity<CustomerId>
     public string Email { get; private set; }
     public string FirstName { get; private set; }
     public string LastName { get; private set; }
+    [NotMapped]
+    public string FullName => $"{FirstName} {LastName}";
 
     public ICollection<FormDomain> Forms { get; private set; } = [];
     private Customer()

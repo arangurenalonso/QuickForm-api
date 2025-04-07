@@ -7,9 +7,10 @@ public class FormRepository(
     SurveyDbContext _context
     ) : IFormRepository
 {
-    public async Task<FormDomain?> GetAsync(FormId id, CancellationToken cancellationToken = default)
+    public async Task<FormDomain?> GetAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _context.Form.FirstOrDefaultAsync(u => u.Id == id && u.IsActive, cancellationToken);
+        FormId formId = new FormId(id);
+        return await _context.Form.FirstOrDefaultAsync(u => u.Id == formId && u.IsActive, cancellationToken);
     }
 
     public void Insert(FormDomain form)

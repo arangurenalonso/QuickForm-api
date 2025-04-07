@@ -62,7 +62,7 @@ public class FormConfiguration : EntityMapBase<FormDomain, FormId>
 
         builder.HasOne(from => from.Customer)
             .WithMany(customer=>customer.Forms)
-            .HasForeignKey(from => from.customerId)
+            .HasForeignKey(from => from.IdCustomer)
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired();
     }
