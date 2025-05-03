@@ -5,21 +5,20 @@ using QuickForm.Modules.Users.Persistence;
 
 namespace QuickForm.Api.Seed;
 
-public class AuthActionSeeder(UsersDbContext _context, ILogger<DatabaseSeeder> _logger)
+internal class AuthActionSeeder(UsersDbContext _context, ILogger<DatabaseSeeder> _logger)
 {
 
     public async Task SeedAsync()
     {
         _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
 
-        var enumTypesArray = Enum.GetValues(typeof(AuthActionType))
-            .Cast<AuthActionType>()
-            .Select(enumType => new
-            {
-                Id = new AuthActionId(enumType.GetId()),
-                Description = enumType.GetDetail()
-            })
-            .ToList();
+        var enumTypesArray = Enum.GetValues<AuthActionType>() 
+                                    .Select(enumType => new
+                                    {
+                                        Id = new AuthActionId(enumType.GetId()),
+                                        Description = enumType.GetDetail()
+                                    })
+                                    .ToList();
 
         var ids = enumTypesArray.Select(x => x.Id).ToList();
 

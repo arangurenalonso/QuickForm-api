@@ -5,20 +5,19 @@ using QuickForm.Modules.Users.Persistence;
 
 namespace QuickForm.Api.Seed;
 
-public class PermissionsActionSeeder(UsersDbContext _context, ILogger<DatabaseSeeder> _logger)
+internal class PermissionsActionSeeder(UsersDbContext _context, ILogger<DatabaseSeeder> _logger)
 {
 
     public async Task SeedAsync()
     {
         _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
-        var enumTypesArray = Enum.GetValues(typeof(PermissionsActionType))
-            .Cast<PermissionsActionType>()
-            .Select(enumType => new
-            {
-                Id = new PermissionsActionsId(enumType.GetId()),
-                Description = enumType.GetDetail()
-            })
-            .ToList();
+        var enumTypesArray = Enum.GetValues<PermissionsActionType>()
+                                    .Select(enumType => new
+                                    {
+                                        Id = new PermissionsActionsId(enumType.GetId()),
+                                        Description = enumType.GetDetail()
+                                    })
+                                    .ToList();
 
         var ids = enumTypesArray.Select(x => x.Id).ToList();
 

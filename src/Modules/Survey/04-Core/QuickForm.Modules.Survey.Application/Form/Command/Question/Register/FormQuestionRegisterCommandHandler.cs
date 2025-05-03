@@ -88,30 +88,13 @@ internal sealed class FormQuestionRegisterCommandHandler(
             }
             JsonElement value = property.Value;
             var dataType = questionTypeAttribute.Attribute.DataType.Description.Value.ToLowerInvariant();
-
-            bool isValid = dataType switch
+            var validationResult = CommonMethods.ValidateDataType(propertyName, dataType, value);
+            if (validationResult.IsFailure)
             {
-                "string" => value.ValueKind == JsonValueKind.String,
-                "int" => value.TryGetInt32(out _),
-                "decimal" => value.TryGetDecimal(out _),
-                "bool" => value.ValueKind == JsonValueKind.True || value.ValueKind == JsonValueKind.False,
-                "datetime" =>
-                    value.ValueKind == JsonValueKind.String
-                        ? DateTime.TryParse(value.GetString(), CultureInfo.InvariantCulture, DateTimeStyles.None, out _)
-                        : DateTime.TryParse(value.GetRawText(), CultureInfo.InvariantCulture, DateTimeStyles.None, out _),
-                _ => false
-            };
-
-
-            if (!isValid)
-            {
-                var errorQuestion = ResultError.InvalidInput(
-                    "DataType",
-                    $"Invalid data type for attribute '{propertyName}'. Expected '{dataType}', but received '{value.ValueKind}'."
-                );
-                return Result.Failure(ResultType.Validation, errorQuestion);
+                return validationResult;
             }
         }
+        return Result.Success();
     }
     private async Task<ResultT<List<QuestionTypeDomain>>> GetQuestionType(List<QuestionDto> questionsDto,CancellationToken cancellationToken)
     {

@@ -1,24 +1,24 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuickForm.Common.Domain;
+using QuickForm.Modules.Survey.Domain;
 using QuickForm.Modules.Users.Domain;
 using QuickForm.Modules.Users.Persistence;
 
 namespace QuickForm.Api.Seed;
 
-public class RoleSeeder(UsersDbContext _context, ILogger<DatabaseSeeder> _logger)
+internal class RoleSeeder(UsersDbContext _context, ILogger<DatabaseSeeder> _logger)
 {
 
     public async Task SeedAsync()
     {
         _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
-        var enumTypesArray = Enum.GetValues(typeof(RoleType))
-            .Cast<RoleType>()
-            .Select(enumType => new
-            {
-                Id = new RoleId(enumType.GetId()),
-                Description = enumType.GetDetail()
-            })
-            .ToList();
+        var enumTypesArray = Enum.GetValues<RoleType>()
+                                    .Select(enumType => new
+                                    {
+                                        Id = new RoleId(enumType.GetId()),
+                                        Description = enumType.GetDetail()
+                                    })
+                                    .ToList();
 
         var ids = enumTypesArray.Select(x => x.Id).ToList();
 

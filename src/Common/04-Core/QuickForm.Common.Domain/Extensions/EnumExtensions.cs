@@ -40,4 +40,10 @@ public static class EnumExtensions
 
         return value.ToString();
     }
+    public static TEnum? FromDetail<TEnum>(string detail) where TEnum : struct, Enum
+    {
+        return Array.Find(Enum.GetValues<TEnum>(), t =>
+            string.Equals(t.GetDetail(), detail, StringComparison.OrdinalIgnoreCase));
+    }
+
 }

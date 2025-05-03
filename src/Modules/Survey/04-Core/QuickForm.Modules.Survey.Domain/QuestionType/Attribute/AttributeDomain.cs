@@ -7,6 +7,7 @@ public class AttributeDomain : BaseDomainEntity<AttributeId>
     public AttributeKeyNameVO KeyName { get; private set; }
     public AttributeDescriptionVO Description { get; private set; }
     public DataTypeId IdDataType { get; private set; }
+    public bool MustBeUnique { get; private set; }
 
     #region One to Many
     public DataTypeDomain DataType { get; private set; }
@@ -21,17 +22,20 @@ public class AttributeDomain : BaseDomainEntity<AttributeId>
         AttributeId id, 
         AttributeKeyNameVO keyName,
         AttributeDescriptionVO description,
-        DataTypeId idDataType) : base(id)
+        DataTypeId idDataType,
+        bool mustBeUnique) : base(id)
     {
         KeyName = keyName;
         Description = description;
         IdDataType = idDataType;
+        MustBeUnique = mustBeUnique;
     }
     public static ResultT<AttributeDomain> Create(
         AttributeId id,
         string keyName,
         string description,
-        DataTypeId idDataType
+        DataTypeId idDataType,
+        bool mustBeUnique
       )
     {
         var keyNameResult = AttributeKeyNameVO.Create(keyName);
@@ -43,21 +47,23 @@ public class AttributeDomain : BaseDomainEntity<AttributeId>
                 );
             return errorList;
         }
-        var domain = new AttributeDomain(id, keyNameResult.Value, descriptionResult.Value, idDataType);
+        var domain = new AttributeDomain(id, keyNameResult.Value, descriptionResult.Value, idDataType, mustBeUnique);
 
         return domain;
     }
     public static ResultT<AttributeDomain> Create(
             string keyName,
             string description,
-            DataTypeId idDataType
+            DataTypeId idDataType,
+            bool mustBeUnique
     )
-        => Create(AttributeId.Create(), keyName, description, idDataType);
+        => Create(AttributeId.Create(), keyName, description, idDataType, mustBeUnique);
 
     public Result Update(
            string keyName,
            string description,
-           DataTypeId idDataType
+           DataTypeId idDataType,
+           bool mustBeUnique
        )
     {
         var keyNameResult = AttributeKeyNameVO.Create(keyName);
@@ -73,6 +79,8 @@ public class AttributeDomain : BaseDomainEntity<AttributeId>
         KeyName = keyNameResult.Value;
         Description = descriptionResult.Value;
         IdDataType = idDataType;
+        MustBeUnique = mustBeUnique;
+
         return Result.Success();
     }
 }

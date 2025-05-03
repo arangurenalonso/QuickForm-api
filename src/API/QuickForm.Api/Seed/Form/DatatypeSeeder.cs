@@ -5,20 +5,19 @@ using QuickForm.Modules.Survey.Persistence;
 
 namespace QuickForm.Api.Seed;
 
-public class DatatypeSeeder(SurveyDbContext _context, ILogger<DatabaseSeeder> _logger)
+internal class DatatypeSeeder(SurveyDbContext _context, ILogger<DatabaseSeeder> _logger)
 {
 
     public async Task SeedAsync()
     {
         _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
-        var enumTypesArray = Enum.GetValues(typeof(DataTypeType))
-            .Cast<DataTypeType>()
-            .Select(enumType => new
-            {
-                Id = new DataTypeId(enumType.GetId()),
-                Description = enumType.GetDetail()
-            })
-            .ToList();
+        var enumTypesArray = Enum.GetValues<DataTypeType>()
+                                    .Select(enumType => new
+                                    {
+                                        Id = new DataTypeId(enumType.GetId()),
+                                        Description = enumType.GetDetail()
+                                    })
+                                    .ToList();
 
         var ids = enumTypesArray.Select(x => x.Id).ToList();
 

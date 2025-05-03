@@ -3,7 +3,7 @@ using QuickForm.Modules.Users.Persistence;
 
 namespace QuickForm.Api.Seed;
 
-public class DatabaseSeeder(
+internal class DatabaseSeeder(
         UsersDbContext _userContext, 
         SurveyDbContext _surveyDbContext, 
         ILogger<DatabaseSeeder> _logger

@@ -5,20 +5,19 @@ using QuickForm.Modules.Users.Persistence;
 
 namespace QuickForm.Api.Seed;
 
-public class ResourcesSeeder(UsersDbContext _context, ILogger<DatabaseSeeder> _logger)
+internal class ResourcesSeeder(UsersDbContext _context, ILogger<DatabaseSeeder> _logger)
 {
 
     public async Task SeedAsync()
     {
         _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
-        var enumTypesArray = Enum.GetValues(typeof(ResourcesType))
-            .Cast<ResourcesType>()
-            .Select(enumType => new
-            {
-                Id = new ResourcesId(enumType.GetId()),
-                Description = enumType.GetDetail()
-            })
-            .ToList();
+        var enumTypesArray = Enum.GetValues<ResourcesType>()
+                                    .Select(enumType => new
+                                    {
+                                        Id = new ResourcesId(enumType.GetId()),
+                                        Description = enumType.GetDetail()
+                                    })
+                                    .ToList();
 
         var ids = enumTypesArray.Select(x => x.Id).ToList();
 

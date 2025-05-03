@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using QuickForm.Common.Domain;
 using QuickForm.Modules.Survey.Domain;
 using QuickForm.Modules.Survey.Persistence;
 
 namespace QuickForm.Api.Seed;
 
-public class AttributeSeeder(SurveyDbContext _context, ILogger<DatabaseSeeder> _logger)
+internal class AttributeSeeder(SurveyDbContext _context, ILogger<DatabaseSeeder> _logger)
 {
 
     public async Task SeedAsync()
@@ -21,6 +22,7 @@ public class AttributeSeeder(SurveyDbContext _context, ILogger<DatabaseSeeder> _
                 KeyName = attribute.AttributeType.GetDetail(),
                 attribute.Description,
                 DataTypeId = new DataTypeId(attribute.DataTypeType.GetId()),
+                attribute.MustBeUnique
             })
             .ToList();
 
@@ -43,7 +45,8 @@ public class AttributeSeeder(SurveyDbContext _context, ILogger<DatabaseSeeder> _
                                                     idEnumType, 
                                                     value.KeyName, 
                                                     value.Description,
-                                                    value.DataTypeId
+                                                    value.DataTypeId,
+                                                    value.MustBeUnique
                                                     ).Value;
                 newDomain.ClassOrigin = GetType().Name;
                 newDomain.TransactionId = transactionId;
@@ -57,7 +60,7 @@ public class AttributeSeeder(SurveyDbContext _context, ILogger<DatabaseSeeder> _
             {
                 existingDomain.ClassOrigin = GetType().Name;
                 existingDomain.TransactionId = transactionId;
-                existingDomain.Update(value.KeyName, value.Description,value.DataTypeId);
+                existingDomain.Update(value.KeyName, value.Description,value.DataTypeId, value.MustBeUnique);
             }
         }
 
