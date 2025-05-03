@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Text.Json;
 
 namespace QuickForm.Modules.Survey.Application;
-public static class CommonMethods
+public static class SurveyCommonMethods
 {
     public static Result ValidateDataType(string propertyName, string dataType, JsonElement value)
     {

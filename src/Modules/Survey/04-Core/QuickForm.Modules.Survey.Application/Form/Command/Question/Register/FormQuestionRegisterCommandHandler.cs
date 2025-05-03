@@ -60,7 +60,7 @@ internal sealed class FormQuestionRegisterCommandHandler(
             }
 
             var properties = questionDto.Properties;
-            var validatePropertiesResult = Validate(questionType, properties);
+            var validatePropertiesResult = ValidateDataTypeOfProperties(questionType, properties);
             if (validatePropertiesResult.IsFailure)
             {
                 return Result.Failure(ResultType.NotFound, validatePropertiesResult.Errors);
@@ -71,14 +71,18 @@ internal sealed class FormQuestionRegisterCommandHandler(
 
         return Result.Success();
     }
-    private Result Validate(QuestionTypeDomain questionTypeDomain, JsonElement properties)
+    private Result ValidateDataTypeOfProperties(QuestionTypeDomain questionTypeDomain, JsonElement properties)
     {
+        List<AttributeDomain> attributesOfQuestionType = questionTypeDomain.QuestionTypeAttributes.Select(x => x.Attribute).ToList();
         foreach (var property in properties.EnumerateObject())
         {
             string propertyName = property.Name;
-            QuestionTypeAttributeDomain? questionTypeAttribute=questionTypeDomain.QuestionTypeAttributes
-                                                                        .FirstOrDefault(x => x.Attribute.KeyName== propertyName);
-            if (questionTypeAttribute is null)
+            AttributeDomain? attribute = attributesOfQuestionType
+                                                .Find(x => 
+                                                        string.Equals(x.KeyName.Value, propertyName, StringComparison.OrdinalIgnoreCase)
+                                                    );
+
+            if (attribute is null)
             {
                 var errorQuestion = ResultError.InvalidInput(
                     "QuestionTypeAttribute",
@@ -87,8 +91,8 @@ internal sealed class FormQuestionRegisterCommandHandler(
                 return Result.Failure(ResultType.NotFound, errorQuestion);
             }
             JsonElement value = property.Value;
-            var dataType = questionTypeAttribute.Attribute.DataType.Description.Value.ToLowerInvariant();
-            var validationResult = CommonMethods.ValidateDataType(propertyName, dataType, value);
+            var dataType = attribute.DataType.Description.Value.ToLowerInvariant();
+            var validationResult = SurveyCommonMethods.ValidateDataType(propertyName, dataType, value);
             if (validationResult.IsFailure)
             {
                 return validationResult;

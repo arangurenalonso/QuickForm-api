@@ -26,10 +26,10 @@ public static class PredefinedAttributes
         new PredefinedAttribute(AttributeType.Suffix, false, DataTypeType.StringType, "Text shown after the input value.");
 
     public static PredefinedAttribute Attribute_DecimalScale =>
-        new PredefinedAttribute(AttributeType.DecimalScale, true, DataTypeType.IntType, "Number of digits allowed after the decimal point.");
+        new PredefinedAttribute(AttributeType.DecimalScale, false, DataTypeType.IntType, "Number of digits allowed after the decimal point.");
 
     public static PredefinedAttribute Attribute_AllowNegative =>
-        new PredefinedAttribute(AttributeType.AllowNegative, true, DataTypeType.BooleanType, "Specifies if negative numbers are allowed.");
+        new PredefinedAttribute(AttributeType.AllowNegative, false, DataTypeType.BooleanType, "Specifies if negative numbers are allowed.");
 
     public static List<PredefinedAttribute> GetAll()
     {

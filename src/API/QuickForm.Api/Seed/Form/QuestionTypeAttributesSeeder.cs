@@ -1,12 +1,11 @@
-﻿using System.Linq;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using QuickForm.Common.Domain;
 using QuickForm.Modules.Survey.Domain;
 using QuickForm.Modules.Survey.Persistence;
 
 namespace QuickForm.Api.Seed;
 
-internal class QuestionTypeAttributesSeeder(SurveyDbContext _context, ILogger<DatabaseSeeder> _logger)
+internal sealed  class QuestionTypeAttributesSeeder(SurveyDbContext _context, ILogger<DatabaseSeeder> _logger)
 {
 
     public async Task SeedAsync()

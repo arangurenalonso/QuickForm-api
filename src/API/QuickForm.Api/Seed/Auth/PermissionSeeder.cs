@@ -5,7 +5,7 @@ using QuickForm.Modules.Users.Persistence;
 
 namespace QuickForm.Api.Seed;
 
-internal class PermissionSeeder(UsersDbContext _context, ILogger<DatabaseSeeder> _logger)
+internal sealed class PermissionSeeder(UsersDbContext _context, ILogger<DatabaseSeeder> _logger)
 {
 
     public async Task SeedAsync()

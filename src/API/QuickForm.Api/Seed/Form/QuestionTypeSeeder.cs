@@ -5,7 +5,7 @@ using QuickForm.Modules.Survey.Persistence;
 
 namespace QuickForm.Api.Seed;
 
-internal class QuestionTypeSeeder(SurveyDbContext _context, ILogger<DatabaseSeeder> _logger)
+internal sealed class QuestionTypeSeeder(SurveyDbContext _context, ILogger<DatabaseSeeder> _logger)
 {
 
     public async Task SeedAsync()

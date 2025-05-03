@@ -1,12 +1,11 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using QuickForm.Common.Domain;
 using QuickForm.Modules.Survey.Domain;
 using QuickForm.Modules.Survey.Persistence;
 
 namespace QuickForm.Api.Seed;
 
-internal class AttributeSeeder(SurveyDbContext _context, ILogger<DatabaseSeeder> _logger)
+internal sealed class AttributeSeeder(SurveyDbContext _context, ILogger<DatabaseSeeder> _logger)
 {
 
     public async Task SeedAsync()
@@ -55,7 +54,8 @@ internal class AttributeSeeder(SurveyDbContext _context, ILogger<DatabaseSeeder>
             else if (
                 existingDomain.IdDataType != value.DataTypeId || 
                 existingDomain.Description.Value != value.Description||
-                existingDomain.KeyName.Value != value.KeyName
+                existingDomain.KeyName.Value != value.KeyName ||
+                existingDomain.MustBeUnique != value.MustBeUnique
                 )
             {
                 existingDomain.ClassOrigin = GetType().Name;
