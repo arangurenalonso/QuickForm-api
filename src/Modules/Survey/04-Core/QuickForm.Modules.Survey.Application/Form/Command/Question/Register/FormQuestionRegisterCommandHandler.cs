@@ -1,16 +1,15 @@
-﻿using MediatR;
-using System.Threading;
-using QuickForm.Common.Application;
+﻿using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
 using QuickForm.Modules.Survey.Domain;
 using System.Text.Json;
-using System.Globalization;
 
 namespace QuickForm.Modules.Survey.Application;
 
 
 internal sealed class FormQuestionRegisterCommandHandler(
+    IUnitOfWork _unitOfWork,
     IFormRepository _formRepository,
+    IQuestionRepository _questionRepository,
     IQuestionTypeRepository _questionTypeRepository,
     ICurrentUserService _currentUserService,
     ICustomerRepository _customerRepository
@@ -28,6 +27,7 @@ internal sealed class FormQuestionRegisterCommandHandler(
         {
             return ResultT<ResultResponse>.FailureT(ResultType.NotFound, formResult.Errors);
         }
+        FormDomain formDomain = formResult.Value;
         var questionsTypeResult = await GetQuestionType(request.Questions, cancellationToken);
         if (questionsTypeResult.IsFailure)
         {
@@ -40,10 +40,85 @@ internal sealed class FormQuestionRegisterCommandHandler(
         {
             return ResultT<ResultResponse>.FailureT(ResultType.NotFound, validatePropertiesResult.Errors);
         }
+
+        var resultStoreDatabase = await StoreDatabase(formDomain, request.Questions, questionsType,cancellationToken);
+        if (resultStoreDatabase.IsFailure)
+        {
+            return ResultT<ResultResponse>.FailureT(ResultType.ModelDataValidation, validatePropertiesResult.Errors);
+        }
+
         return ResultTResponse<Guid>.Success(Guid.NewGuid(), $".");
-
-
     }
+    private async  Task<Result> StoreDatabase(
+        FormDomain formDomain,
+        List<QuestionDto> questionsDto, 
+        List<QuestionTypeDomain> listQuestionType,
+        CancellationToken cancellationToken)
+    {
+        List<QuestionDomain> questions = await GetQuestion(formDomain.Id.Value, cancellationToken);
+        var incomingIds = questionsDto.Select(q => q.Id).ToHashSet();
+
+        // Desactivar preguntas que ya no están en el DTO
+        foreach (var existingQuestion in questions)
+        {
+            if (!incomingIds.Contains(existingQuestion.Id.Value))
+            {
+                existingQuestion.Deactivate(); // Este método debe marcar IsActive = false
+                _questionRepository.Update(existingQuestion);
+            }
+        }
+
+        int order = 1;
+        foreach (var questionDto in questionsDto)
+        {
+            var questionDomainExisted = questions.First(x => x.Id.Value == questionDto.Id);
+            if (questionDomainExisted is null)
+            {
+                QuestionTypeDomain questionType = listQuestionType.Find(x => x.KeyName.Value == questionDto.Type);
+                if (questionType is null)
+                {
+                    var errorQuestion = ResultError.InvalidInput(
+                        "QuestionType",
+                        $"The following question type were not found: {questionDto.Type}."
+                    );
+
+                    return Result.Failure(ResultType.NotFound, errorQuestion);
+                }
+                var questionCreatedResult = QuestionDomain.Create(formDomain.Id, questionType.Id, order);
+                if (questionCreatedResult.IsFailure)
+                {
+                    var errorQuestionCreated = ResultError.InvalidInput(
+                        "",
+                        $""
+                    );
+
+                    return Result.Failure(ResultType.DomainValidation, errorQuestionCreated);
+
+                }
+                var questionCreated= questionCreatedResult.Value;
+                _questionRepository.Insert(questionCreated);
+            }
+            else
+            {
+                questionDomainExisted.Update(order);
+                _questionRepository.Update(questionDomainExisted);
+            }
+            order++;
+        }
+
+
+
+
+        var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
+
+        if (resultTransaction.IsFailure)
+        {
+            return ResultT<ResultResponse>.FailureT(resultTransaction.ResultType, resultTransaction.Errors);
+        }
+
+        return Result.Success();
+    }
+
     private Result ValidateProperties(List<QuestionDto> questionsDto, List<QuestionTypeDomain> listQuestionType)
     {
         foreach (var questionDto in questionsDto)
@@ -60,13 +135,101 @@ internal sealed class FormQuestionRegisterCommandHandler(
             }
 
             var properties = questionDto.Properties;
+            var resultValidateRequiredProperties= ValidateRequieredProperties(questionType, properties);
+            if (resultValidateRequiredProperties.IsFailure)
+            {
+                return Result.Failure(ResultType.ModelDataValidation, resultValidateRequiredProperties.Errors);
+            }
             var validatePropertiesResult = ValidateDataTypeOfProperties(questionType, properties);
             if (validatePropertiesResult.IsFailure)
             {
-                return Result.Failure(ResultType.NotFound, validatePropertiesResult.Errors);
+                return Result.Failure(ResultType.ModelDataValidation, validatePropertiesResult.Errors);
             }
-            // Validate properties based on the question type
-            // Implement your validation logic here
+        }
+
+        var resultUniqueAttributeValidation = ValidateUniqueAttributePerQuestion(questionsDto, listQuestionType);
+        if (resultUniqueAttributeValidation.IsFailure)
+        {
+            return Result.Failure(ResultType.ModelDataValidation, resultUniqueAttributeValidation.Errors);
+        }
+
+        return Result.Success();
+    }
+    private Result ValidateRequieredProperties(QuestionTypeDomain questionTypeDomain, JsonElement properties)
+    {
+        List<AttributeDomain> requiredAttributes = questionTypeDomain.QuestionTypeAttributes
+            .Where(x => x.IsRequired)
+            .Select(x => x.Attribute)
+            .DistinctBy(attr => attr.KeyName.Value)
+            .ToList();
+
+        foreach (var attribute in requiredAttributes)
+        {
+            var property = properties
+                .EnumerateObject()
+                .FirstOrDefault(prop =>
+                    string.Equals(attribute.KeyName.Value, prop.Name, StringComparison.OrdinalIgnoreCase));
+
+            var isUndefined = property.Value.ValueKind == JsonValueKind.Undefined;
+            var isNull = property.Value.ValueKind == JsonValueKind.Null;
+            var isEmptyValue = property.Value.ValueKind == JsonValueKind.String && string.IsNullOrWhiteSpace(property.Value.GetString());
+
+            if (isUndefined || isNull || isEmptyValue)
+            {
+                var error = ResultError.InvalidInput(
+                    "Attribute",
+                    $"The question of type '{questionTypeDomain.KeyName.Value}' must include a non-empty value for the required attribute '{attribute.KeyName.Value}'."
+                );
+                return Result.Failure(ResultType.Conflict, error);
+            }
+        }
+
+        return Result.Success();
+    }
+    private Result ValidateUniqueAttributePerQuestion(List<QuestionDto> questionsDto, List<QuestionTypeDomain> listQuestionType)
+    {
+        List<AttributeDomain> attributesThatHasUniqueValue = listQuestionType
+                                                .SelectMany(qt => 
+                                                        qt.QuestionTypeAttributes.Select(x => x.Attribute)
+                                                    )
+                                                .Where(x=>x.MustBeUnique)
+                                                .DistinctBy(attr => attr.KeyName.Value)
+                                                .ToList();
+
+
+        foreach (var attributeMustHaveUniqueValue in attributesThatHasUniqueValue)
+        {
+            List<AttributeValueOccurrence> duplicateCandidates = questionsDto
+                                                                    .SelectMany(x => x.Properties
+                                                                                    .EnumerateObject()
+                                                                                    .Where(prop =>
+                                                                                        string.Equals(attributeMustHaveUniqueValue.KeyName.Value,prop.Name, StringComparison.OrdinalIgnoreCase)
+                                                                                    )
+                                                                                    .Select(prop => new AttributeValueOccurrence
+                                                                                    {
+                                                                                        IdQuestionType=x.Id,
+                                                                                        QuestionType=x.Type,
+                                                                                        AttributeName = attributeMustHaveUniqueValue.KeyName.Value,
+                                                                                        Value=prop.Value
+                                                                                    }).ToList()
+                                                                        )
+                                                                    .ToList();
+
+
+            var duplicateGroups = duplicateCandidates
+                .GroupBy(x => x.Value.ValueKind == JsonValueKind.String ? x.Value.GetString() : x.Value.ToString(), StringComparer.OrdinalIgnoreCase)
+                .Where(g => g.Count() > 1)
+                .ToList();
+
+            if (duplicateGroups.Any())
+            {
+                var error = ResultError.InvalidInput(
+                    "Attribute",
+                    $"The attribute '{attributeMustHaveUniqueValue.KeyName.Value}' must be unique across all questions."
+                );
+                return Result.Failure(ResultType.Conflict, error);
+            }
+
         }
 
         return Result.Success();
@@ -123,7 +286,6 @@ internal sealed class FormQuestionRegisterCommandHandler(
         }
         return questionsType;
     }
-
     private async Task<ResultT<FormDomain>> GetForm(Guid idForm, Guid idCustomer,CancellationToken cancellationToken)
     {
         var customer = await _customerRepository.GetAsync(idCustomer, cancellationToken);
@@ -155,4 +317,11 @@ internal sealed class FormQuestionRegisterCommandHandler(
         return form;
 
     }
+    private async Task<List<QuestionDomain>> GetQuestion(Guid idForm, CancellationToken cancellationToken)
+    {
+        var questions = await _formRepository.GetQuestionAsync(idForm, cancellationToken);
+        return questions.ToList();
+    }
+
+
 }

@@ -17,6 +17,7 @@ public sealed class SurveyDbContext(DbContextOptions<SurveyDbContext> options) :
 
     public required DbSet<DataTypeDomain> DataType { get; set; }
     public required DbSet<AttributeDomain> Attribute { get; set; }
+    public required DbSet<QuestionDomain> Question { get; set; }
     public required DbSet<QuestionTypeDomain> QuestionType { get; set; }
     public required DbSet<QuestionTypeAttributeDomain> QuestionTypeAttribute { get; set; }
     

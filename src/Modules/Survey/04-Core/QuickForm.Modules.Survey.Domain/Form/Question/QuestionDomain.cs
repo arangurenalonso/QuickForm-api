@@ -29,4 +29,10 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
 
         return newDomain;
     }
+    public Result Update(int order)
+    {
+        Order = order;
+
+        return Result.Success();
+    }
 }

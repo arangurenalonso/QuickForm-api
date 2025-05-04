@@ -13,6 +13,14 @@ public class FormRepository(
         return await _context.Form.FirstOrDefaultAsync(u => u.Id == formId && u.IsActive, cancellationToken);
     }
 
+    public async Task<List<QuestionDomain>> GetQuestionAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        FormId formId = new FormId(id);
+        return await _context.Question
+                        .Where(u => u.IdForm == formId && u.IsActive)
+                        .ToListAsync(cancellationToken);
+    }
+
     public void Insert(FormDomain form)
     {
         _context.Form.Add(form);
