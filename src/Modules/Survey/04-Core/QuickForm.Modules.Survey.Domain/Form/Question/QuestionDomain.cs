@@ -22,9 +22,8 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
         Order = order;
     }
 
-    public static ResultT<QuestionDomain> Create(FormId idForm, QuestionTypeId idQuestionType,int order)
+    public static ResultT<QuestionDomain> Create(QuestionId id, FormId idForm, QuestionTypeId idQuestionType, int order)
     {
-        var id= QuestionId.Create();
         var newDomain = new QuestionDomain(id, idForm, idQuestionType, order);
 
         return newDomain;

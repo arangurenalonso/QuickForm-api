@@ -36,4 +36,9 @@ public class QuestionAttributeValueDomain : BaseDomainEntity<QuestionAttributeVa
 
         return newDomain;
     }
+
+    public void Update(string? value)
+    {
+        Value = value;
+    }
 }

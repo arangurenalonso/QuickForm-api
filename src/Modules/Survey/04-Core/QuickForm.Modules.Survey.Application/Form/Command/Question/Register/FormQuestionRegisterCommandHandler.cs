@@ -44,7 +44,7 @@ internal sealed class FormQuestionRegisterCommandHandler(
         var resultStoreDatabase = await StoreDatabase(formDomain, request.Questions, questionsType,cancellationToken);
         if (resultStoreDatabase.IsFailure)
         {
-            return ResultT<ResultResponse>.FailureT(ResultType.ModelDataValidation, validatePropertiesResult.Errors);
+            return ResultT<ResultResponse>.FailureT(resultStoreDatabase.ResultType, resultStoreDatabase.Errors);
         }
 
         return ResultTResponse<Guid>.Success(Guid.NewGuid(), $".");
@@ -56,52 +56,70 @@ internal sealed class FormQuestionRegisterCommandHandler(
         CancellationToken cancellationToken)
     {
         List<QuestionDomain> questions = await GetQuestion(formDomain.Id.Value, cancellationToken);
-        var incomingIds = questionsDto.Select(q => q.Id).ToHashSet();
+        var incomingIds = questionsDto.Select(q =>new QuestionId(q.Id)).ToHashSet();
 
-        // Desactivar preguntas que ya no están en el DTO
-        foreach (var existingQuestion in questions)
+        List<QuestionDomain> questionsToDesactivate = questions.Where(x => !incomingIds.Contains(x.Id)).ToList();
+
+        foreach (var questionToDesactivate in questionsToDesactivate)
         {
-            if (!incomingIds.Contains(existingQuestion.Id.Value))
-            {
-                existingQuestion.Deactivate(); // Este método debe marcar IsActive = false
-                _questionRepository.Update(existingQuestion);
-            }
+            questionToDesactivate.Deactivate();
+            _questionRepository.Update(questionToDesactivate);
         }
 
         int order = 1;
+
+
         foreach (var questionDto in questionsDto)
         {
-            var questionDomainExisted = questions.First(x => x.Id.Value == questionDto.Id);
+            QuestionTypeDomain questionType = listQuestionType.Find(x => x.KeyName.Value == questionDto.Type);
+            if (questionType is null)
+            {
+                var errorQuestion = ResultError.InvalidInput(
+                    "QuestionType",
+                    $"The following question type were not found: {questionDto.Type}."
+                );
+
+                return Result.Failure(ResultType.NotFound, errorQuestion);
+            }
+            var questionId=new QuestionId(questionDto.Id);
+            var questionDtoPropertie = questionDto.Properties;
+
+            var questionDomainExisted = questions.Find(x => x.Id == questionId);
             if (questionDomainExisted is null)
             {
-                QuestionTypeDomain questionType = listQuestionType.Find(x => x.KeyName.Value == questionDto.Type);
-                if (questionType is null)
-                {
-                    var errorQuestion = ResultError.InvalidInput(
-                        "QuestionType",
-                        $"The following question type were not found: {questionDto.Type}."
-                    );
-
-                    return Result.Failure(ResultType.NotFound, errorQuestion);
-                }
-                var questionCreatedResult = QuestionDomain.Create(formDomain.Id, questionType.Id, order);
+                var questionCreatedResult = QuestionDomain.Create(questionId,formDomain.Id, questionType.Id, order);
                 if (questionCreatedResult.IsFailure)
                 {
-                    var errorQuestionCreated = ResultError.InvalidInput(
-                        "",
-                        $""
-                    );
-
-                    return Result.Failure(ResultType.DomainValidation, errorQuestionCreated);
-
+                    return Result.Failure(ResultType.DomainValidation, questionCreatedResult.Errors);
                 }
                 var questionCreated= questionCreatedResult.Value;
                 _questionRepository.Insert(questionCreated);
+
+
+
+                var resultStoreQuestionAttributeValue = StoreDatabaseQuestionAttributeValue(questionCreated.Id, questionDtoPropertie, questionType);
+                if (resultStoreQuestionAttributeValue.IsFailure)
+                {
+                    return Result.Failure(resultStoreQuestionAttributeValue.ResultType, resultStoreQuestionAttributeValue.Errors);
+                }
+
             }
             else
             {
                 questionDomainExisted.Update(order);
                 _questionRepository.Update(questionDomainExisted);
+
+                var resultStoreQuestionAttributeValue = StoreDatabaseQuestionAttributeValue(
+                                                                    questionDomainExisted.Id,
+                                                                    questionDtoPropertie,
+                                                                    questionType,
+                                                                    questionDomainExisted.QuestionAttributeValue.ToList()
+                                                                );
+                if (resultStoreQuestionAttributeValue.IsFailure)
+                {
+                    return Result.Failure(resultStoreQuestionAttributeValue.ResultType, resultStoreQuestionAttributeValue.Errors);
+                }
+
             }
             order++;
         }
@@ -118,7 +136,83 @@ internal sealed class FormQuestionRegisterCommandHandler(
 
         return Result.Success();
     }
+    private Result StoreDatabaseQuestionAttributeValue(
+        QuestionId idQuestion,
+        JsonElement properties, 
+        QuestionTypeDomain questionType,
+        List<QuestionAttributeValueDomain>? listQuestionAttributeValue = null
+        )
+    {
 
+        var questionTypesAttribute = questionType.QuestionTypeAttributes.ToList();
+
+
+        var incomingKeys = properties.EnumerateObject()
+                             .Select(p => p.Name)
+                             .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        if (listQuestionAttributeValue is not null)
+        {
+            var toDisable = listQuestionAttributeValue
+                                .Where(x => !questionTypesAttribute
+                                                .Any(qta =>
+                                                    string.Equals(qta.Attribute.KeyName.Value, x.Value, StringComparison.OrdinalIgnoreCase)
+                                                    && incomingKeys.Contains(qta.Attribute.KeyName.Value))
+                                );
+
+            foreach (var item in toDisable)
+            {
+                item.Deactivate();
+                _questionRepository.Update(item);
+            }
+        }
+        foreach (var property in properties.EnumerateObject())
+        {
+            string propertyName = property.Name;
+            QuestionTypeAttributeDomain? questionTypeAttribute = questionTypesAttribute
+                                                                    .Find(x =>
+                                                                            string.Equals(x.Attribute.KeyName.Value, propertyName, StringComparison.OrdinalIgnoreCase)
+                                                                        );
+
+            if (questionTypeAttribute is null)
+            {
+                var errorQuestion = ResultError.InvalidInput(
+                                        "QuestionTypeAttribute",
+                                        $"The attribute '{propertyName}' is not defined for the question type '{questionType.KeyName}'. Please verify the configuration of the question type."
+                                    );
+
+                return Result.Failure(ResultType.NotFound, errorQuestion);
+            }
+            var questionAttributeValueExisted = listQuestionAttributeValue?.Find(x => x.IdQuestionTypeAttribute == questionTypeAttribute.Id);
+
+            JsonElement value = property.Value;
+            string? valueToStore = value.ValueKind == JsonValueKind.Null ? null : value.ToString();
+
+            if (questionAttributeValueExisted is null)
+            {
+
+                var resultQuestionAttributeValueCreated = QuestionAttributeValueDomain.Create(
+                                                                        idQuestion,
+                                                                        questionTypeAttribute.Id,
+                                                                        valueToStore
+                                                                    );
+                if (resultQuestionAttributeValueCreated.IsFailure)
+                {
+                    return Result.Failure(ResultType.DomainValidation, resultQuestionAttributeValueCreated.Errors);
+                }
+
+                var questionAttributeValueCreated = resultQuestionAttributeValueCreated.Value;
+                _questionRepository.Insert( questionAttributeValueCreated );
+            }
+            else
+            {
+                questionAttributeValueExisted.Update(valueToStore);
+                _questionRepository.Update(questionAttributeValueExisted);
+            }
+
+        }
+        return Result.Success();
+    }
     private Result ValidateProperties(List<QuestionDto> questionsDto, List<QuestionTypeDomain> listQuestionType)
     {
         foreach (var questionDto in questionsDto)

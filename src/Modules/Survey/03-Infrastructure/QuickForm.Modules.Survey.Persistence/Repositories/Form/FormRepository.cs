@@ -17,6 +17,9 @@ public class FormRepository(
     {
         FormId formId = new FormId(id);
         return await _context.Question
+                        .Include(x=>x.QuestionAttributeValue.Where(qav=>qav.IsActive))
+                        .ThenInclude(x=>x.QuestionTypeAttribute)
+                        .ThenInclude(x=>x.Attribute)
                         .Where(u => u.IdForm == formId && u.IsActive)
                         .ToListAsync(cancellationToken);
     }

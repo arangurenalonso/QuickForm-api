@@ -20,7 +20,9 @@ public sealed class SurveyDbContext(DbContextOptions<SurveyDbContext> options) :
     public required DbSet<QuestionDomain> Question { get; set; }
     public required DbSet<QuestionTypeDomain> QuestionType { get; set; }
     public required DbSet<QuestionTypeAttributeDomain> QuestionTypeAttribute { get; set; }
+    public required DbSet<QuestionAttributeValueDomain> QuestionAttributeValue { get; set; }
     
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schemas.Survey);

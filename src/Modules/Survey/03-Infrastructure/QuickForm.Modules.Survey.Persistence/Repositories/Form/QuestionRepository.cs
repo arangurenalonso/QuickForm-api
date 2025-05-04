@@ -22,8 +22,12 @@ public class QuestionRepository(
     {
         _context.Question.Update(question);
     }
-    public void Insert(QuestionDomain question)
+    public void Insert(QuestionAttributeValueDomain questionAttributeValue)
     {
-        _context.Question.Add(question);
+        _context.QuestionAttributeValue.Add(questionAttributeValue);
+    }
+    public void Update(QuestionAttributeValueDomain questionAttributeValue)
+    {
+        _context.QuestionAttributeValue.Update(questionAttributeValue);
     }
 }
