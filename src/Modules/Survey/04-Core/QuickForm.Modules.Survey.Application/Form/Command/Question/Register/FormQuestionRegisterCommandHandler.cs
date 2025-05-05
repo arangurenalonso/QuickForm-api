@@ -4,8 +4,6 @@ using QuickForm.Modules.Survey.Domain;
 using System.Text.Json;
 
 namespace QuickForm.Modules.Survey.Application;
-
-
 internal sealed class FormQuestionRegisterCommandHandler(
     IUnitOfWork _unitOfWork,
     IFormRepository _formRepository,
@@ -124,9 +122,6 @@ internal sealed class FormQuestionRegisterCommandHandler(
             order++;
         }
 
-
-
-
         var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
 
         if (resultTransaction.IsFailure)
@@ -154,11 +149,12 @@ internal sealed class FormQuestionRegisterCommandHandler(
         if (listQuestionAttributeValue is not null)
         {
             var toDisable = listQuestionAttributeValue
-                                .Where(x => !questionTypesAttribute
-                                                .Any(qta =>
-                                                    string.Equals(qta.Attribute.KeyName.Value, x.Value, StringComparison.OrdinalIgnoreCase)
-                                                    && incomingKeys.Contains(qta.Attribute.KeyName.Value))
-                                );
+                                .Where(qavd => 
+                                    !incomingKeys.Any(incomingKey =>
+                                            string.Equals(incomingKey, qavd.QuestionTypeAttribute.Attribute.KeyName.Value, StringComparison.OrdinalIgnoreCase)
+                                            )
+                                    )
+                                .ToList();
 
             foreach (var item in toDisable)
             {
@@ -416,6 +412,5 @@ internal sealed class FormQuestionRegisterCommandHandler(
         var questions = await _formRepository.GetQuestionAsync(idForm, cancellationToken);
         return questions.ToList();
     }
-
 
 }
