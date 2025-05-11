@@ -22,7 +22,7 @@ public class QuestionConfiguration : EntityMapBase<QuestionDomain, QuestionId>
         builder.HasKey(p => p.Id);
 
         builder.HasOne(question => question.FormSection)
-            .WithMany(form => form.Questions)
+            .WithMany(section => section.Questions)
             .HasForeignKey(question => question.IdFormSection)
             .IsRequired()
             .OnDelete(DeleteBehavior.NoAction);

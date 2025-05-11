@@ -14,7 +14,7 @@ public class FormSectionConfiguration : EntityMapBase<FormSectionDomain, FormSec
         builder.Property(p => p.Id)
             .HasConversion(
                 new ValueConverter<FormSectionId, Guid>(
-                    formId => formId.Value,
+                    idVO => idVO.Value,
                     guid => new FormSectionId(guid)
                 ))
             .IsRequired();
@@ -40,5 +40,10 @@ public class FormSectionConfiguration : EntityMapBase<FormSectionDomain, FormSec
                     formDescription => FormSectionsDescription.Create(formDescription).Value
                     );
 
+        builder.HasOne(section => section.Form)
+            .WithMany(form => form.Sections)
+            .HasForeignKey(section => section.IdForm)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

@@ -17,18 +17,20 @@ internal sealed class QuestionRegister : IEndpoint
             List<FormSectionRegisterDtoRequest> request,
             ISender sender) =>
         {
-            var result = await sender.Send(new FormQuestionRegisterCommand(
-                idForm,
+            var sectionsDto =
                 request.Select(x => new SectionDto(
                     x.Id,
                     x.Title,
                     x.Description,
-                    x.Question.Select(q=>new QuestionDto(
+                    x.Question.Select(q => new QuestionDto(
                             q.Id,
                             q.Type,
                             q.Properties
                         )).ToList()
-                )).ToList()
+                )).ToList();
+            var result = await sender.Send(new FormQuestionRegisterCommand(
+                idForm,
+                sectionsDto
                 ));
             return result.Match(Results.Ok, ApiResults.Problem);
         })
