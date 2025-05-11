@@ -15,7 +15,7 @@ public class FormDomain : BaseDomainEntity<FormId>
     public Customer Customer { get; private set; }
     #endregion
     #region Many to One
-    public ICollection<QuestionDomain> Questions { get; private set; } = [];
+    public ICollection<FormSectionDomain> Sections { get; private set; } = [];
     #endregion
     private FormDomain() { }
     private FormDomain(

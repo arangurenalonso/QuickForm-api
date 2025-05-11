@@ -14,15 +14,20 @@ internal sealed class QuestionRegister : IEndpoint
     {
         app.MapPost("form/{idForm}/question", async (
             Guid idForm,
-            List<FormQuestionRegisterRequest> request,
+            List<FormSectionRegisterDtoRequest> request,
             ISender sender) =>
         {
             var result = await sender.Send(new FormQuestionRegisterCommand(
                 idForm,
-                request.Select(x => new QuestionDto(
+                request.Select(x => new SectionDto(
                     x.Id,
-                    x.Type,
-                    x.Properties
+                    x.Title,
+                    x.Description,
+                    x.Question.Select(q=>new QuestionDto(
+                            q.Id,
+                            q.Type,
+                            q.Properties
+                        )).ToList()
                 )).ToList()
                 ));
             return result.Match(Results.Ok, ApiResults.Problem);
@@ -31,7 +36,15 @@ internal sealed class QuestionRegister : IEndpoint
         .WithTags(Tags.Form);
     }
 
-    internal sealed class FormQuestionRegisterRequest
+    internal sealed class FormSectionRegisterDtoRequest
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public List<FormQuestionRegisterDtoRequest> Question { get; set; }
+    }
+
+    internal sealed class FormQuestionRegisterDtoRequest
     {
         public Guid Id { get; set; }
         public string Type { get; set; } = string.Empty;

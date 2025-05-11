@@ -13,17 +13,24 @@ public class FormRepository(
         return await _context.Form.FirstOrDefaultAsync(u => u.Id == formId && u.IsActive, cancellationToken);
     }
 
-    public async Task<List<QuestionDomain>> GetQuestionAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<List<QuestionDomain>> GetQuestionByIdFormAsync(Guid id, CancellationToken cancellationToken = default)
     {
         FormId formId = new FormId(id);
         return await _context.Question
                         .Include(x=>x.QuestionAttributeValue.Where(qav=>qav.IsActive))
                         .ThenInclude(x=>x.QuestionTypeAttribute)
                         .ThenInclude(x=>x.Attribute)
-                        .Where(u => u.IdForm == formId && u.IsActive)
+                        .Where(u => u.FormSection.IdForm == formId && u.IsActive)
                         .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<FormSectionDomain>> GetSectionsByIdFormAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        FormId formId = new FormId(id);
+        return await _context.FormSection
+                        .Where(u => u.IdForm == formId && u.IsActive)
+                        .ToListAsync(cancellationToken);
+    }
     public void Insert(FormDomain form)
     {
         _context.Form.Add(form);

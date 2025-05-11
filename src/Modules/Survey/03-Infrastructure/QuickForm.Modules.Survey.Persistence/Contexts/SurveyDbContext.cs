@@ -6,21 +6,26 @@ using QuickForm.Common.Infrastructure;
 using QuickForm.Modules.Survey.Application;
 using QuickForm.Common.Domain.Base;
 using QuickForm.Modules.Survey.Domain;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace QuickForm.Modules.Survey.Persistence;
-public sealed class SurveyDbContext(DbContextOptions<SurveyDbContext> options) : DbContext(options), IUnitOfWork
+public sealed class SurveyDbContext(
+        DbContextOptions<SurveyDbContext> options,
+        IServiceProvider serviceProvider
+    ) : DbContext(options), IUnitOfWork
 {
-    public required DbSet<Customer> Customers { get; set; }
-    public required DbSet<FormDomain> Form { get; set; }
-
     public required DbSet<AuditLog> Audit { get; set; }
+    public required DbSet<Customer> Customers { get; set; }
 
-    public required DbSet<DataTypeDomain> DataType { get; set; }
-    public required DbSet<AttributeDomain> Attribute { get; set; }
+    public required DbSet<FormDomain> Form { get; set; }
+    public required DbSet<FormSectionDomain> FormSection { get; set; }
     public required DbSet<QuestionDomain> Question { get; set; }
-    public required DbSet<QuestionTypeDomain> QuestionType { get; set; }
     public required DbSet<QuestionTypeAttributeDomain> QuestionTypeAttribute { get; set; }
+
+    public required DbSet<QuestionTypeDomain> QuestionType { get; set; }
     public required DbSet<QuestionAttributeValueDomain> QuestionAttributeValue { get; set; }
+    public required DbSet<AttributeDomain> Attribute { get; set; }
+    public required DbSet<DataTypeDomain> DataType { get; set; }
     
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -57,4 +62,12 @@ public sealed class SurveyDbContext(DbContextOptions<SurveyDbContext> options) :
             return ResultT<int>.FailureT(ResultType.DataBaseTransaction, listResultError);
         }
     }
+    public ISurveyRepository<TEntity, TEntityId> Repository<TEntity,TEntityId>()
+     where TEntity : BaseDomainEntity<TEntityId>
+     where TEntityId : EntityId
+    {
+        return serviceProvider.GetRequiredService<ISurveyRepository<TEntity, TEntityId>>();
+    }
+
+
 }

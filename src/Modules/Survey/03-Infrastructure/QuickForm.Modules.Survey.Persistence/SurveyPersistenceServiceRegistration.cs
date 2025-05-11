@@ -43,6 +43,7 @@ public static class SurveyPersistenceServiceRegistration
         services.AddSingleton<IDbConnectionFactory>(sp =>
                         new DbConnectionFactory(connectionString!));
 
+        services.AddScoped(typeof(ISurveyRepository<,>), typeof(SurveyRepository<,>));
         return services;
     }
 

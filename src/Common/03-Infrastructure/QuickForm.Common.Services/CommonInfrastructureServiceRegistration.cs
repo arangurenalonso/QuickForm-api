@@ -36,6 +36,7 @@ public static class CommonInfrastructureServiceRegistration
 
         services.AddJob();  
         services.AddIntegrationEvents(moduleConfigureConsumers);
+
         return services;
     }
     private static IServiceCollection AddJob(
