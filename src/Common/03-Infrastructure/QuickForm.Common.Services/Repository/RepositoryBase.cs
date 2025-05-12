@@ -34,5 +34,8 @@ public class RepositoryBase<TEntity,TEntityId>(
         _context.Set<TEntity>().RemoveRange(entities);
     }
 
-
+    public async Task<bool> ExistEntity(TEntityId entityId)
+    {
+        return await _context.Set<TEntity>().AnyAsync(e => e.Id == entityId && e.IsActive);
+    }
 }

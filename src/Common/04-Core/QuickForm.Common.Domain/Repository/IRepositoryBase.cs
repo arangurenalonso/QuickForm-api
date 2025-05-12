@@ -10,4 +10,5 @@ public interface IRepositoryBase<TEntity, TEntityId>
     void UpdateEntity(IEnumerable<TEntity> entities);
     void DeleteEntity(TEntity entity);
     void DeleteEntity(List<TEntity> entities);
+    Task<bool> ExistEntity(TEntityId entityId);
 }

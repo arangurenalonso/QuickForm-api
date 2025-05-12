@@ -5,16 +5,16 @@ using QuickForm.Modules.Survey.Domain;
 using System.Text.Json;
 
 namespace QuickForm.Modules.Survey.Application;
-internal sealed class FormQuestionRegisterCommandHandler(
+internal sealed class SaveFormStructureCommandHandler(
     IUnitOfWork _unitOfWork,
     IFormRepository _formRepository,
     IQuestionTypeRepository _questionTypeRepository,
     ICurrentUserService _currentUserService,
     ICustomerRepository _customerRepository,
     IMediator _mediator
-    ) : ICommandHandler<FormQuestionRegisterCommand, ResultResponse>
+    ) : ICommandHandler<SaveFormStructureCommand, ResultResponse>
 {
-    public async Task<ResultT<ResultResponse>> Handle(FormQuestionRegisterCommand request, CancellationToken cancellationToken)
+    public async Task<ResultT<ResultResponse>> Handle(SaveFormStructureCommand request, CancellationToken cancellationToken)
     {
         var userIdResult = _currentUserService.UserId;
         if (userIdResult.IsFailure)
@@ -229,7 +229,6 @@ internal sealed class FormQuestionRegisterCommandHandler(
                 item.Deactivate();
 
                 _unitOfWork.Repository<QuestionAttributeValueDomain, QuestionAttributeValueId>().UpdateEntity(item);
-                //_questionRepository.Update(item)
             }
         }
         foreach (var property in properties.EnumerateObject())
@@ -337,7 +336,7 @@ internal sealed class FormQuestionRegisterCommandHandler(
     }
     private async Task<List<QuestionDomain>> GetQuestion(Guid idForm, CancellationToken cancellationToken)
     {
-        var questions = await _formRepository.GetQuestionByIdFormAsync(idForm, cancellationToken);
+        var questions = await _formRepository.GetQuestionByIdFormAsync(idForm, false, cancellationToken);
         return questions.ToList();
     }
     private async Task<List<FormSectionDomain>> GetSections(Guid idForm, CancellationToken cancellationToken)

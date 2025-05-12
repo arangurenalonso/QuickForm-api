@@ -28,7 +28,7 @@ internal sealed class QuestionRegister : IEndpoint
                             q.Properties
                         )).ToList()
                 )).ToList();
-            var result = await sender.Send(new FormQuestionRegisterCommand(
+            var result = await sender.Send(new SaveFormStructureCommand(
                 idForm,
                 sectionsDto
                 ));

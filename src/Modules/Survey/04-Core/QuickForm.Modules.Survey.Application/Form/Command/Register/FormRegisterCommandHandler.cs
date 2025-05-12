@@ -6,10 +6,9 @@ namespace QuickForm.Modules.Survey.Application;
 
 
 internal sealed class FormRegisterCommandHandler(
-    IFormRepository formRepository, 
-    IUnitOfWork _unitOfWork,
-    ICurrentUserService currentUserService,
-    ICustomerRepository customerRepository
+        IUnitOfWork _unitOfWork,
+        ICurrentUserService currentUserService,
+        ICustomerRepository customerRepository
     ) : ICommandHandler<FormRegisterCommand, ResultResponse>
 {
     public async Task<ResultT<ResultResponse>> Handle(FormRegisterCommand request, CancellationToken cancellationToken)
@@ -32,8 +31,7 @@ internal sealed class FormRegisterCommandHandler(
         {
             return ResultT<ResultResponse>.FailureT(ResultType.DomainValidation, formCreated.Errors);
         }
-
-        formRepository.Insert(formCreated.Value);
+        _unitOfWork.Repository<FormDomain,FormId>().AddEntity(formCreated.Value);
 
 
         var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);

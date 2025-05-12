@@ -2,7 +2,7 @@
 using QuickForm.Common.Application;
 
 namespace QuickForm.Modules.Survey.Application;
-public sealed record FormQuestionRegisterCommand(
+public sealed record SaveFormStructureCommand(
         Guid IdForm,
         List<SectionDto> Sections
     )
