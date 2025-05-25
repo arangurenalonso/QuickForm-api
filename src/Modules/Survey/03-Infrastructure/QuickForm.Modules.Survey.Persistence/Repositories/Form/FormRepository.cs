@@ -13,14 +13,13 @@ public class FormRepository(
         return await _context.Form.FirstOrDefaultAsync(u => u.Id == formId && u.IsActive, cancellationToken);
     }
 
-    public async Task<List<FormSectionDomain>?> GetStructureFormAsync(Guid id, bool asNoTracking, CancellationToken cancellationToken = default)
+    public async Task<List<FormSectionDomain>> GetStructureFormAsync(Guid id, bool asNoTracking, CancellationToken cancellationToken = default)
     {
         FormId formId = new FormId(id);
         var query = _context
                         .FormSection
                         .Include(x => x.Questions.Where(section => section.IsActive))
                             .ThenInclude(x => x.QuestionAttributeValue.Where(q => q.IsActive))
-                                .ThenInclude(q => q.QuestionTypeAttribute)
                         .AsSplitQuery()
                         .Where(u => u.IdForm == formId && u.IsActive);
 

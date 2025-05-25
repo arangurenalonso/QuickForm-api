@@ -24,4 +24,19 @@ public class QuestionTypeRepository(
 
     }
 
+    public async Task<List<QuestionTypeDomain>> GetByIdsAsync(List<QuestionTypeId> questionTypeIds, bool asNoTracking = false, CancellationToken cancellationToken = default)
+    {
+        var query = _context.QuestionType
+            .Include(x => x.QuestionTypeAttributes)
+            .ThenInclude(x => x.Attribute)
+            .ThenInclude(x => x.DataType)
+            .Where(x => x.IsActive && questionTypeIds.Contains(x.Id));
+        if (asNoTracking)
+        {
+            query = query.AsNoTracking();
+        }
+        var result = await query.ToListAsync(cancellationToken);
+        return result;
+
+    }
 }
