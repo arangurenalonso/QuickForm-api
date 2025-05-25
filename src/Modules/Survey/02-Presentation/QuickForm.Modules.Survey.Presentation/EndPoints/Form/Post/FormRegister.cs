@@ -7,7 +7,7 @@ using QuickForm.Modules.Survey.Application;
 
 namespace QuickForm.Modules.Survey.Presentation;
 
-internal sealed class FormRegister : IEndpoint
+internal sealed class FormStructureSave : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {

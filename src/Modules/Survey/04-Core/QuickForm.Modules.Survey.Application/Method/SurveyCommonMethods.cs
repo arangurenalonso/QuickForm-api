@@ -2,7 +2,6 @@
 using QuickForm.Modules.Survey.Domain;
 using System.Globalization;
 using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace QuickForm.Modules.Survey.Application;
 public static class SurveyCommonMethods

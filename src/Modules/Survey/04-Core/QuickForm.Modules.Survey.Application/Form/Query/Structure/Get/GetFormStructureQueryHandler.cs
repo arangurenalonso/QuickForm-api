@@ -2,7 +2,6 @@
 using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
 using QuickForm.Modules.Survey.Domain;
-using static System.Collections.Specialized.BitVector32;
 
 namespace QuickForm.Modules.Survey.Application;
 internal sealed class GetFormStructureQueryHandler(

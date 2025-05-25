@@ -8,11 +8,11 @@ using System.Text.Json;
 
 namespace QuickForm.Modules.Survey.Presentation;
 
-internal sealed class QuestionRegister : IEndpoint
+internal sealed class FormStructureSave : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("form/{idForm}/question", async (
+        app.MapPost("form/{idForm}/structure", async (
             Guid idForm,
             List<FormSectionRegisterDtoRequest> request,
             ISender sender) =>
