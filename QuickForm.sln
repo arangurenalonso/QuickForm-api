@@ -87,6 +87,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuickForm.Modules.Survey.Ho
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickForm.Modules.Users.Service", "src\Modules\Users\03-Infrastructure\QuickForm.Modules.Users.Service\QuickForm.Modules.Users.Service.csproj", "{435394DD-9BEC-4D05-B0C1-265BD1C344E0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Person", "Person", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickForm.Modules.Person.Domain", "src\Modules\Person\04-Core\QuickForm.Modules.Person.Domain\QuickForm.Modules.Person.Domain.csproj", "{6F5771E6-2DEE-4DBB-90F1-702111225DDC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -177,6 +181,10 @@ Global
 		{435394DD-9BEC-4D05-B0C1-265BD1C344E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{435394DD-9BEC-4D05-B0C1-265BD1C344E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{435394DD-9BEC-4D05-B0C1-265BD1C344E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F5771E6-2DEE-4DBB-90F1-702111225DDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F5771E6-2DEE-4DBB-90F1-702111225DDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F5771E6-2DEE-4DBB-90F1-702111225DDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F5771E6-2DEE-4DBB-90F1-702111225DDC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -220,6 +228,8 @@ Global
 		{38C69F4F-5508-4745-98D7-5EFFCC621E1D} = {C6D209A1-D51F-4304-BE9A-18B17B0202B1}
 		{2178B499-01EE-45A8-A976-B19B7467AC2C} = {3998B98E-B390-4168-88A0-D5FFEA9A504F}
 		{435394DD-9BEC-4D05-B0C1-265BD1C344E0} = {C9CAAC05-53D6-4EE3-90A1-832A9E916F09}
+		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {01CE8D02-A3F3-4F67-AB5E-7DF89DE2E75B}
+		{6F5771E6-2DEE-4DBB-90F1-702111225DDC} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11A3F110-4C77-4999-9D28-6CB65362EA8B}

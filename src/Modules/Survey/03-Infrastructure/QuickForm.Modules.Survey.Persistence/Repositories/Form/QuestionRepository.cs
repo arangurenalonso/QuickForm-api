@@ -11,7 +11,7 @@ public class QuestionRepository(
     public async Task<QuestionDomain?> GetAsync(Guid id, CancellationToken cancellationToken = default)
     {
         QuestionId questionId = new QuestionId(id);
-        return await _context.Question.FirstOrDefaultAsync(u => u.Id == questionId && u.IsActive, cancellationToken);
+        return await _context.Question.FirstOrDefaultAsync(u => u.Id == questionId && !u.IsDeleted, cancellationToken);
     }
 
 }

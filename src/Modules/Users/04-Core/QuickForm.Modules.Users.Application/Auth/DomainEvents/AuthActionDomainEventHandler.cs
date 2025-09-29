@@ -57,8 +57,9 @@ internal sealed class AuthActionDomainEventHandler(
         await fileStream.CopyToAsync(memoryStream);
         var fileBytes = memoryStream.ToArray();
         var htmlTemplate = Encoding.UTF8.GetString(fileBytes);
+        string username = user.Email.Value.Split('@')[0];
         var personalizedHtml = htmlTemplate
-            .Replace("{{name}}", user.Name)
+            .Replace("{{name}}", username)
             .Replace("{{link_confirm}}", $"{_commonOptionsProvider.GetFrontEndApplicationUrl().ToString()}auth/email-confirmation?token={token}&email={user.Email.Value}");
         await _azureCommunicationEmailService.SendEmailAsync(user.Email.Value, "Email Confirmation", personalizedHtml);
 

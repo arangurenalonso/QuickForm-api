@@ -36,6 +36,6 @@ public class RepositoryBase<TEntity,TEntityId>(
 
     public async Task<bool> ExistEntity(TEntityId entityId)
     {
-        return await _context.Set<TEntity>().AnyAsync(e => e.Id == entityId && e.IsActive);
+        return await _context.Set<TEntity>().AnyAsync(e => e.Id == entityId && e.IsDeleted);
     }
 }

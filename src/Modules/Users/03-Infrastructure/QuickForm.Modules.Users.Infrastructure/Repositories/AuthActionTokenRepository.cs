@@ -16,7 +16,7 @@ public class AuthActionTokenRepository(
         var authActionToken = await _context.AuthActionToken.FirstOrDefaultAsync(authActionToken => 
                                                                             authActionToken.Token == userActionToken &&
                                                                             authActionToken.IdUserAction == authActionId &&
-                                                                            authActionToken.IsActive);
+                                                                            !authActionToken.IsDeleted);
         return authActionToken;
     }
     public void Insert(AuthActionTokenDomain authActionTokenDomain)

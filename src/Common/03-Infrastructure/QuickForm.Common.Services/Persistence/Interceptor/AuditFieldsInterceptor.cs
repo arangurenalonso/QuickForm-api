@@ -9,6 +9,16 @@ public class AuditFieldsInterceptor(
         ICurrentUserService _currentUserService
     ) : SaveChangesInterceptor
 {
+    public override InterceptionResult<int> SavingChanges(
+      DbContextEventData eventData, InterceptionResult<int> result)
+    {
+        if (eventData.Context is not null)
+        {
+            ApplyAuditing(eventData.Context);
+        }
+        return base.SavingChanges(eventData, result);
+    }
+
     public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,
@@ -16,12 +26,11 @@ public class AuditFieldsInterceptor(
     {
         if (eventData.Context is not null)
         {
-            UpdateEntities(eventData.Context);
+            ApplyAuditing(eventData.Context);
         }
         return await base.SavingChangesAsync(eventData, result, cancellationToken);
     }
-
-    public void UpdateEntities(DbContext context)
+    public void ApplyAuditing(DbContext context)
     {
         var userConnected = "System";
         string userFullName = _currentUserService.UserFullName;
@@ -37,16 +46,18 @@ public class AuditFieldsInterceptor(
             switch (entry.State)
             {
                 case EntityState.Added:
-                    entry.Entity.SetCreationAudit(userConnected, now);
+                    entry.Entity.MarkCreated(userConnected, now);
                     break;
                 case EntityState.Modified:
-                    entry.Entity.SetModificationAudit(userConnected, now);
+                    entry.Entity.MarkUpdated(userConnected, now);
                     break;
                 case EntityState.Detached:
                     break;
                 case EntityState.Unchanged:
                     break;
                 case EntityState.Deleted:
+                    entry.State = EntityState.Modified;
+                    entry.Entity.MarkDeleted(userConnected, now);
                     break;
                 default:
                     break;

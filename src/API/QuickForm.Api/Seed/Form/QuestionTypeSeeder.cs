@@ -24,7 +24,6 @@ internal sealed class QuestionTypeSeeder(SurveyDbContext _context, ILogger<Datab
         List<QuestionTypeDomain> existingDomains = await _context.QuestionType
                                             .Where(x => ids.Contains(x.Id))
                                             .ToListAsync();
-        Guid transactionId = Guid.NewGuid();
         foreach (var enumType in enumTypesArray)
         {
             QuestionTypeId idVO = enumType.Id;
@@ -34,13 +33,11 @@ internal sealed class QuestionTypeSeeder(SurveyDbContext _context, ILogger<Datab
             {
                 QuestionTypeDomain newDomain = QuestionTypeDomain.Create(idVO, enumType.KeyName).Value;
                 newDomain.ClassOrigin = GetType().Name;
-                newDomain.TransactionId = transactionId;
                 _context.QuestionType.Add(newDomain);
             }
             else if (existingDomain.KeyName.Value != enumType.KeyName)
             {
                 existingDomain.ClassOrigin = GetType().Name;
-                existingDomain.TransactionId = transactionId;
                 existingDomain.Update(enumType.KeyName);
             }
         }

@@ -24,7 +24,6 @@ internal sealed class ResourcesSeeder(UsersDbContext _context, ILogger<DatabaseS
         List<ResourcesDomain> existingDomains = await _context.Resources
                                             .Where(x => ids.Contains(x.Id))
                                             .ToListAsync();
-        Guid transactionId = Guid.NewGuid();
         foreach (var enumType in enumTypesArray)
         {
             ResourcesId idVO = enumType.Id;
@@ -34,13 +33,11 @@ internal sealed class ResourcesSeeder(UsersDbContext _context, ILogger<DatabaseS
             {
                 ResourcesDomain newDomain = ResourcesDomain.Create(idVO, enumType.Description).Value;
                 newDomain.ClassOrigin = GetType().Name;
-                newDomain.TransactionId = transactionId;
                 _context.Resources.Add(newDomain);
             }
             else if (existingDomain.Description.Value != enumType.Description)
             {
                 existingDomain.ClassOrigin = GetType().Name;
-                existingDomain.TransactionId = transactionId;
                 existingDomain.Update(enumType.Description);
             }
         }

@@ -29,6 +29,12 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int?>("Action")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ActionName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ChangesValue")
                         .HasColumnType("nvarchar(max)");
 
@@ -53,12 +59,6 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
 
                     b.Property<Guid>("TransactionId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<int?>("Type")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TypeName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserTransaction")
                         .IsRequired()
@@ -182,16 +182,23 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("Description");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(false);
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
@@ -202,8 +209,8 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_AuthActionDomain_IsActive");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_AuthActionDomain_IsDeleted");
 
                     b.ToTable("AuthActions", "Auth");
                 });
@@ -221,6 +228,13 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("ExpiresAt");
@@ -231,10 +245,10 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                     b.Property<Guid>("IdUserAction")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(false);
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
@@ -259,8 +273,8 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
 
                     b.HasIndex("IdUserAction");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_AuthActionTokenDomain_IsActive");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_AuthActionTokenDomain_IsDeleted");
 
                     b.ToTable("AuthActionTokens", "Auth");
                 });
@@ -278,16 +292,23 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("Description");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(false);
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
@@ -298,8 +319,8 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_PermissionsActionsDomain_IsActive");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_PermissionsActionsDomain_IsDeleted");
 
                     b.ToTable("PermissionsActions", "Auth");
                 });
@@ -317,16 +338,23 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<Guid>("IdAction")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("IdResources")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(false);
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
@@ -341,8 +369,8 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
 
                     b.HasIndex("IdResources");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_PermissionsDomain_IsActive");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_PermissionsDomain_IsDeleted");
 
                     b.ToTable("Permissions", "Auth");
                 });
@@ -360,16 +388,23 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("Description");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(false);
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
@@ -380,8 +415,8 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_ResourcesDomain_IsActive");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_ResourcesDomain_IsDeleted");
 
                     b.ToTable("Resources", "Auth");
                 });
@@ -399,16 +434,23 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("Description");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(false);
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
@@ -419,8 +461,8 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_RoleDomain_IsActive");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_RoleDomain_IsDeleted");
 
                     b.ToTable("Role", "Auth");
                 });
@@ -438,16 +480,23 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<Guid>("IdPermission")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("IdRole")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(false);
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
@@ -462,8 +511,8 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
 
                     b.HasIndex("IdRole");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_RolePermissionsDomain_IsActive");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_RolePermissionsDomain_IsDeleted");
 
                     b.ToTable("RolePermissions", "Auth");
                 });
@@ -481,16 +530,23 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("Email");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsEmailVerify")
                         .HasColumnType("bit");
@@ -521,8 +577,8 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_UserDomain_IsActive");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_UserDomain_IsDeleted");
 
                     b.ToTable("Users", "Auth");
                 });
@@ -540,16 +596,23 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<Guid>("IdRole")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("IdUser")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(false);
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
@@ -564,8 +627,8 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
 
                     b.HasIndex("IdUser");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_UserRoleDomain_IsActive");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_UserRoleDomain_IsDeleted");
 
                     b.ToTable("UserRole", "Auth");
                 });

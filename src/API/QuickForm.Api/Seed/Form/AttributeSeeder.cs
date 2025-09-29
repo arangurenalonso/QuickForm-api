@@ -32,7 +32,6 @@ internal sealed class AttributeSeeder(SurveyDbContext _context, ILogger<Database
         List<AttributeDomain> existingDomains = await _context.Attribute
                                             .Where(x => ids.Contains(x.Id))
                                             .ToListAsync();
-        Guid transactionId = Guid.NewGuid();
         foreach (var value in arrayValues)
         {
             AttributeId idEnumType = value.Id;
@@ -48,7 +47,6 @@ internal sealed class AttributeSeeder(SurveyDbContext _context, ILogger<Database
                                                     value.MustBeUnique
                                                     ).Value;
                 newDomain.ClassOrigin = GetType().Name;
-                newDomain.TransactionId = transactionId;
                 _context.Attribute.Add(newDomain);
             }
             else if (
@@ -59,7 +57,6 @@ internal sealed class AttributeSeeder(SurveyDbContext _context, ILogger<Database
                 )
             {
                 existingDomain.ClassOrigin = GetType().Name;
-                existingDomain.TransactionId = transactionId;
                 existingDomain.Update(value.KeyName, value.Description,value.DataTypeId, value.MustBeUnique);
             }
         }

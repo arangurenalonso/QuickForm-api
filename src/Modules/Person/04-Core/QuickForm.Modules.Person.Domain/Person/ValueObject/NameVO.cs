@@ -1,35 +1,37 @@
 ﻿using QuickForm.Common.Domain;
 
-namespace QuickForm.Modules.Users.Domain;
-public sealed record LastNameVO 
+namespace QuickForm.Modules.Person.Domain;
+public sealed record NameVO
 {
 
     public string Value { get; }
 
-    private LastNameVO(string value)
+    private NameVO(string value)
     {
         Value = value;
     }
-    public LastNameVO()
+
+    public NameVO()
     {
     }
-    public static ResultT<LastNameVO> Create(string? name)
+
+    public static ResultT<NameVO> Create(string? name)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            return new LastNameVO();
+            return ResultError.EmptyValue("Name", "Name cannot be null or empty.");
         }
         var textValdiation = new TextValidationBuilder()
                                         .AddAlphabeticCharacters()
                                         .AddWhitespace()
-                                        .Build().ValidateInvalidCharacter("LastName",name);
+                                        .Build().ValidateInvalidCharacter("Name", name);
         if (textValdiation.IsFailure)
         {
             return textValdiation.Errors;
 
         }
 
-        return new LastNameVO(name);
+        return new NameVO(name);
     }
-    public static implicit operator string(LastNameVO name) => name.Value;
+    public static implicit operator string(NameVO name) => name.Value;
 }

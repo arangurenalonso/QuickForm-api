@@ -18,15 +18,12 @@ public class TokenService(
 
     #region GenerateToken 
 
-    public ResultT<string> GenerateToken(Guid userId,
-        string? name,
-        string? lastName,
-        string? email)
+    public ResultT<string> GenerateToken(
+            Guid userId,
+            string? email
+        )
     {
-        var claims = CreateClaims(userId,
-                                        name,
-                                        lastName,
-                                        email);
+        var claims = CreateClaims(userId, email);
 
         var signingCredentials = CreateSigningCredentials();
         var tokenDescriptor = CreateJwtSecurityToken(claims, signingCredentials);
@@ -37,8 +34,6 @@ public class TokenService(
     }
     private List<Claim> CreateClaims(
         Guid userId,
-        string? name,
-        string? lastName,
         string? email)
     {
         
@@ -50,15 +45,6 @@ public class TokenService(
                 new("userId", userId.ToString())
             };
 
-        if (!string.IsNullOrEmpty(name))
-        {
-            claims.Add(new Claim("name", name));
-        }
-
-        if (!string.IsNullOrEmpty(lastName))
-        {
-            claims.Add(new Claim("lastName", lastName));
-        }
 
         if (!string.IsNullOrEmpty(email))
         {

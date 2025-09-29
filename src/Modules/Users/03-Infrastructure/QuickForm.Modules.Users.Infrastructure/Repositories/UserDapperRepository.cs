@@ -36,18 +36,18 @@ public sealed class UserDapperRepository(IDbConnectionFactory dbConnectionFactor
             FROM 
             {Schemas.Auth}.UserRole ur
                 JOIN {Schemas.Auth}.Role r 
-                    ON ur.IdRole = r.Id AND ur.IsActive = 1 AND r.IsActive = 1
+                    ON ur.IdRole = r.Id AND ur.IsDeleted = 0 AND r.IsDeleted = 0
                 JOIN {Schemas.Auth}.RolePermissions rp 
-                    ON rp.IdRole = r.Id AND rp.IsActive = 1 
+                    ON rp.IdRole = r.Id AND rp.IsDeleted = 0 
                 JOIN {Schemas.Auth}.Permissions p 
-                    ON rp.IdPermission = p.Id AND p.IsActive = 1
+                    ON rp.IdPermission = p.Id AND p.IsDeleted = 0
                 JOIN {Schemas.Auth}.Resources res 
-                    ON p.IdResources = res.Id AND res.IsActive = 1
+                    ON p.IdResources = res.Id AND res.IsDeleted = 0
                 JOIN {Schemas.Auth}.PermissionsActions pa 
-                    ON p.IdAction = pa.Id AND pa.IsActive = 1
+                    ON p.IdAction = pa.Id AND pa.IsDeleted = 0
             WHERE 
                 ur.idUser = @UserId 
-                AND ur.IsActive = 1
+                AND ur.IsDeleted = 0
                 AND res.description = @ResourceDescription 
                 AND pa.description = @ActionDescription
             """;

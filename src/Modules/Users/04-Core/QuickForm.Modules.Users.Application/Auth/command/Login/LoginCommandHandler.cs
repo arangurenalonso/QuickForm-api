@@ -68,7 +68,7 @@ public class LoginCommandHandler(
 
         try
         {
-            var resultTokenGenerate = _tokenService.GenerateToken(user.Id.Value, user.Name.Value, user.LastName?.Value, user.Email.Value);
+            var resultTokenGenerate = _tokenService.GenerateToken(user.Id.Value, user.Email.Value);
 
             if (resultTokenGenerate.IsFailure)
             {

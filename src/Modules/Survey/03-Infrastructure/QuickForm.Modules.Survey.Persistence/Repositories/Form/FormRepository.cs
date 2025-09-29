@@ -10,7 +10,7 @@ public class FormRepository(
     public async Task<FormDomain?> GetAsync(Guid id, CancellationToken cancellationToken = default)
     {
         FormId formId = new FormId(id);
-        return await _context.Form.FirstOrDefaultAsync(u => u.Id == formId && u.IsActive, cancellationToken);
+        return await _context.Form.FirstOrDefaultAsync(u => u.Id == formId && !u.IsDeleted, cancellationToken);
     }
 
     public async Task<List<FormSectionDomain>> GetStructureFormAsync(Guid id, bool asNoTracking, CancellationToken cancellationToken = default)
@@ -18,10 +18,10 @@ public class FormRepository(
         FormId formId = new FormId(id);
         var query = _context
                         .FormSection
-                        .Include(x => x.Questions.Where(section => section.IsActive))
-                            .ThenInclude(x => x.QuestionAttributeValue.Where(q => q.IsActive))
+                        .Include(x => x.Questions.Where(section => !section.IsDeleted))
+                            .ThenInclude(x => x.QuestionAttributeValue.Where(q => !q.IsDeleted))
                         .AsSplitQuery()
-                        .Where(u => u.IdForm == formId && u.IsActive);
+                        .Where(u => u.IdForm == formId && !u.IsDeleted);
 
         if (asNoTracking)
         {
@@ -33,10 +33,10 @@ public class FormRepository(
     {
         FormId formId = new FormId(id);
         var query = _context.Question
-                        .Include(x => x.QuestionAttributeValue.Where(qav => qav.IsActive))
+                        .Include(x => x.QuestionAttributeValue.Where(qav => !qav.IsDeleted))
                         .ThenInclude(x => x.QuestionTypeAttribute)
                         .ThenInclude(x => x.Attribute)
-                        .Where(u => u.FormSection.IdForm == formId && u.IsActive)
+                        .Where(u => u.FormSection.IdForm == formId && !u.IsDeleted)
                         .AsSplitQuery();
         if (asNoTracking)
         {
@@ -49,7 +49,7 @@ public class FormRepository(
     {
         FormId formId = new FormId(id);
         return await _context.FormSection
-                        .Where(u => u.IdForm == formId && u.IsActive)
+                        .Where(u => u.IdForm == formId && !u.IsDeleted)
                         .ToListAsync(cancellationToken);
     }
 }

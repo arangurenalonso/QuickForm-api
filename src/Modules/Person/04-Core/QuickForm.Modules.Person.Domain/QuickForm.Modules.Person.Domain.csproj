@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\Common\04-Core\QuickForm.Common.Domain\QuickForm.Common.Domain.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Email\" />
+	  <Folder Include="Telefono\" />
+	  <Folder Include="Person\Event\" />
+	  <Folder Include="Person\Repository\" />
+	</ItemGroup>
+</Project>

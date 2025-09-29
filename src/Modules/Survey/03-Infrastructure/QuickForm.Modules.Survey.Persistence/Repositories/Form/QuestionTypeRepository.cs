@@ -14,7 +14,7 @@ public class QuestionTypeRepository(
             .Include(x=>x.QuestionTypeAttributes)
             .ThenInclude(x => x.Attribute)
             .ThenInclude(x => x.DataType)
-            .Where(x => x.IsActive && KeyNameVO.Contains(x.KeyName));
+            .Where(x => !x.IsDeleted && KeyNameVO.Contains(x.KeyName));
         if (asNoTracking)
         {
             query = query.AsNoTracking();
@@ -30,7 +30,7 @@ public class QuestionTypeRepository(
             .Include(x => x.QuestionTypeAttributes)
             .ThenInclude(x => x.Attribute)
             .ThenInclude(x => x.DataType)
-            .Where(x => x.IsActive && questionTypeIds.Contains(x.Id));
+            .Where(x => !x.IsDeleted && questionTypeIds.Contains(x.Id));
         if (asNoTracking)
         {
             query = query.AsNoTracking();

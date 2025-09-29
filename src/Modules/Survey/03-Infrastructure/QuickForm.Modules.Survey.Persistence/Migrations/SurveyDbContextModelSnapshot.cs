@@ -29,6 +29,12 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int?>("Action")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ActionName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ChangesValue")
                         .HasColumnType("nvarchar(max)");
 
@@ -53,12 +59,6 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.Property<Guid>("TransactionId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<int?>("Type")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TypeName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserTransaction")
                         .IsRequired()
@@ -182,6 +182,13 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -191,10 +198,10 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                     b.Property<Guid>("IdDataType")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(false);
 
                     b.Property<string>("KeyName")
                         .IsRequired()
@@ -216,8 +223,8 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasIndex("IdDataType");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_AttributeDomain_IsActive");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_AttributeDomain_IsDeleted");
 
                     b.HasIndex("KeyName")
                         .IsUnique();
@@ -238,6 +245,13 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(300)
@@ -248,10 +262,10 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(false);
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -267,8 +281,8 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_Customer_IsActive");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Customer_IsDeleted");
 
                     b.ToTable("Customers", "Survey");
                 });
@@ -286,16 +300,23 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("Description");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(false);
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
@@ -306,8 +327,8 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_DataTypeDomain_IsActive");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_DataTypeDomain_IsDeleted");
 
                     b.ToTable("DataType", "Survey");
                 });
@@ -329,6 +350,13 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("DateEnd");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -338,14 +366,14 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                     b.Property<Guid>("IdCustomer")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
                     b.Property<bool>("IsClosed")
                         .HasColumnType("bit")
                         .HasColumnName("IsClosed");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsPublished")
                         .HasColumnType("bit")
@@ -368,8 +396,8 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasIndex("IdCustomer");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_FormDomain_IsActive");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_FormDomain_IsDeleted");
 
                     b.ToTable("Forms", "Survey");
                 });
@@ -387,6 +415,13 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -396,10 +431,10 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                     b.Property<Guid>("IdForm")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(false);
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
@@ -421,8 +456,8 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasIndex("IdForm");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_FormSectionDomain_IsActive");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_FormSectionDomain_IsDeleted");
 
                     b.ToTable("FormSection", "Survey");
                 });
@@ -440,16 +475,23 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<Guid>("IdQuestion")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("IdQuestionTypeAttribute")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(false);
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
@@ -467,8 +509,8 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasIndex("IdQuestionTypeAttribute");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_QuestionAttributeValueDomain_IsActive");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_QuestionAttributeValueDomain_IsDeleted");
 
                     b.ToTable("QuestionAttributeValue", "Survey");
                 });
@@ -486,16 +528,23 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<Guid>("IdFormSection")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("IdQuestionType")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(false);
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
@@ -513,8 +562,8 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasIndex("IdQuestionType");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_QuestionDomain_IsActive");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_QuestionDomain_IsDeleted");
 
                     b.ToTable("Question", "Survey");
                 });
@@ -532,16 +581,23 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<Guid>("IdAttribute")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("IdQuestionType")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsRequired")
                         .HasColumnType("bit");
@@ -559,8 +615,8 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasIndex("IdQuestionType");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_QuestionTypeAttributeDomain_IsActive");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_QuestionTypeAttributeDomain_IsDeleted");
 
                     b.ToTable("QuestionTypeAttribute", "Survey");
                 });
@@ -578,10 +634,17 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(false);
 
                     b.Property<string>("KeyName")
                         .IsRequired()
@@ -598,8 +661,8 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_QuestionTypeDomain_IsActive");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_QuestionTypeDomain_IsDeleted");
 
                     b.HasIndex("KeyName")
                         .IsUnique();

@@ -20,11 +20,9 @@ public abstract class BaseDomainEntity<TEntityId> : BaseAuditableEntity, ITracka
     public string ClassOrigin { get; set; }
 
     [NotMapped]
-    public Guid TransactionId { get;set; }
-    [NotMapped]
     public Guid EntityId => Id.Value;
 
     public override TrackingInfo GetTrackingInfo()
-        => new TrackingInfo(ClassOrigin, TransactionId);
+        => new TrackingInfo(ClassOrigin);
 }
 

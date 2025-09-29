@@ -31,7 +31,6 @@ internal sealed  class QuestionTypeAttributesSeeder(SurveyDbContext _context, IL
         List<QuestionTypeAttributeDomain> existingDomains = await _context.QuestionTypeAttribute
                                             .Where(x => ids.Contains(x.Id))
                                             .ToListAsync();
-        Guid transactionId = Guid.NewGuid();
         foreach (var value in arrayValues)
         {
             QuestionTypeAttributeId idEnumType = value.Id;
@@ -46,7 +45,6 @@ internal sealed  class QuestionTypeAttributesSeeder(SurveyDbContext _context, IL
                                                     value.IsRequired
                                                     ).Value;
                 newDomain.ClassOrigin = GetType().Name;
-                newDomain.TransactionId = transactionId;
                 _context.QuestionTypeAttribute.Add(newDomain);
             }
             else if (
@@ -56,7 +54,6 @@ internal sealed  class QuestionTypeAttributesSeeder(SurveyDbContext _context, IL
                 )
             {
                 existingDomain.ClassOrigin = GetType().Name;
-                existingDomain.TransactionId = transactionId;
                 existingDomain.Update(value.IdQuestionType, value.IdAttribute, value.IsRequired);
             }
         }

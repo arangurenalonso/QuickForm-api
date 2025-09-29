@@ -24,7 +24,6 @@ internal sealed class PermissionsActionSeeder(UsersDbContext _context, ILogger<D
         List<PermissionsActionsDomain> existingDomains = await _context.PermissionsActions
                                             .Where(x => ids.Contains(x.Id))
                                             .ToListAsync();
-        Guid transactionId = Guid.NewGuid();
         foreach (var enumType in enumTypesArray)
         {
             PermissionsActionsId idVO = enumType.Id;
@@ -34,13 +33,11 @@ internal sealed class PermissionsActionSeeder(UsersDbContext _context, ILogger<D
             {
                 PermissionsActionsDomain newDomain = PermissionsActionsDomain.Create(idVO, enumType.Description).Value;
                 newDomain.ClassOrigin = GetType().Name;
-                newDomain.TransactionId = transactionId;
                 _context.PermissionsActions.Add(newDomain);
             }
             else if (existingDomain.Description.Value != enumType.Description)
             {
                 existingDomain.ClassOrigin = GetType().Name;
-                existingDomain.TransactionId = transactionId;
                 existingDomain.Update(enumType.Description);
             }
         }

@@ -9,12 +9,12 @@ public class UserRepository(
 
     public async Task<UserDomain?> GetByEmailAsync(EmailVO email)
     {
-        var usuario = await _context.Users.FirstOrDefaultAsync(usuario => usuario.Email == email && usuario.IsActive);
+        var usuario = await _context.Users.FirstOrDefaultAsync(usuario => usuario.Email == email && !usuario.IsDeleted);
         return usuario;
     }
     public async Task<UserDomain?> GetByIdAsync(UserId userId)
     {
-        var usuario = await _context.Users.FirstOrDefaultAsync(usuario => usuario.Id == userId && usuario.IsActive);
+        var usuario = await _context.Users.FirstOrDefaultAsync(usuario => usuario.Id == userId && !usuario.IsDeleted);
         return usuario;
     }
 
@@ -25,7 +25,7 @@ public class UserRepository(
                                 .AnyAsync(usuario =>
                                 (userId == null || usuario.Id != userId) &&
                                 usuario.Email == email &&
-                                usuario.IsActive);
+                                !usuario.IsDeleted);
     }
 
     public async Task<UserDomain?> GetByEmailWithActiveAuthActionsAsync(EmailVO email, DateTime currentDatetime)
@@ -33,13 +33,13 @@ public class UserRepository(
         var currentDateTimeVO = ExpirationDate.Restore(currentDatetime);
         var usuario = await _context.Users
                                     .Include(usuario => usuario.AuthActionTokens.Where(x =>
-                                                                                            x.IsActive &&
+                                                                                            !x.IsDeleted &&
                                                                                             !x.Used &&
                                                                                             x.ExpiresAt > currentDateTimeVO
                                                                                             )
                                                 )
                                     .ThenInclude(userActionToken => userActionToken.Action)
-                                    .FirstOrDefaultAsync(usuario => usuario.Email == email && usuario.IsActive);
+                                    .FirstOrDefaultAsync(usuario => usuario.Email == email && !usuario.IsDeleted);
         return usuario;
     }
     public async Task<UserDomain?> GetByIdWithActiveAuthActionsAsync(UserId userId, DateTime currentDatetime)
@@ -49,13 +49,13 @@ public class UserRepository(
             var currentDateTimeVO = ExpirationDate.Restore(currentDatetime);
             var usuario = await _context.Users
                                         .Include(usuario => usuario.AuthActionTokens.Where(x=>
-                                                                                                x.IsActive &&
+                                                                                                !x.IsDeleted &&
                                                                                                 !x.Used&&
                                                                                                 x.ExpiresAt> currentDateTimeVO
                                                                                                 )
                                                     )
                                         .ThenInclude(userActionToken => userActionToken.Action)
-                                        .Where(usuario => usuario.Id == userId && usuario.IsActive)
+                                        .Where(usuario => usuario.Id == userId && !usuario.IsDeleted)
                                         .AsSplitQuery()
                                         .FirstOrDefaultAsync();
             return usuario;

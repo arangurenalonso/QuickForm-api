@@ -24,7 +24,6 @@ internal sealed class DatatypeSeeder(SurveyDbContext _context, ILogger<DatabaseS
         List<DataTypeDomain> existingDomains = await _context.DataType
                                             .Where(x => ids.Contains(x.Id))
                                             .ToListAsync();
-        Guid transactionId = Guid.NewGuid();
         foreach (var enumType in enumTypesArray)
         {
             DataTypeId idVO = enumType.Id;
@@ -34,13 +33,11 @@ internal sealed class DatatypeSeeder(SurveyDbContext _context, ILogger<DatabaseS
             {
                 DataTypeDomain newDomain = DataTypeDomain.Create(idVO, enumType.Description).Value;
                 newDomain.ClassOrigin = GetType().Name;
-                newDomain.TransactionId = transactionId;
                 _context.DataType.Add(newDomain);
             }
             else if (existingDomain.Description.Value != enumType.Description)
             {
                 existingDomain.ClassOrigin = GetType().Name;
-                existingDomain.TransactionId = transactionId;
                 existingDomain.Update(enumType.Description);
             }
         }

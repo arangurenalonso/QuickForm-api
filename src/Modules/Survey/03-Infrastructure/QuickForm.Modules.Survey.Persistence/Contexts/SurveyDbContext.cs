@@ -44,13 +44,11 @@ public sealed class SurveyDbContext(
     {
         try
         {
-            Guid transactionId = Guid.NewGuid();
             foreach (var entry in ChangeTracker.Entries())
             {
                 if (entry.Entity is ITrackableEntity entity)
                 {
                     entity.ClassOrigin = classOrigin;
-                    entity.TransactionId = transactionId;
                 }
             }
             var result = await base.SaveChangesAsync(cancellationToken);
@@ -62,6 +60,7 @@ public sealed class SurveyDbContext(
             return ResultT<int>.FailureT(ResultType.DataBaseTransaction, listResultError);
         }
     }
+
     public ISurveyRepository<TEntity, TEntityId> Repository<TEntity,TEntityId>()
      where TEntity : BaseDomainEntity<TEntityId>
      where TEntityId : EntityId

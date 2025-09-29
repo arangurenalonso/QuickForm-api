@@ -36,13 +36,11 @@ public sealed class UsersDbContext(DbContextOptions<UsersDbContext> options) : D
     {
         try
         {
-            Guid transactionId=Guid.NewGuid();
             foreach (var entry in ChangeTracker.Entries())
             {
                 if (entry.Entity is ITrackableEntity entity)
                 {
                     entity.ClassOrigin = classOrigin;
-                    entity.TransactionId = transactionId;
                 }
             }
             var result = await base.SaveChangesAsync(cancellationToken);

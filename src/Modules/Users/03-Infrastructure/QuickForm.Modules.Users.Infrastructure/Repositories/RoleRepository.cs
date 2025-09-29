@@ -7,7 +7,7 @@ public class RoleRepository(
 {
     public async Task<RoleDomain?> GetByIdAsync(RoleId roleId)
     {
-        var role = await _context.Set<RoleDomain>().FirstOrDefaultAsync(role => role.Id == roleId && role.IsActive);
+        var role = await _context.Set<RoleDomain>().FirstOrDefaultAsync(role => role.Id == roleId && !role.IsDeleted);
         return role;
     }
 }

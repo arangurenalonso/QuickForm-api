@@ -4,8 +4,6 @@ public sealed class UserDomain : BaseDomainEntity<UserId>
 {
     public EmailVO Email { get; private set; }
     public PasswordVO PasswordHash { get; private set; }
-    public NameVO Name { get; private set; }
-    public LastNameVO? LastName { get; private set; }
     public bool IsPasswordChanged { get; private set; }
     public bool IsEmailVerify { get; private set; }
 
@@ -17,20 +15,14 @@ public sealed class UserDomain : BaseDomainEntity<UserId>
 
     private UserDomain(
         UserId id,
-        NameVO name,
-        LastNameVO lastName,
         EmailVO email,
         PasswordVO passwordHash) : base(id)
     {
-        Name = name;
-        LastName = lastName;
         Email = email;
         PasswordHash = passwordHash;
     }
 
     public static ResultT<UserDomain> Create(
-            string firstName,
-            string? lastName,
             string email,
             string password,
             IPasswordHashingService passwordHashingService,
@@ -39,18 +31,16 @@ public sealed class UserDomain : BaseDomainEntity<UserId>
         )
     {
         var emailResult = EmailVO.Create(email);
-        var nameResult = NameVO.Create(firstName);
-        var lastNameResult = LastNameVO.Create(lastName);
         var passwordResult = PasswordVO.Create(password, passwordHashingService);
 
-        if (emailResult.IsFailure || nameResult.IsFailure || lastNameResult.IsFailure || passwordResult.IsFailure)
+        if (emailResult.IsFailure || passwordResult.IsFailure)
         {
             var errorList = new ResultErrorList(
-                new List<ResultErrorList>() { emailResult.Errors, nameResult.Errors, lastNameResult.Errors, passwordResult.Errors }
+                new List<ResultErrorList>() { emailResult.Errors, passwordResult.Errors }
                 );
             return errorList;
         }
-        var newUser = new UserDomain(UserId.Create(), nameResult.Value, lastNameResult.Value, emailResult.Value, passwordResult.Value);
+        var newUser = new UserDomain(UserId.Create(), emailResult.Value, passwordResult.Value);
         newUser.AddRole(roleDomain);
         var idAuthActionEmailVerificacion = AuthActionType.EmailConfirmation.GetId();
         var idAuthAction = new AuthActionId(idAuthActionEmailVerificacion);

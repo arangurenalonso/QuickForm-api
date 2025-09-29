@@ -21,8 +21,6 @@ public class RegisterCommandHandler(
         }
 
         var newUserResult =await  CreateUser(
-            request.FirstName,
-            request.LastName,
             request.Email,
             request.Password);
         if (newUserResult.IsFailure)
@@ -54,8 +52,6 @@ public class RegisterCommandHandler(
     }
 
     private async Task<ResultT<UserDomain>> CreateUser(
-        string firstName,
-        string? lastName,
         string email,
         string password)
     {
@@ -67,8 +63,6 @@ public class RegisterCommandHandler(
             return ResultT<UserDomain>.FailureT(ResultType.NotFound, error);
         }
         var userDomainResult = UserDomain.Create(
-            firstName,
-            lastName,
             email,
             password,
             _passwordHashingService,

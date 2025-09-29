@@ -14,9 +14,12 @@ public abstract class EntityMapBase<TEntity, TEntityId>
         builder.Property(b => b.CreatedDate).IsRequired();
         builder.Property(b => b.ModifiedBy).HasMaxLength(100).IsRequired(false);
         builder.Property(b => b.ModifiedDate).IsRequired(false);
-        builder.Property(b => b.IsActive).HasDefaultValue(true);
-        builder.HasIndex(b => b.IsActive)
-               .HasDatabaseName($"IX_{typeof(TEntity).Name}_IsActive");
+        builder.Property(b => b.DeletedBy).HasMaxLength(100).IsRequired(false);
+        builder.Property(b => b.DeletedAt).IsRequired(false);
+        builder.Property(b => b.IsDeleted).HasDefaultValue(false);
+        builder.HasIndex(b => b.IsDeleted)
+               .HasDatabaseName($"IX_{typeof(TEntity).Name}_IsDeleted");
+
         Configure(builder);
     }
 

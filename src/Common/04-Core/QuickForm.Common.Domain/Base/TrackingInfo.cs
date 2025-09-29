@@ -4,9 +4,8 @@ public class TrackingInfo
     public string ClassOrigin { get; }
     public Guid TransactionId { get; }
 
-    public TrackingInfo(string classOrigin, Guid transactionId)
+    public TrackingInfo(string classOrigin)
     {
         ClassOrigin = classOrigin;
-        TransactionId = transactionId;
     }
 }

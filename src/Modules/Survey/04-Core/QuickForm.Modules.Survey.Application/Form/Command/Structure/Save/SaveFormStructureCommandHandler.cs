@@ -63,22 +63,14 @@ internal sealed class SaveFormStructureCommandHandler(
         List<FormSectionDomain> sectionsToDesactivate = sections.Where(x => !incomingSectionsIds.Contains(x.Id)).ToList();
 
 
-        foreach (var sectionToDesactivate in sectionsToDesactivate)
-        {
-            sectionToDesactivate.Deactivate();
-        }
-        _unitOfWork.Repository<FormSectionDomain, FormSectionId>().UpdateEntity(sectionsToDesactivate);
+        _unitOfWork.Repository<FormSectionDomain, FormSectionId>().DeleteEntity(sectionsToDesactivate);
 
 
         List<QuestionDomain> questions = await GetQuestion(formDomain.Id.Value, cancellationToken);
         var incomingQuestionsIds = sectionsDto.SelectMany(x=>x.Questions).Select(q =>new QuestionId(q.Id)).ToHashSet();
         List<QuestionDomain> questionsToDesactivate = questions.Where(x => !incomingQuestionsIds.Contains(x.Id)).ToList();
 
-        foreach (var questionToDesactivate in questionsToDesactivate)
-        {
-            questionToDesactivate.Deactivate();
-        }
-        _unitOfWork.Repository<QuestionDomain, QuestionId>().UpdateEntity(questionsToDesactivate);
+        _unitOfWork.Repository<QuestionDomain, QuestionId>().DeleteEntity(questionsToDesactivate);
 
         int sectionOrder = 1;
         foreach (var sectionDto in sectionsDto)
@@ -223,13 +215,8 @@ internal sealed class SaveFormStructureCommandHandler(
                                             )
                                     )
                                 .ToList();
+            _unitOfWork.Repository<QuestionAttributeValueDomain, QuestionAttributeValueId>().DeleteEntity(toDisable);
 
-            foreach (var item in toDisable)
-            {
-                item.Deactivate();
-
-                _unitOfWork.Repository<QuestionAttributeValueDomain, QuestionAttributeValueId>().UpdateEntity(item);
-            }
         }
         foreach (var property in properties.EnumerateObject())
         {

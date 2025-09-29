@@ -39,19 +39,6 @@ public class UserConfiguration : EntityMapBase<UserDomain, UserId>
                     passwordString => PasswordVO.Create(passwordString,null).Value
                     );
 
-        builder.Property(p => p.Name)
-                .HasColumnName("Name")
-                .HasConversion(
-                    nameVO => nameVO.Value,
-                    nameString => NameVO.Create(nameString).Value
-                    );
-
-        builder.Property(p => p.LastName)
-                .HasColumnName("LastName")
-                .HasConversion(
-                    lastNameVO => lastNameVO==null?null: lastNameVO.Value,
-                    lastNameString => LastNameVO.Create(lastNameString).Value
-                    );
 
         builder.HasMany(ua => ua.AuthActionTokens)
             .WithOne(uat => uat.User)
