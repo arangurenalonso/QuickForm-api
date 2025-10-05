@@ -67,7 +67,7 @@ public class AuditLog
                                     tableName,
                                     action,
                                     actionName,
-                                    action == AuditOperacionType.Added?null: originalValue,
+                                    action == AuditOperacionType.Added ? null: originalValue,
                                     currentValue,
                                     action == AuditOperacionType.Added ? null : changesValue,
                                     transactionId,
