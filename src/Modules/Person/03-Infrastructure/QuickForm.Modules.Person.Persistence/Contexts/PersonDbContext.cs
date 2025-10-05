@@ -1,29 +1,21 @@
 ﻿using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using QuickForm.Common.Domain.Method;
-using QuickForm.Common.Domain;
-using QuickForm.Common.Infrastructure;
-using QuickForm.Modules.Survey.Application;
-using QuickForm.Common.Domain.Base;
-using QuickForm.Modules.Survey.Domain;
 using Microsoft.Extensions.DependencyInjection;
-
-namespace QuickForm.Modules.Survey.Persistence;
-public sealed class SurveyDbContext(
-        DbContextOptions<SurveyDbContext> options,
+using QuickForm.Common.Domain;
+using QuickForm.Common.Domain.Base;
+using QuickForm.Common.Domain.Method;
+using QuickForm.Common.Infrastructure;
+using QuickForm.Modules.Person.Domain;
+using QuickForm.Modules.Person.Application;
+namespace QuickForm.Modules.Person.Persistence;
+public sealed class PersonDbContext(
+        DbContextOptions<PersonDbContext> options,
         IServiceProvider serviceProvider
     ) : DbContext(options), IUnitOfWork
 {
-    public required DbSet<QuestionDomain> Question { get; set; }
-    public required DbSet<QuestionTypeAttributeDomain> QuestionTypeAttribute { get; set; }
-
-    public required DbSet<QuestionTypeDomain> QuestionType { get; set; }
-    public required DbSet<AttributeDomain> Attribute { get; set; }
-    
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema(Schemas.Survey);
+        modelBuilder.HasDefaultSchema(Schemas.Person);
 
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
@@ -54,12 +46,13 @@ public sealed class SurveyDbContext(
         }
     }
 
-    public ISurveyRepository<TEntity, TEntityId> Repository<TEntity,TEntityId>()
+    public IGenericPersonRepository<TEntity, TEntityId> Repository<TEntity, TEntityId>()
      where TEntity : BaseDomainEntity<TEntityId>
      where TEntityId : EntityId
     {
-        return serviceProvider.GetRequiredService<ISurveyRepository<TEntity, TEntityId>>();
+        return serviceProvider.GetRequiredService<IGenericPersonRepository<TEntity, TEntityId>>();
     }
 
 
 }
+

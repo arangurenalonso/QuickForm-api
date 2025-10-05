@@ -25,8 +25,4 @@
     <ProjectReference Include="..\..\04-Core\QuickForm.Common.Application\QuickForm.Common.Application.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Persistence\Extensions\" />
-  </ItemGroup>
-
 </Project>

@@ -8,6 +8,11 @@ public class RepositoryBase<TEntity,TEntityId>(
     where TEntityId : EntityId
     where TEntity : BaseDomainEntity<TEntityId>
 {
+    public async Task<TEntity> GetById(TEntityId id)
+    {
+        return await _context.Set<TEntity>()
+                        .FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted);
+    } 
     public void AddEntity(TEntity entity)
     {
         _context.Set<TEntity>().Add(entity);

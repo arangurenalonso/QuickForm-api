@@ -17,17 +17,22 @@ public abstract class BaseMasterEntity: BaseDomainEntity<MasterId>
     }
     protected virtual Result SetBaseProperties(MasterUpdateBase dto)
     {
-        var descriptionResult = DescriptionVO.Create(dto.Description);
-        var KeyNameResult = KeyNameVO.Create(dto.KeyName);
-
-        if (descriptionResult.IsFailure)
+        if (dto.Description != null)
         {
-            var errorList = new ResultErrorList(
-                new List<ResultErrorList>() { descriptionResult.Errors, KeyNameResult.Errors }
-                );
-            return errorList;
+            var descriptionResult = DescriptionVO.Create(dto.Description);
+
+            if (descriptionResult.IsFailure)
+            {
+                return descriptionResult.Errors;
+            }
+            Description = descriptionResult.Value;
         }
-        Description = descriptionResult.Value;
+
+        var KeyNameResult = KeyNameVO.Create(dto.KeyName);
+        if (KeyNameResult.IsFailure)
+        {
+            return KeyNameResult.Errors;
+        }
         KeyName = KeyNameResult.Value;
         SortOrder = dto.SortOrder ?? 0;
         return Result.Success();

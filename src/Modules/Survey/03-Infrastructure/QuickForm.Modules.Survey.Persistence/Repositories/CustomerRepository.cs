@@ -9,12 +9,12 @@ public class CustomerRepository(
     public async Task<Customer?> GetAsync(Guid id, CancellationToken cancellationToken = default)
     {
         CustomerId customerId = new CustomerId(id);
-        return await _context.Customers.SingleOrDefaultAsync(c => c.Id == customerId, cancellationToken);
+        return await _context.Set<Customer>().SingleOrDefaultAsync(c => c.Id == customerId, cancellationToken);
     }
 
 
     public void Insert(Customer customer)
     {
-        _context.Customers.Add(customer);
+        _context.Set<Customer>().Add(customer);
     }
 }

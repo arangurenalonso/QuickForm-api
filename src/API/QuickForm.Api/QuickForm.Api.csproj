@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Common\02-Presentation\QuickForm.Common.Presentation\QuickForm.Common.Presentation.csproj" />
     <ProjectReference Include="..\..\Common\03-Infrastructure\QuickForm.Common.Services\QuickForm.Common.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Person\01-Host\QuickForm.Modules.Person.Host\QuickForm.Modules.Person.Host.csproj" />
     <ProjectReference Include="..\..\Modules\Survey\01-Host\QuickForm.Modules.Survey.Host\QuickForm.Modules.Survey.Host.csproj" />
     <ProjectReference Include="..\..\Modules\Users\01-Host\QuickForm.Modules.Users.Module\QuickForm.Modules.Users.Host.csproj" />
   </ItemGroup>

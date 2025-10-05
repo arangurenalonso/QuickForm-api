@@ -29,6 +29,7 @@ public sealed record DescriptionVO
         return new DescriptionVO(description);
     }
 
+    public static DescriptionVO FromPersistence(string value) => new DescriptionVO(value);
     public static implicit operator string(DescriptionVO description) => description.Value;
 }
 

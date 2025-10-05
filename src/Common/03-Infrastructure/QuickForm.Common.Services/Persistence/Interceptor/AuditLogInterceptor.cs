@@ -66,7 +66,7 @@ public class AuditLogInterceptor(
                 Guid idEntity = entity.EntityId;
                 var tableName = entry.Metadata.GetTableName() ?? entry.Metadata.Name;
 
-                var (action, changes) = ChangesCollector.Collect(entry);
+                var (action, changes) = ChangesCollector.CollectWithOwner(entry);
                 if (action == "None" )
                 {
                     continue;
@@ -147,6 +147,99 @@ public class AuditLogInterceptor(
 public sealed class ChangesCollector
 {
     public static (string action, Dictionary<string, (object? Old, object? New)> changes)
+    CollectWithOwner(EntityEntry entry)
+    {
+        var dict = new Dictionary<string, (object?, object?)>();
+        string action = entry.State switch
+        {
+            EntityState.Added => "Added",
+            EntityState.Modified => "Modified",
+            EntityState.Deleted => "Deleted",
+            _ => "None"
+        };
+
+        // 1) Props del owner (lo que ya tienes)
+        foreach (var prop in entry.Properties)
+        {
+            if (prop.Metadata.IsPrimaryKey() || prop.IsTemporary)
+            {
+                continue;
+
+            }
+
+            object? original = prop.OriginalValue;
+            object? current = prop.CurrentValue;
+
+            bool changed = entry.State switch
+            {
+                EntityState.Added => true,
+                EntityState.Deleted => true,
+                EntityState.Modified => !Equals(original, current),
+                _ => false
+            };
+
+            if (changed)
+            {
+                dict[prop.Metadata.Name] = (original, current);
+            }
+        }
+
+        // 2) NUEVO: props de owned (OwnsOne) referenciados por el owner
+        foreach (var reference in entry.References
+                                       .Where(r => r.TargetEntry is not null &&
+                                                   r.TargetEntry.Metadata.IsOwned()))
+        {
+            var ownedEntry = reference.TargetEntry!;
+            // Prefijo para distinguir: NavigationName.PropName  (p. ej., KeyName.Value)
+            string nav = reference.Metadata.Name;
+
+            foreach (var prop in ownedEntry.Properties)
+            {
+                if (prop.Metadata.IsPrimaryKey() || prop.IsTemporary)
+                {
+                    continue;
+                }
+
+                object? original = prop.OriginalValue;
+                object? current = prop.CurrentValue;
+
+                bool changed = ownedEntry.State switch
+                {
+                    EntityState.Added => true,
+                    EntityState.Deleted => true,
+                    EntityState.Modified => !Equals(original, current),
+                    _ => !Equals(original, current) // por si el owned quedó Unchanged pero hay snapshot diff
+                };
+
+                if (changed)
+                {
+                    dict[$"{nav}.{prop.Metadata.Name}"] = (original, current);
+                }
+            }
+
+            // Si solo cambió el owned, el owner podría estar Unchanged.
+            // Sube la "intención" a Modified si hay cambios en owned.
+            if (action == "None" &&
+                    ownedEntry.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
+            {
+                action = "Modified";
+            }
+        }
+
+        // 3) (Opcional) soportar OwnsMany
+        foreach (var collection in entry.Collections
+                                         .Where(c => c.Metadata.TargetEntityType.IsOwned()))
+        {
+            // Cada elemento de la colección tiene su propio TargetEntry en c.CurrentValue (IEnumerable)
+            // Aquí suele requerir lógica extra para identificar el elemento (clave) y registrar cambios.
+            // Puedes iterar c.Entries si usas EF >= 8: collection.GetEntries()
+            // o mapear clave compuesta/pseudo-id en el diff para cada elemento.
+        }
+
+        return (action, dict);
+    }
+
+    public static (string action, Dictionary<string, (object? Old, object? New)> changes)
         Collect(EntityEntry entry)
     {
         var dict = new Dictionary<string, (object?, object?)>();
@@ -185,7 +278,6 @@ public sealed class ChangesCollector
                 dict[prop.Metadata.Name] = (original, current);
             }
         }
-
         return (action, dict);
     }
 }

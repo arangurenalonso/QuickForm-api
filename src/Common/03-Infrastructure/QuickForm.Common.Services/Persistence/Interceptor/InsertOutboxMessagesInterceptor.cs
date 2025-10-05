@@ -46,6 +46,7 @@ public sealed class InsertOutboxMessagesInterceptor : SaveChangesInterceptor
             })
             .ToList(); // Convert to list for easier debugging
 
+        var transactionId = Guid.NewGuid();
         // Merge all domain events into a single list
         var allDomainEvents = domainEventsList
            .SelectMany(e => e.DomainEvents.Select(domainEvent => new
@@ -66,7 +67,7 @@ public sealed class InsertOutboxMessagesInterceptor : SaveChangesInterceptor
                       Content = JsonPrototype.Serialize(entry.DomainEvent),
                       OccurredOnUtc = entry.DomainEvent.OccurredOnUtc,
                       Status = OutboxStatus.NotProcessed,
-                      TransactionId = entry.TrackingInfo.TransactionId, // Obtener TransactionId
+                      TransactionId = transactionId, // Obtener TransactionId
                       ClassOrigin = entry.TrackingInfo.ClassOrigin // Obtener ClassOrigin
                   };
               })

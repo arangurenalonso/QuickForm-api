@@ -4,6 +4,7 @@ using QuickForm.Api.Seed;
 using QuickForm.Common.Application;
 using QuickForm.Common.Infrastructure;
 using QuickForm.Common.Presentation;
+using QuickForm.Modules.Person.Host;
 using QuickForm.Modules.Survey.Host;
 using QuickForm.Modules.Users.Host;
 var builder = WebApplication.CreateBuilder(args);
@@ -20,9 +21,10 @@ builder.Services.AddScoped<DatabaseSeeder>();
 Assembly[] moduleApplicationAssemblies = [
     QuickForm.Modules.Users.Application.AssemblyReference.Assembly,
     QuickForm.Modules.Survey.Application.AssemblyReference.Assembly,
+    QuickForm.Modules.Person.Application.AssemblyReference.Assembly,
     ];
 
-builder.Configuration.AddModuleConfiguration(["users", "survey", "common"]);
+builder.Configuration.AddModuleConfiguration(["users", "survey", "person", "common"]);
 
 string environment = builder.Configuration["Common:environment"] ?? "";
 
@@ -30,9 +32,11 @@ builder.Services.AddCommonServicesServices(
     [
         SurveyModule.ConfigureConsumers
     ], builder.Configuration, environment);
+
 builder.Services.AddApplication(moduleApplicationAssemblies);
 builder.Services.AddUsersModule(builder.Configuration);
 builder.Services.AddSurveyModule(builder.Configuration);
+builder.Services.AddPersonModule(builder.Configuration);
 
 var app = builder.Build();
 

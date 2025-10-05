@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<ItemGroup>
+		<PackageReference Include="Scrutor" Version="5.0.2" />
+	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\03-Infrastructure\QuickForm.Modules.Person.Persistence\QuickForm.Modules.Person.Persistence.csproj" />
+  </ItemGroup>
+
+</Project>

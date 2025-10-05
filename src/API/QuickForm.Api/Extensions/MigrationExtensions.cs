@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using QuickForm.Modules.Person.Persistence;
 using QuickForm.Modules.Survey.Persistence;
 using QuickForm.Modules.Users.Persistence;
 
@@ -12,6 +13,7 @@ internal static class MigrationExtensions
 
         ApplyMigration<UsersDbContext>(scope);
         ApplyMigration<SurveyDbContext>(scope);
+        ApplyMigration<PersonDbContext>(scope);
         
     }
 
