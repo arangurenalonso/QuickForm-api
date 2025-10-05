@@ -103,6 +103,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01-Host", "01-Host", "{FA92
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickForm.Modules.Person.Host", "src\Modules\Person\01-Host\QuickForm.Modules.Person.Host\QuickForm.Modules.Person.Host.csproj", "{8AF11BEB-0475-4EBC-A4AF-11937B6690A0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickForm.Modules.Person.Options", "src\Modules\Person\03-Infrastructure\QuickForm.Modules.Person.Options\QuickForm.Modules.Person.Options.csproj", "{22ADF2F2-9FAD-4332-8C5B-AB0E6751138D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02-Presentation", "02-Presentation", "{D55CF597-BEB1-488A-9E7A-82D7514A5B10}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickForm.Modules.Person.Jobs", "src\Modules\Person\03-Infrastructure\QuickForm.Modules.Person.Jobs\QuickForm.Modules.Person.Jobs.csproj", "{94BD500A-208E-4DBA-BC4F-3B476406506E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickForm.Modules.Person.Presentation", "src\Modules\Person\02-Presentation\QuickForm.Modules.Person.Presentation\QuickForm.Modules.Person.Presentation.csproj", "{D0A02AC8-0FA3-4241-B5B1-0C5EFB5419F4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -209,6 +217,18 @@ Global
 		{8AF11BEB-0475-4EBC-A4AF-11937B6690A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AF11BEB-0475-4EBC-A4AF-11937B6690A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AF11BEB-0475-4EBC-A4AF-11937B6690A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22ADF2F2-9FAD-4332-8C5B-AB0E6751138D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22ADF2F2-9FAD-4332-8C5B-AB0E6751138D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22ADF2F2-9FAD-4332-8C5B-AB0E6751138D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22ADF2F2-9FAD-4332-8C5B-AB0E6751138D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94BD500A-208E-4DBA-BC4F-3B476406506E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94BD500A-208E-4DBA-BC4F-3B476406506E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94BD500A-208E-4DBA-BC4F-3B476406506E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94BD500A-208E-4DBA-BC4F-3B476406506E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0A02AC8-0FA3-4241-B5B1-0C5EFB5419F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0A02AC8-0FA3-4241-B5B1-0C5EFB5419F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0A02AC8-0FA3-4241-B5B1-0C5EFB5419F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0A02AC8-0FA3-4241-B5B1-0C5EFB5419F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -260,6 +280,10 @@ Global
 		{2DEFC6A8-C76B-4CC8-B5ED-DCFBE7892DC4} = {A71EA68C-55BD-4562-8D0D-4B5D201B1CA5}
 		{FA92278F-A486-46D2-8337-C9F9FA094EE3} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{8AF11BEB-0475-4EBC-A4AF-11937B6690A0} = {FA92278F-A486-46D2-8337-C9F9FA094EE3}
+		{22ADF2F2-9FAD-4332-8C5B-AB0E6751138D} = {A71EA68C-55BD-4562-8D0D-4B5D201B1CA5}
+		{D55CF597-BEB1-488A-9E7A-82D7514A5B10} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{94BD500A-208E-4DBA-BC4F-3B476406506E} = {A71EA68C-55BD-4562-8D0D-4B5D201B1CA5}
+		{D0A02AC8-0FA3-4241-B5B1-0C5EFB5419F4} = {D55CF597-BEB1-488A-9E7A-82D7514A5B10}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11A3F110-4C77-4999-9D28-6CB65362EA8B}

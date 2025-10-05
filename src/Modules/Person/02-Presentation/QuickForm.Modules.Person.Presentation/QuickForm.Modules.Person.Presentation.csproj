@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Common\02-Presentation\QuickForm.Common.Presentation\QuickForm.Common.Presentation.csproj" />
+    <ProjectReference Include="..\..\04-Core\QuickForm.Modules.Person.Application\QuickForm.Modules.Person.Application.csproj" />
+  </ItemGroup>
+
+</Project>

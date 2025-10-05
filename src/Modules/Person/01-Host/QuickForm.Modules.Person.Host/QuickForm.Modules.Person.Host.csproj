@@ -3,6 +3,9 @@
 		<PackageReference Include="Scrutor" Version="5.0.2" />
 	</ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\02-Presentation\QuickForm.Modules.Person.Presentation\QuickForm.Modules.Person.Presentation.csproj" />
+    <ProjectReference Include="..\..\03-Infrastructure\QuickForm.Modules.Person.Jobs\QuickForm.Modules.Person.Jobs.csproj" />
+    <ProjectReference Include="..\..\03-Infrastructure\QuickForm.Modules.Person.Options\QuickForm.Modules.Person.Options.csproj" />
     <ProjectReference Include="..\..\03-Infrastructure\QuickForm.Modules.Person.Persistence\QuickForm.Modules.Person.Persistence.csproj" />
   </ItemGroup>
 
