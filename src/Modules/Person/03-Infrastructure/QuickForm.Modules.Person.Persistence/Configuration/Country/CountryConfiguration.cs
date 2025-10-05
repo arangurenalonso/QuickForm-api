@@ -9,7 +9,7 @@ public sealed class CountryConfiguration : MasterEntityMapBase<CountryDomain>
 {
     protected override void ConfigureMaster(EntityTypeBuilder<CountryDomain> builder)
     {
-        builder.ToTable("Country", "Master");
+        builder.ToTable("Country");
 
     }
 }

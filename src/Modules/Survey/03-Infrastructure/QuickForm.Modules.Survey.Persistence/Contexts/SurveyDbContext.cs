@@ -14,6 +14,8 @@ public sealed class SurveyDbContext(
         IServiceProvider serviceProvider
     ) : DbContext(options), IUnitOfWork
 {
+    public required DbSet<AuditLog> Audit { get; set; }
+
     public required DbSet<QuestionDomain> Question { get; set; }
     public required DbSet<QuestionTypeAttributeDomain> QuestionTypeAttribute { get; set; }
 

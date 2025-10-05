@@ -13,6 +13,7 @@ public sealed class PersonDbContext(
         IServiceProvider serviceProvider
     ) : DbContext(options), IUnitOfWork
 {
+    public required DbSet<AuditLog> Audit { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schemas.Person);
