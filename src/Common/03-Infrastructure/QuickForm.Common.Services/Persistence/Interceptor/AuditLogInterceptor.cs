@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore.Diagnostics;
+﻿using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Newtonsoft.Json.Linq;
 using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
 using QuickForm.Common.Domain.Base;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using MassTransit;
 
 namespace QuickForm.Common.Infrastructure.Persistence;
 
@@ -50,80 +51,93 @@ public class AuditLogInterceptor(
         context.ChangeTracker.DetectChanges();
 
         Guid transactionId = Guid.NewGuid();
+        foreach (var owned in context.ChangeTracker.Entries()
+                             .Where(e => e.Metadata.IsOwned()
+                                         && (e.State == EntityState.Added
+                                             || e.State == EntityState.Modified
+                                             || e.State == EntityState.Deleted)))
+        {
+            var owner = AuditHelper.ResolveOwner(owned);
+            if (owner is not null && owner.State == EntityState.Unchanged)
+            {
+                owner.State = EntityState.Modified;
+            }
+        }
+
         foreach (var entry in context.ChangeTracker.Entries().Where(ShouldAudit))
         {
-
-            if (entry.Entity is ITrackableEntity entity)
+            if (entry.Entity is not ITrackableEntity entity)
             {
-                Guid idEntity = entity.EntityId;
-                var tableName = entry.Metadata.GetTableName() ?? entry.Metadata.Name;
-
-                var (action, changes) = AuditHelper.CollectProperty(entry);
-                if (action == "None" )
-                {
-                    continue;
-                }
-                if (action == "Modified" && changes.Count == 0)
-                {
-                    continue;
-                }
-                var originalDict = entry.State switch
-                {
-                    EntityState.Added => null,
-                    EntityState.Deleted => AuditHelper.GetFlattenedSnapshot(entry, AuditHelper.SnapshotKind.Original), // [CHANGED]
-                    EntityState.Modified => AuditHelper.GetFlattenedSnapshot(entry, AuditHelper.SnapshotKind.Original), // [CHANGED]
-                    _ => null
-                };
-
-                var currentDict = entry.State switch
-                {
-                    EntityState.Added => AuditHelper.GetFlattenedSnapshot(entry, AuditHelper.SnapshotKind.Current),    // [CHANGED]
-                    EntityState.Deleted => null,
-                    EntityState.Modified => AuditHelper.GetFlattenedSnapshot(entry, AuditHelper.SnapshotKind.Current), // [CHANGED]
-                    _ => null
-                };
-
-                var originalJson = originalDict is null
-                    ? null
-                    : JsonPrototype.Serialize(originalDict, SerializerSettings.CleanInstance);
-
-                var currentJson = currentDict is null
-                    ? null
-                    : JsonPrototype.Serialize(currentDict, SerializerSettings.CleanInstance);
-
-                var changedValues = changes.ToDictionary(
-                                            kv => kv.Key,
-                                            kv => new { Before = kv.Value.Old, After = kv.Value.New }
-                                        );
-
-                var changesJson = JsonPrototype.Serialize(changedValues, SerializerSettings.CleanInstance);
-
-
-                string originClass = entity.ClassOrigin??"";
-
-                var opType = entry.State switch
-                {
-                    EntityState.Added => AuditOperacionType.Added,
-                    EntityState.Modified => AuditOperacionType.Modified,
-                    EntityState.Deleted => AuditOperacionType.Deleted,
-                    _ => AuditOperacionType.Modified
-                };
-                var audit = AuditLog.Create(
-                          idEntity,
-                          now,
-                          tableName,
-                          opType,
-                          entry.State.ToString(),
-                          originalJson,
-                          currentJson,
-                          changesJson,
-                          transactionId,
-                          userConnected,
-                          originClass
-                      );
-
-                auditList.Add(audit);
+                continue;
             }
+            Guid idEntity = entity.EntityId;
+            var tableName = entry.Metadata.GetTableName() ?? entry.Metadata.Name;
+
+            var (action, changes) = AuditHelper.CollectProperty(entry);
+            if (action == "None")
+            {
+                continue;
+            }
+            if (action == "Modified" && changes.Count == 0)
+            {
+                continue;
+            }
+            var originalDict = entry.State switch
+            {
+                EntityState.Added => null,
+                EntityState.Deleted => AuditHelper.GetFlattenedSnapshot(entry, AuditHelper.SnapshotKind.Original),
+                EntityState.Modified => AuditHelper.GetFlattenedSnapshot(entry, AuditHelper.SnapshotKind.Original),
+                _ => null
+            };
+
+            var currentDict = entry.State switch
+            {
+                EntityState.Added => AuditHelper.GetFlattenedSnapshot(entry, AuditHelper.SnapshotKind.Current),
+                EntityState.Deleted => null,
+                EntityState.Modified => AuditHelper.GetFlattenedSnapshot(entry, AuditHelper.SnapshotKind.Current),
+                _ => null
+            };
+
+            var originalJson = originalDict is null
+                ? null
+                : JsonPrototype.Serialize(originalDict, SerializerSettings.CleanInstance);
+
+            var currentJson = currentDict is null
+                ? null
+                : JsonPrototype.Serialize(currentDict, SerializerSettings.CleanInstance);
+
+            var changedValues = changes.ToDictionary(
+                                        kv => kv.Key,
+                                        kv => new { Before = kv.Value.Old, After = kv.Value.New }
+                                    );
+
+            var changesJson = JsonPrototype.Serialize(changedValues, SerializerSettings.CleanInstance);
+
+
+            string originClass = entity.ClassOrigin ?? "";
+
+            var opType = entry.State switch
+            {
+                EntityState.Added => AuditOperacionType.Added,
+                EntityState.Modified => AuditOperacionType.Modified,
+                EntityState.Deleted => AuditOperacionType.Deleted,
+                _ => AuditOperacionType.Modified
+            };
+            var audit = AuditLog.Create(
+                      idEntity,
+                      now,
+                      tableName,
+                      opType,
+                      entry.State.ToString(),
+                      originalJson,
+                      currentJson,
+                      changesJson,
+                      transactionId,
+                      userConnected,
+                      originClass
+                  );
+
+            auditList.Add(audit);
         }
         if (auditList.Any())
         {
@@ -136,6 +150,35 @@ public class AuditLogInterceptor(
 public sealed class AuditHelper
 {
     public enum SnapshotKind { Original, Current }
+    public static EntityEntry? ResolveOwner(EntityEntry entry)
+    {
+        if (!entry.Metadata.IsOwned())
+        {
+            return entry;
+        }
+
+        var ownership = entry.Metadata.FindOwnership();
+        if (ownership is null)
+        {
+            return null;
+        }
+
+        var principalType = ownership.PrincipalEntityType;
+        var fkProps = ownership.Properties;
+
+        // valores FK en el owned que apuntan al owner
+        var ownerKeyValues = fkProps.Select(p => entry.Property(p.Name).CurrentValue).ToArray();
+
+        // buscamos el owner por tipo y valores de PK actuales
+        var ownerPkProps = principalType.FindPrimaryKey()!.Properties;
+
+        return entry.Context.ChangeTracker.Entries()
+            .FirstOrDefault(e =>
+                e.Metadata == principalType &&
+                ownerPkProps
+                    .Select(p => e.Property(p.Name).CurrentValue)
+                    .SequenceEqual(ownerKeyValues));
+    }
     public static Dictionary<string, object?> GetFlattenedSnapshot(EntityEntry ownerEntry, SnapshotKind kind)
     {
         var dict = new Dictionary<string, object?>();
