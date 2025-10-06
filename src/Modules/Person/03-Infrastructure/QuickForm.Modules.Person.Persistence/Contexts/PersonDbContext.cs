@@ -13,7 +13,6 @@ public sealed class PersonDbContext(
         IServiceProvider serviceProvider
     ) : DbContext(options), IUnitOfWork
 {
-    public required DbSet<AuditLog> Audit { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schemas.Person);
@@ -24,6 +23,7 @@ public sealed class PersonDbContext(
         modelBuilder.ApplyConfiguration(new InboxMessageConsumerConfiguration());
         modelBuilder.ApplyConfiguration(new OutboxMessageConfiguration());
         modelBuilder.ApplyConfiguration(new OutboxMessageConsumerConfiguration());
+        modelBuilder.ApplyConfiguration(new AuditLogConfiguration());
         base.OnModelCreating(modelBuilder);
     }
     public async Task<ResultT<int>> SaveChangesWithResultAsync(string classOrigin, CancellationToken cancellationToken = default)

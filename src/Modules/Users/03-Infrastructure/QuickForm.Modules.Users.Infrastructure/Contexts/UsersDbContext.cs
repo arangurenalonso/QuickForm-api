@@ -19,7 +19,6 @@ public sealed class UsersDbContext(DbContextOptions<UsersDbContext> options) : D
     public required DbSet<PermissionsActionsDomain> PermissionsActions { get; set; }
     public required DbSet<AuthActionDomain> AuthAction { get; set; }
     public required DbSet<AuthActionTokenDomain> AuthActionToken { get; set; }
-    public required DbSet<AuditLog> Audit { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schemas.Auth);
@@ -30,6 +29,7 @@ public sealed class UsersDbContext(DbContextOptions<UsersDbContext> options) : D
         modelBuilder.ApplyConfiguration(new InboxMessageConsumerConfiguration());
         modelBuilder.ApplyConfiguration(new OutboxMessageConfiguration());
         modelBuilder.ApplyConfiguration(new OutboxMessageConsumerConfiguration());
+        modelBuilder.ApplyConfiguration(new AuditLogConfiguration());
         base.OnModelCreating(modelBuilder);
     }
     public async Task<ResultT<int>> SaveChangesWithResultAsync(string classOrigin, CancellationToken cancellationToken = default)

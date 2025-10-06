@@ -25,7 +25,7 @@ public class AuditLogInterceptor(
 
     private static bool ShouldAudit(EntityEntry entry)
     {
-        if (entry.Entity is AuditLog)
+        if (entry.Entity is AuditLog or InboxMessage or InboxMessageConsumer or OutboxMessage or OutboxMessageConsumer)
         {
             return false;
         }

@@ -14,8 +14,6 @@ public sealed class SurveyDbContext(
         IServiceProvider serviceProvider
     ) : DbContext(options), IUnitOfWork
 {
-    public required DbSet<AuditLog> Audit { get; set; }
-
     public required DbSet<QuestionDomain> Question { get; set; }
     public required DbSet<QuestionTypeAttributeDomain> QuestionTypeAttribute { get; set; }
 
@@ -33,6 +31,8 @@ public sealed class SurveyDbContext(
         modelBuilder.ApplyConfiguration(new InboxMessageConsumerConfiguration());
         modelBuilder.ApplyConfiguration(new OutboxMessageConfiguration());
         modelBuilder.ApplyConfiguration(new OutboxMessageConsumerConfiguration());
+        modelBuilder.ApplyConfiguration(new AuditLogConfiguration());
+        
         base.OnModelCreating(modelBuilder);
     }
     public async Task<ResultT<int>> SaveChangesWithResultAsync(string classOrigin, CancellationToken cancellationToken = default)

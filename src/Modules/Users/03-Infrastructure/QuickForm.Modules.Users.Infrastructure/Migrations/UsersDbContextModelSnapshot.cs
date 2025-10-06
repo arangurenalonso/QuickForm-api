@@ -26,21 +26,23 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
             modelBuilder.Entity("QuickForm.Common.Domain.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int?>("Action")
-                        .HasColumnType("int");
+                    b.Property<string>("Action")
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
 
                     b.Property<string>("ActionName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<string>("ChangesValue")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ClassOrigin")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime2");
@@ -55,18 +57,32 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TableName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<Guid>("TransactionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("UserTransaction")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Audit", "Auth");
+                    b.HasIndex("Action")
+                        .HasDatabaseName("IX_AuditLog_Action");
+
+                    b.HasIndex("CreatedDate")
+                        .HasDatabaseName("IX_AuditLog_CreatedDate");
+
+                    b.HasIndex("TransactionId")
+                        .HasDatabaseName("IX_AuditLog_TransactionId");
+
+                    b.HasIndex("TableName", "IdEntity")
+                        .HasDatabaseName("IX_AuditLog_Table_Entity_Date");
+
+                    b.ToTable("AuditLog", "Auth");
                 });
 
             modelBuilder.Entity("QuickForm.Common.Infrastructure.InboxMessage", b =>
@@ -554,21 +570,12 @@ namespace QuickForm.Modules.Users.Persistence.Migrations
                     b.Property<bool>("IsPasswordChanged")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("LastName");
-
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("Name");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()

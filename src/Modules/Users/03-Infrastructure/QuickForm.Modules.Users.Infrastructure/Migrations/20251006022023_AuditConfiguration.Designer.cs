@@ -3,21 +3,24 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using QuickForm.Modules.Survey.Persistence;
+using QuickForm.Modules.Users.Persistence;
 
 #nullable disable
 
-namespace QuickForm.Modules.Survey.Persistence.Migrations
+namespace QuickForm.Modules.Users.Persistence.Migrations
 {
-    [DbContext(typeof(SurveyDbContext))]
-    partial class SurveyDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(UsersDbContext))]
+    [Migration("20251006022023_AuditConfiguration")]
+    partial class AuditConfiguration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("Survey")
+                .HasDefaultSchema("Auth")
                 .HasAnnotation("ProductVersion", "8.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
@@ -82,7 +85,7 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                     b.HasIndex("TableName", "IdEntity")
                         .HasDatabaseName("IX_AuditLog_Table_Entity_Date");
 
-                    b.ToTable("AuditLog", "Survey");
+                    b.ToTable("AuditLog", "Auth");
                 });
 
             modelBuilder.Entity("QuickForm.Common.Infrastructure.InboxMessage", b =>
@@ -116,7 +119,7 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("inbox_messages", "Survey");
+                    b.ToTable("inbox_messages", "Auth");
                 });
 
             modelBuilder.Entity("QuickForm.Common.Infrastructure.InboxMessageConsumer", b =>
@@ -130,7 +133,7 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasKey("InboxMessageId", "Name");
 
-                    b.ToTable("inbox_message_consumers", "Survey");
+                    b.ToTable("inbox_message_consumers", "Auth");
                 });
 
             modelBuilder.Entity("QuickForm.Common.Infrastructure.OutboxMessage", b =>
@@ -168,7 +171,7 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("outbox_messages", "Survey");
+                    b.ToTable("outbox_messages", "Auth");
                 });
 
             modelBuilder.Entity("QuickForm.Common.Infrastructure.OutboxMessageConsumer", b =>
@@ -182,10 +185,10 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasKey("OutboxMessageId", "Name");
 
-                    b.ToTable("outbox_message_consumers", "Survey");
+                    b.ToTable("outbox_message_consumers", "Auth");
                 });
 
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.AttributeDomain", b =>
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.AuthActionDomain", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -211,19 +214,10 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("Description");
 
-                    b.Property<Guid>("IdDataType")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
-
-                    b.Property<string>("KeyName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("KeyName");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
@@ -232,23 +226,317 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("MustBeUnique")
-                        .HasColumnType("bit");
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_AuthActionDomain_IsDeleted");
+
+                    b.ToTable("AuthActions", "Auth");
+                });
+
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.AuthActionTokenDomain", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("ExpiresAt");
+
+                    b.Property<Guid>("IdUser")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("IdUserAction")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("Token");
+
+                    b.Property<bool>("Used")
+                        .HasColumnType("bit")
+                        .HasColumnName("Used");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IdDataType");
+                    b.HasIndex("IdUser");
+
+                    b.HasIndex("IdUserAction");
 
                     b.HasIndex("IsDeleted")
-                        .HasDatabaseName("IX_AttributeDomain_IsDeleted");
+                        .HasDatabaseName("IX_AuthActionTokenDomain_IsDeleted");
 
-                    b.HasIndex("KeyName")
-                        .IsUnique();
-
-                    b.ToTable("Attribute", "Survey");
+                    b.ToTable("AuthActionTokens", "Auth");
                 });
 
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.Customer", b =>
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.PermissionsActionsDomain", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("Description");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_PermissionsActionsDomain_IsDeleted");
+
+                    b.ToTable("PermissionsActions", "Auth");
+                });
+
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.PermissionsDomain", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("IdAction")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("IdResources")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdAction");
+
+                    b.HasIndex("IdResources");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_PermissionsDomain_IsDeleted");
+
+                    b.ToTable("Permissions", "Auth");
+                });
+
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.ResourcesDomain", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("Description");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_ResourcesDomain_IsDeleted");
+
+                    b.ToTable("Resources", "Auth");
+                });
+
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.RoleDomain", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("Description");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_RoleDomain_IsDeleted");
+
+                    b.ToTable("Role", "Auth");
+                });
+
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.RolePermissionsDomain", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("IdPermission")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("IdRole")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("ModifiedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdPermission");
+
+                    b.HasIndex("IdRole");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_RolePermissionsDomain_IsDeleted");
+
+                    b.ToTable("RolePermissions", "Auth");
+                });
+
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.UserDomain", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -270,352 +558,19 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IsDeleted")
-                        .HasDatabaseName("IX_Customer_IsDeleted");
-
-                    b.ToTable("Customer", "Survey");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.DataTypeDomain", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
-                        .HasColumnName("Description");
+                        .HasColumnName("Email");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<bool>("IsEmailVerify")
+                        .HasColumnType("bit");
 
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IsDeleted")
-                        .HasDatabaseName("IX_DataTypeDomain_IsDeleted");
-
-                    b.ToTable("DataType", "Survey");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.FormDomain", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateEnd")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("DateEnd");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("Description");
-
-                    b.Property<Guid>("IdCustomer")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsClosed")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsClosed");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<bool>("IsPublished")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsPublished");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("Name");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdCustomer");
-
-                    b.HasIndex("IsDeleted")
-                        .HasDatabaseName("IX_FormDomain_IsDeleted");
-
-                    b.ToTable("Forms", "Survey");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.FormSectionDomain", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("Description");
-
-                    b.Property<Guid>("IdForm")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("Title");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdForm");
-
-                    b.HasIndex("IsDeleted")
-                        .HasDatabaseName("IX_FormSectionDomain_IsDeleted");
-
-                    b.ToTable("FormSection", "Survey");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.QuestionAttributeValueDomain", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<Guid>("IdQuestion")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("IdQuestionTypeAttribute")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdQuestion");
-
-                    b.HasIndex("IdQuestionTypeAttribute");
-
-                    b.HasIndex("IsDeleted")
-                        .HasDatabaseName("IX_QuestionAttributeValueDomain_IsDeleted");
-
-                    b.ToTable("QuestionAttributeValue", "Survey");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.QuestionDomain", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<Guid>("IdFormSection")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("IdQuestionType")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdFormSection");
-
-                    b.HasIndex("IdQuestionType");
-
-                    b.HasIndex("IsDeleted")
-                        .HasDatabaseName("IX_QuestionDomain_IsDeleted");
-
-                    b.ToTable("Question", "Survey");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.QuestionTypeAttributeDomain", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<Guid>("IdAttribute")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("IdQuestionType")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<bool>("IsRequired")
+                    b.Property<bool>("IsPasswordChanged")
                         .HasColumnType("bit");
 
                     b.Property<string>("ModifiedBy")
@@ -625,19 +580,20 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("PasswordHash");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("IdAttribute");
-
-                    b.HasIndex("IdQuestionType");
-
                     b.HasIndex("IsDeleted")
-                        .HasDatabaseName("IX_QuestionTypeAttributeDomain_IsDeleted");
+                        .HasDatabaseName("IX_UserDomain_IsDeleted");
 
-                    b.ToTable("QuestionTypeAttribute", "Survey");
+                    b.ToTable("Users", "Auth");
                 });
 
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.QuestionTypeDomain", b =>
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.UserRoleDomain", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -657,16 +613,16 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<Guid>("IdRole")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("IdUser")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
-
-                    b.Property<string>("KeyName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("KeyName");
 
                     b.Property<string>("ModifiedBy")
                         .HasMaxLength(100)
@@ -677,145 +633,124 @@ namespace QuickForm.Modules.Survey.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IdRole");
+
+                    b.HasIndex("IdUser");
+
                     b.HasIndex("IsDeleted")
-                        .HasDatabaseName("IX_QuestionTypeDomain_IsDeleted");
+                        .HasDatabaseName("IX_UserRoleDomain_IsDeleted");
 
-                    b.HasIndex("KeyName")
-                        .IsUnique();
-
-                    b.ToTable("QuestionType", "Survey");
+                    b.ToTable("UserRole", "Auth");
                 });
 
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.AttributeDomain", b =>
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.AuthActionTokenDomain", b =>
                 {
-                    b.HasOne("QuickForm.Modules.Survey.Domain.DataTypeDomain", "DataType")
-                        .WithMany("Attributes")
-                        .HasForeignKey("IdDataType")
+                    b.HasOne("QuickForm.Modules.Users.Domain.UserDomain", "User")
+                        .WithMany("AuthActionTokens")
+                        .HasForeignKey("IdUser")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("DataType");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.FormDomain", b =>
-                {
-                    b.HasOne("QuickForm.Modules.Survey.Domain.Customer", "Customer")
-                        .WithMany("Forms")
-                        .HasForeignKey("IdCustomer")
+                    b.HasOne("QuickForm.Modules.Users.Domain.AuthActionDomain", "Action")
+                        .WithMany("UserActionTokens")
+                        .HasForeignKey("IdUserAction")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Customer");
+                    b.Navigation("Action");
+
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.FormSectionDomain", b =>
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.PermissionsDomain", b =>
                 {
-                    b.HasOne("QuickForm.Modules.Survey.Domain.FormDomain", "Form")
-                        .WithMany("Sections")
-                        .HasForeignKey("IdForm")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Form");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.QuestionAttributeValueDomain", b =>
-                {
-                    b.HasOne("QuickForm.Modules.Survey.Domain.QuestionDomain", "Question")
-                        .WithMany("QuestionAttributeValue")
-                        .HasForeignKey("IdQuestion")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("QuickForm.Modules.Survey.Domain.QuestionTypeAttributeDomain", "QuestionTypeAttribute")
-                        .WithMany("QuestionAttributeValue")
-                        .HasForeignKey("IdQuestionTypeAttribute")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Question");
-
-                    b.Navigation("QuestionTypeAttribute");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.QuestionDomain", b =>
-                {
-                    b.HasOne("QuickForm.Modules.Survey.Domain.FormSectionDomain", "FormSection")
-                        .WithMany("Questions")
-                        .HasForeignKey("IdFormSection")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("QuickForm.Modules.Survey.Domain.QuestionTypeDomain", "QuestionType")
-                        .WithMany("Questions")
-                        .HasForeignKey("IdQuestionType")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("FormSection");
-
-                    b.Navigation("QuestionType");
-                });
-
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.QuestionTypeAttributeDomain", b =>
-                {
-                    b.HasOne("QuickForm.Modules.Survey.Domain.AttributeDomain", "Attribute")
-                        .WithMany("QuestionTypeAttributes")
-                        .HasForeignKey("IdAttribute")
+                    b.HasOne("QuickForm.Modules.Users.Domain.PermissionsActionsDomain", "Action")
+                        .WithMany("Permissions")
+                        .HasForeignKey("IdAction")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("QuickForm.Modules.Survey.Domain.QuestionTypeDomain", "QuestionType")
-                        .WithMany("QuestionTypeAttributes")
-                        .HasForeignKey("IdQuestionType")
+                    b.HasOne("QuickForm.Modules.Users.Domain.ResourcesDomain", "Resources")
+                        .WithMany("Permissions")
+                        .HasForeignKey("IdResources")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Attribute");
+                    b.Navigation("Action");
 
-                    b.Navigation("QuestionType");
+                    b.Navigation("Resources");
                 });
 
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.AttributeDomain", b =>
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.RolePermissionsDomain", b =>
                 {
-                    b.Navigation("QuestionTypeAttributes");
+                    b.HasOne("QuickForm.Modules.Users.Domain.PermissionsDomain", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("IdPermission")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QuickForm.Modules.Users.Domain.RoleDomain", "Role")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("IdRole")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.Customer", b =>
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.UserRoleDomain", b =>
                 {
-                    b.Navigation("Forms");
+                    b.HasOne("QuickForm.Modules.Users.Domain.RoleDomain", "Role")
+                        .WithMany("UserRole")
+                        .HasForeignKey("IdRole")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QuickForm.Modules.Users.Domain.UserDomain", "User")
+                        .WithMany("UserRole")
+                        .HasForeignKey("IdUser")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.DataTypeDomain", b =>
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.AuthActionDomain", b =>
                 {
-                    b.Navigation("Attributes");
+                    b.Navigation("UserActionTokens");
                 });
 
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.FormDomain", b =>
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.PermissionsActionsDomain", b =>
                 {
-                    b.Navigation("Sections");
+                    b.Navigation("Permissions");
                 });
 
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.FormSectionDomain", b =>
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.PermissionsDomain", b =>
                 {
-                    b.Navigation("Questions");
+                    b.Navigation("RolePermissions");
                 });
 
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.QuestionDomain", b =>
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.ResourcesDomain", b =>
                 {
-                    b.Navigation("QuestionAttributeValue");
+                    b.Navigation("Permissions");
                 });
 
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.QuestionTypeAttributeDomain", b =>
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.RoleDomain", b =>
                 {
-                    b.Navigation("QuestionAttributeValue");
+                    b.Navigation("RolePermissions");
+
+                    b.Navigation("UserRole");
                 });
 
-            modelBuilder.Entity("QuickForm.Modules.Survey.Domain.QuestionTypeDomain", b =>
+            modelBuilder.Entity("QuickForm.Modules.Users.Domain.UserDomain", b =>
                 {
-                    b.Navigation("QuestionTypeAttributes");
+                    b.Navigation("AuthActionTokens");
 
-                    b.Navigation("Questions");
+                    b.Navigation("UserRole");
                 });
 #pragma warning restore 612, 618
         }
