@@ -22,6 +22,7 @@ internal sealed class ResetPassword : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .AllowAnonymous()
+        .WithName("Auth.ResetPassword")
         .WithTags(Tags.Auth);
     }
 

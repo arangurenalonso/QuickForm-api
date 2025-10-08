@@ -20,6 +20,7 @@ internal sealed class TokenValidation : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .AllowAnonymous()
+        .WithName("Auth.TokenValidation")
         .WithTags(Tags.Auth);
     }
 

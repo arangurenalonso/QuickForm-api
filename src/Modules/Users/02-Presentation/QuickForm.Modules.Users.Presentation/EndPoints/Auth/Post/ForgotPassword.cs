@@ -19,6 +19,7 @@ internal sealed class ForgotPassword : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .AllowAnonymous()
+        .WithName("Auth.ForgotPassword")
         .WithTags(Tags.Auth);
     }
 

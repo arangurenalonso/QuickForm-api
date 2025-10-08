@@ -20,6 +20,7 @@ internal sealed class CountryRegister : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .RequireAuthorization()
+        .WithName("Common.RegisterCountry")
         .WithTags(Tags.Person);
     }
 

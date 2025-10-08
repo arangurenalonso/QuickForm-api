@@ -21,7 +21,8 @@ internal sealed class ChangePassword : IEndpoint
 
             return result.Match(Results.Ok, ApiResults.Problem);
         })
-        .RequireAuthorization(PredefinedPermissions.Auth_ChangePassword.ToString())
+        .RequireAuthorization()
+        .WithName("Auth.ChangePassword")
         .WithTags(Tags.Auth);
     }
 

@@ -19,6 +19,7 @@ internal sealed class GetFormStructureByIdForm : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .RequireAuthorization()
+        .WithName("Form.GetFormStructureByIdForm")
         .WithTags(Tags.Form);
     }
 }

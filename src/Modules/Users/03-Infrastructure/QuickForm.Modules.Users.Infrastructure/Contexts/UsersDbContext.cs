@@ -11,12 +11,7 @@ namespace QuickForm.Modules.Users.Persistence;
 public sealed class UsersDbContext(DbContextOptions<UsersDbContext> options) : DbContext(options), IUnitOfWork
 {
     public required DbSet<UserDomain> Users { get; set; }
-    public required DbSet<UserRoleDomain> UserRole { get; set; }
     public required DbSet<RoleDomain> Role { get; set; }
-    public required DbSet<RolePermissionsDomain> RolePermissions { get; set; }
-    public required DbSet<PermissionsDomain> Permissions { get; set; }
-    public required DbSet<ResourcesDomain> Resources { get; set; }
-    public required DbSet<PermissionsActionsDomain> PermissionsActions { get; set; }
     public required DbSet<AuthActionDomain> AuthAction { get; set; }
     public required DbSet<AuthActionTokenDomain> AuthActionToken { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)

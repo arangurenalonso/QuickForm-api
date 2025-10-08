@@ -1,6 +1,7 @@
 ﻿using QuickForm.Common.Domain;
 
 namespace QuickForm.Common.Domain;
+
 public sealed record DescriptionVO
 {
     public string Value { get; }

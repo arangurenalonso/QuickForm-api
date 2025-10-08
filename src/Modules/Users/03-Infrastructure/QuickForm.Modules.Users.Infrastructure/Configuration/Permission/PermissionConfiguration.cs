@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.EntityFrameworkCore;
-using QuickForm.Modules.Users.Domain;
+using QuickForm.Common.Domain;
 using QuickForm.Common.Infrastructure.Persistence;
+using QuickForm.Modules.Users.Domain;
 
 namespace QuickForm.Modules.Users.Persistence;
 public class PermissionConfiguration : EntityMapBase<PermissionsDomain, PermissionsId>
@@ -23,18 +24,18 @@ public class PermissionConfiguration : EntityMapBase<PermissionsDomain, Permissi
 
         builder.Property(uat => uat.IdAction)
             .HasConversion(
-                new ValueConverter<PermissionsActionsId, Guid>(
+                new ValueConverter<MasterId, Guid>(
                     idVO => idVO.Value,
-                    guid => new PermissionsActionsId(guid)
+                    guid => new MasterId(guid)
                 ))
             .IsRequired();
 
 
         builder.Property(uat => uat.IdResources)
             .HasConversion(
-                new ValueConverter<ResourcesId, Guid>(
+                new ValueConverter<MasterId, Guid>(
                     idVo => idVo.Value,
-                    guid => new ResourcesId(guid)
+                    guid => new MasterId(guid)
                 ))
             .IsRequired();
 

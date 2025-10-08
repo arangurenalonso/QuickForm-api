@@ -20,6 +20,7 @@ internal sealed class ResentEmailConfirmation : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .AllowAnonymous()
+        .WithName("Auth.ResentEmailConfirmation")
         .WithTags(Tags.Auth);
     }
 

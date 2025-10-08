@@ -21,6 +21,7 @@ internal sealed class CountryUpdate : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .RequireAuthorization()
+        .WithName("Common.UpdateCountry")
         .WithTags(Tags.Person);
     }
 

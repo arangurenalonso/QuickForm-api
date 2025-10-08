@@ -4,4 +4,5 @@ internal static class Tags
 {
     internal const string Users = "Users";
     internal const string Auth = "Auth";
+    internal const string System = "System";
 }

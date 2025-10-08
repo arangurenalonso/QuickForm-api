@@ -3,8 +3,8 @@
 namespace QuickForm.Modules.Users.Domain;
 public class PermissionsDomain : BaseDomainEntity<PermissionsId>
 {
-    public ResourcesId IdResources { get; set; }
-    public PermissionsActionsId IdAction { get; set; }
+    public MasterId IdResources { get; set; }
+    public MasterId IdAction { get; set; }
     public ResourcesDomain Resources { get; private set; }
     public PermissionsActionsDomain Action { get; private set; }
 
@@ -17,29 +17,30 @@ public class PermissionsDomain : BaseDomainEntity<PermissionsId>
 
     private PermissionsDomain(
         PermissionsId id,
-        ResourcesId idResources,
-        PermissionsActionsId idAction) : base(id)
+        MasterId idResources,
+        MasterId idAction) : base(id)
     {
         IdResources = idResources;
         IdAction = idAction;
     }
     public static ResultT<PermissionsDomain> Create(
             PermissionsId permissionsId,
-            ResourcesId idResources,
-            PermissionsActionsId idAction
+            MasterId idResources,
+            MasterId idAction
        )
     {
         var newPermission = new PermissionsDomain(permissionsId, idResources, idAction);
 
         return newPermission;
     }
-    public static ResultT<PermissionsDomain> Create(ResourcesId idResources,
-            PermissionsActionsId idAction)
+    public static ResultT<PermissionsDomain> Create(
+            MasterId idResources,
+            MasterId idAction)
         => Create(PermissionsId.Create(), idResources, idAction);
 
     public Result Update(
-           ResourcesId idResources,
-           PermissionsActionsId idAction
+           MasterId idResources,
+           MasterId idAction
        )
     {
         IdResources = idResources;

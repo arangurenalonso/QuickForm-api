@@ -20,6 +20,7 @@ internal sealed class Login : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .AllowAnonymous()
+        .WithName("Auth.Login")
         .WithTags(Tags.Auth);
     }
 

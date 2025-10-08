@@ -19,6 +19,7 @@ internal sealed class EmailConfirmation : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .AllowAnonymous()
+        .WithName("Auth.EmailConfirmation")
         .WithTags(Tags.Auth);
     }
 

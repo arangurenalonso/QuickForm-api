@@ -1,51 +1,31 @@
 ﻿using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Users.Domain;
-public class ResourcesDomain : BaseDomainEntity<ResourcesId>
+public class ResourcesDomain : BaseMasterEntity
 {
-
-    public PermissionResourcesDescription Description { get; private set; }
 
     public ICollection<PermissionsDomain> Permissions { get; private set; } = [];
     public ResourcesDomain() { }
 
-    private ResourcesDomain(
-        ResourcesId id,
-        PermissionResourcesDescription description) : base(id)
+    public static ResultT<ResourcesDomain> Create(
+            string keyName,
+            string? description = null
+        )
     {
-        Description = description;
+        var newDomain = new ResourcesDomain();
+        var masterUpdateBase = new MasterUpdateBase(keyName, description);
+        newDomain.SetBaseProperties(masterUpdateBase);
+
+        return newDomain;
     }
 
-    public static ResultT<ResourcesDomain> Create(string description)
-        => Create(ResourcesId.Create(), description);
-
-    public static ResultT<ResourcesDomain> Create(ResourcesId id, string description)
-    {
-        var descriptionResult = ValidateDescription(description);
-        if (descriptionResult.IsFailure)
-        {
-            return descriptionResult.Errors;
-        }
-
-        return new ResourcesDomain(id, descriptionResult.Value);
-    }
-
-    private static ResultT<PermissionResourcesDescription> ValidateDescription(string description)
-    {
-        var descriptionResult = PermissionResourcesDescription.Create(description);
-        return descriptionResult.IsFailure ? descriptionResult.Errors : descriptionResult;
-    }
     public Result Update(
-           string description
-       )
+            string keyName,
+            string? description = null
+        )
     {
-        var descriptionResult = ValidateDescription(description);
-        if (descriptionResult.IsFailure)
-        {
-            return descriptionResult.Errors;
-        }
-        Description = descriptionResult.Value;
-        return Result.Success();
+        var masterUpdateBase = new MasterUpdateBase(keyName, description);
+        return SetBaseProperties(masterUpdateBase);
     }
 
 }

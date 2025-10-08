@@ -23,6 +23,7 @@ internal sealed class RegisterUser : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .AllowAnonymous()
+        .WithName("Auth.RegisterUser")
         .WithTags(Tags.Auth);
     }
 

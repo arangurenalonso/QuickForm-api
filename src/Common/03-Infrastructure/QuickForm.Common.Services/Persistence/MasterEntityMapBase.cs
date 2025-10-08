@@ -35,18 +35,25 @@ public abstract class MasterEntityMapBase<TEntity>
                  .HasDatabaseName($"UX_{typeof(TEntity).Name}_KeyName");
         });
 
+        builder.OwnsOne(e => e.Description, owned =>
+        {
+            owned.Property(v => v.Value)
+                 .HasColumnName("Description")
+                 .IsRequired(false);
+        });
 
-        builder.Property(p => p.Description)
-                .HasColumnName("Description")
-                .IsRequired(false)
-                .HasConversion(
-                    new ValueConverter<DescriptionVO?, string?>(
-                        descriptionVO => descriptionVO == null ? null : descriptionVO.Value,
-                        descriptionString => 
-                                descriptionString!=null 
-                                    ? DescriptionVO.FromPersistence(descriptionString)
-                                    : null
-                    ));
+
+        //builder.Property(p => p.Description)
+        //        .HasColumnName("Description")
+        //        .IsRequired(false)
+        //        .HasConversion(
+        //            new ValueConverter<DescriptionVO?, string?>(
+        //                descriptionVO => descriptionVO == null ? null : descriptionVO.Value,
+        //                descriptionString => 
+        //                        descriptionString!=null 
+        //                            ? DescriptionVO.FromPersistence(descriptionString)
+        //                            : null
+        //            ))
 
 
         ConfigureMaster(builder);

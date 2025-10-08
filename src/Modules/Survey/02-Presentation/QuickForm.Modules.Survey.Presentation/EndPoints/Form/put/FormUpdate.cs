@@ -21,6 +21,7 @@ internal sealed class FormUpdate : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .AllowAnonymous()
+        .WithName("Form.FormUpdate")
         .WithTags(Tags.Form);
     }
 

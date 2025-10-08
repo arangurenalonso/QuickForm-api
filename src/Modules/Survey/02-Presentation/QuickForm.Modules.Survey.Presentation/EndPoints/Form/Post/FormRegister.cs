@@ -20,6 +20,7 @@ internal sealed class FormRegister : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .RequireAuthorization()
+        .WithName("Form.FormRegister")
         .WithTags(Tags.Form);
     }
 

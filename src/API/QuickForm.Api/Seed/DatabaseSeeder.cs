@@ -19,12 +19,6 @@ internal sealed class DatabaseSeeder(
             await roleSeeder.SeedAsync();
             var authActionSeeder = new AuthActionSeeder(_userContext, _logger);
             await authActionSeeder.SeedAsync();
-            var permissionsActionSeeder = new PermissionsActionSeeder(_userContext, _logger);
-            await permissionsActionSeeder.SeedAsync();
-            var resourcesSeeder = new ResourcesSeeder(_userContext, _logger);
-            await resourcesSeeder.SeedAsync();
-            var permissionSeeder = new PermissionSeeder(_userContext, _logger);
-            await permissionSeeder.SeedAsync();
 
             var datatypeSeeder = new DatatypeSeeder(_surveyDbContext, _logger);
             await datatypeSeeder.SeedAsync();

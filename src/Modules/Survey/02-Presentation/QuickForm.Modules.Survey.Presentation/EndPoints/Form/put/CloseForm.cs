@@ -19,6 +19,7 @@ internal sealed class CloseForm : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .AllowAnonymous()
+        .WithName("Form.CloseForm")
         .WithTags(Tags.Form);
     }
 }
