@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.EntityFrameworkCore;
-using QuickForm.Modules.Users.Domain;
+using QuickForm.Common.Domain;
 using QuickForm.Common.Infrastructure.Persistence;
+using QuickForm.Modules.Users.Domain;
 
 namespace QuickForm.Modules.Users.Persistence;
 public class UserRoleConfiguration : EntityMapBase<UserRoleDomain, UserRoleId>
@@ -32,9 +33,9 @@ public class UserRoleConfiguration : EntityMapBase<UserRoleDomain, UserRoleId>
 
         builder.Property(uat => uat.IdRole)
             .HasConversion(
-                new ValueConverter<RoleId, Guid>(
+                new ValueConverter<MasterId, Guid>(
                     idVO => idVO.Value,
-                    guid => new RoleId(guid)
+                    guid => new MasterId(guid)
                 ))
             .IsRequired();
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using QuickForm.Common.Domain;
 using QuickForm.Modules.Users.Domain;
 
 namespace QuickForm.Modules.Users.Persistence.Repositories;
@@ -10,7 +11,7 @@ public class AuthActionTokenRepository(
 
 
     public async Task<AuthActionTokenDomain?> GetAuthActionTokenByAuthActionIdAndTokenAsync(
-        AuthActionId authActionId,
+        MasterId authActionId,
         TokenVO userActionToken)
     {
         var authActionToken = await _context.AuthActionToken.FirstOrDefaultAsync(authActionToken => 

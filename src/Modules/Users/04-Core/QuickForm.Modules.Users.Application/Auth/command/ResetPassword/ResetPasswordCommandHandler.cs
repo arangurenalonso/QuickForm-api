@@ -42,7 +42,7 @@ public class ResetPasswordCommandHandler(
     private async Task<ResultT<AuthActionTokenDomain>> GetUserByAuthActionToken(string token)
     {
         var idAuthActionRecoveryPassword = AuthActionType.RecoveryPassword.GetId();
-        var idAuthAction = new AuthActionId(idAuthActionRecoveryPassword);
+        var idAuthAction = new MasterId(idAuthActionRecoveryPassword);
 
         var tokenResult = TokenVO.Create(token);
         if (tokenResult.IsFailure)

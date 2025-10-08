@@ -19,7 +19,7 @@ public class ResentEmailConfirmationCommandHandler(
         var user = resultUser.Value;
 
         var idAuthActionPasswordRecovery = AuthActionType.EmailConfirmation.GetId();
-        var idAuthAction = new AuthActionId(idAuthActionPasswordRecovery);
+        var idAuthAction = new MasterId(idAuthActionPasswordRecovery);
         user.AddAction(idAuthAction, _dateTimeProvider.UtcNow);
 
         userRepository.Update(user);

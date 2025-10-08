@@ -1,72 +1,42 @@
 ﻿using QuickForm.Common.Domain;
 namespace QuickForm.Modules.Users.Domain;
-public sealed class RoleDomain : BaseDomainEntity<RoleId>
+public sealed class RoleDomain : BaseMasterEntity
 {
 
-    public RoleDescriptionVO Description { get; private set; }
     #region One-to-Many Relationship
     public ICollection<UserRoleDomain> UserRole { get; private set; } = [];
     public ICollection<RolePermissionsDomain> RolePermissions { get; private set; } = [];
     #endregion
     public RoleDomain() { }
-
-    private RoleDomain(
-        RoleId id,
-        RoleDescriptionVO description) : base(id)
-    {
-        Description = description;
-    }
+    private RoleDomain(MasterId id) : base(id) { }
 
     public static ResultT<RoleDomain> Create(
-            string description
+            string keyName,
+            string? description = null
         )
     {
-        var descriptionResult = RoleDescriptionVO.Create(description);
+        var newDomain = new RoleDomain();
+        var masterUpdateBase = new MasterUpdateBase(keyName, description);
+        newDomain.SetBaseProperties(masterUpdateBase);
 
-        if (descriptionResult.IsFailure)
-        {
-            var errorList = new ResultErrorList(
-                new List<ResultErrorList>() { descriptionResult.Errors }
-                );
-            return errorList;
-        }
-        var newRole = new RoleDomain(RoleId.Create(), descriptionResult.Value);
-
-        return newRole;
+        return newDomain;
     }
-    public static ResultT<RoleDomain> Create(
-            RoleId id,
-            string description
-        )
+    public static ResultT<RoleDomain> Create(MasterId id, string keyName, string? description = null)
     {
-        var descriptionResult = RoleDescriptionVO.Create(description);
+        var newDomain = new RoleDomain(id);
+        var masterUpdateBase = new MasterUpdateBase(keyName, description);
+        newDomain.SetBaseProperties(masterUpdateBase);
 
-        if (descriptionResult.IsFailure)
-        {
-            var errorList = new ResultErrorList(
-                new List<ResultErrorList>() { descriptionResult.Errors }
-                );
-            return errorList;
-        }
-        var newRole = new RoleDomain(id, descriptionResult.Value);
-
-        return newRole;
+        return newDomain;
     }
+
     public Result Update(
-           string description
-       )
+            string keyName,
+            string? description = null
+        )
     {
-        var descriptionResult = RoleDescriptionVO.Create(description);
-
-        if (descriptionResult.IsFailure)
-        {
-            var errorList = new ResultErrorList(
-                new List<ResultErrorList>() { descriptionResult.Errors }
-                );
-            return errorList;
-        }
-        Description = descriptionResult.Value;
-        return Result.Success();
+        var masterUpdateBase = new MasterUpdateBase(keyName, description);
+        return SetBaseProperties(masterUpdateBase);
     }
 
 }

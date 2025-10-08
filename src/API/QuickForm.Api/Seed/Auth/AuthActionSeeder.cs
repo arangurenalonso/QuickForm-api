@@ -15,7 +15,7 @@ internal sealed class AuthActionSeeder(UsersDbContext _context, ILogger<Database
         var enumTypesArray = Enum.GetValues<AuthActionType>() 
                                     .Select(enumType => new
                                     {
-                                        Id = new AuthActionId(enumType.GetId()),
+                                        Id = new MasterId(enumType.GetId()),
                                         Description = enumType.GetDetail()
                                     })
                                     .ToList();
@@ -28,7 +28,7 @@ internal sealed class AuthActionSeeder(UsersDbContext _context, ILogger<Database
 
         foreach (var enumType in enumTypesArray)
         {
-            AuthActionId idEnumType = enumType.Id;
+            MasterId idEnumType = enumType.Id;
             AuthActionDomain? existingDomain = existingDomains.Find(x => x.Id == idEnumType);
 
             if (existingDomain == null)
@@ -37,7 +37,7 @@ internal sealed class AuthActionSeeder(UsersDbContext _context, ILogger<Database
                 newDomain.ClassOrigin = GetType().Name;
                 _context.AuthAction.Add(newDomain);
             }
-            else if (existingDomain.Description.Value != enumType.Description)
+            else if (existingDomain.KeyName.Value != enumType.Description)
             {
                 existingDomain.ClassOrigin = GetType().Name;
                 existingDomain.Update(enumType.Description);

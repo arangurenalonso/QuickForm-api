@@ -1,67 +1,43 @@
 ﻿using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Users.Domain;
-public class AuthActionDomain : BaseDomainEntity<AuthActionId>
+public class AuthActionDomain : BaseMasterEntity 
 {
-    public ActionDescriptionVO Description { get; private set; }
     #region Many-to-Many Relationship
     public ICollection<AuthActionTokenDomain> UserActionTokens { get; private set; } = [];
 
     #endregion
 
     private AuthActionDomain() { }
-
-    private AuthActionDomain(
-        AuthActionId id, ActionDescriptionVO description) : base(id)
-    {
-        Description = description;
-
-    }
+    private AuthActionDomain(MasterId id) : base(id) { }
 
     public static ResultT<AuthActionDomain> Create(
-        string description)
+            string keyName,
+            string? description = null
+        )
     {
-        var descriptionResult = ActionDescriptionVO.Create(description);
+        var newDomain = new AuthActionDomain();
+        var masterUpdateBase = new MasterUpdateBase(keyName, description);
+        newDomain.SetBaseProperties(masterUpdateBase);
 
-        if (descriptionResult.IsFailure)
-        {
-            var errorList = new ResultErrorList(
-                new List<ResultErrorList>() { descriptionResult.Errors }
-                );
-            return errorList;
-        }
-        return new AuthActionDomain(AuthActionId.Create(), descriptionResult.Value);
+        return newDomain;
     }
-    public static ResultT<AuthActionDomain> Create(AuthActionId id, string description)
+    public static ResultT<AuthActionDomain> Create(MasterId id, string keyName, string? description = null)
     {
-        var descriptionResult = ActionDescriptionVO.Create(description);
+        var newDomain = new AuthActionDomain(id);
+        var masterUpdateBase = new MasterUpdateBase(keyName, description);
+        newDomain.SetBaseProperties(masterUpdateBase);
 
-        if (descriptionResult.IsFailure)
-        {
-            var errorList = new ResultErrorList(
-                new List<ResultErrorList>() { descriptionResult.Errors }
-                );
-            return errorList;
-        }
-        return new AuthActionDomain(id, descriptionResult.Value);
-
+        return newDomain;
     }
 
     public Result Update(
-           string description
-       )
+            string keyName,
+            string? description = null
+        )
     {
-        var descriptionResult = ActionDescriptionVO.Create(description);
-
-        if (descriptionResult.IsFailure)
-        {
-            var errorList = new ResultErrorList(
-                new List<ResultErrorList>() { descriptionResult.Errors }
-                );
-            return errorList;
-        }
-        Description = descriptionResult.Value;
-        return Result.Success();
+        var masterUpdateBase = new MasterUpdateBase(keyName, description);
+        return SetBaseProperties(masterUpdateBase);
     }
 
 

@@ -55,7 +55,7 @@ public class RegisterCommandHandler(
         string email,
         string password)
     {
-        var roleId=new RoleId(RoleType.Menber.GetId());
+        var roleId=new MasterId(RoleType.Menber.GetId());
         var roleDomain =await  _roleRepository.GetByIdAsync(roleId);
         if (roleDomain is null)
         {

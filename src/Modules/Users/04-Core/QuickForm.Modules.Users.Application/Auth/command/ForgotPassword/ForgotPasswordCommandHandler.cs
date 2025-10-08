@@ -19,7 +19,7 @@ public class ForgotPasswordCommandHandler(
         var user = resultUser.Value;
 
         var idAuthActionPasswordRecovery = AuthActionType.RecoveryPassword.GetId();
-        var idAuthAction = new AuthActionId(idAuthActionPasswordRecovery);
+        var idAuthAction = new MasterId(idAuthActionPasswordRecovery);
         user.AddAction(idAuthAction, _dateTimeProvider.UtcNow);
 
         userRepository.Update(user);

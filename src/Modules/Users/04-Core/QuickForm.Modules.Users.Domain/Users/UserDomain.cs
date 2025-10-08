@@ -43,7 +43,7 @@ public sealed class UserDomain : BaseDomainEntity<UserId>
         var newUser = new UserDomain(UserId.Create(), emailResult.Value, passwordResult.Value);
         newUser.AddRole(roleDomain);
         var idAuthActionEmailVerificacion = AuthActionType.EmailConfirmation.GetId();
-        var idAuthAction = new AuthActionId(idAuthActionEmailVerificacion);
+        var idAuthAction = new MasterId(idAuthActionEmailVerificacion);
 
         newUser.AddAction(idAuthAction, currentDateTime);
         newUser.RaiseDomainEvents(new UserRegisteredDomainEvent(newUser.Id));
@@ -66,7 +66,7 @@ public sealed class UserDomain : BaseDomainEntity<UserId>
 
     }
     public Result AddAction(
-        AuthActionId idAuthAction,
+        MasterId idAuthAction,
         DateTime currentDateTime)
     {
         var existCurrentActionInProgress = AuthActionTokens.Where(x =>
@@ -97,13 +97,11 @@ public sealed class UserDomain : BaseDomainEntity<UserId>
             return ResultError.NullValue("Role","Role cannot be null.");
         }
 
-        // Verificar si el usuario ya tiene el rol asignado
         if (UserRole.Any(ur => ur.IdRole == role.Id))
         {
             return ResultError.DuplicateValueAlreadyInUse("Role", "User already has this role assigned.");
         }
 
-        // Crear la relación UserRoleDomain
         var userRoleResult = UserRoleDomain.Create(Id, role.Id);
 
         if (userRoleResult.IsFailure)

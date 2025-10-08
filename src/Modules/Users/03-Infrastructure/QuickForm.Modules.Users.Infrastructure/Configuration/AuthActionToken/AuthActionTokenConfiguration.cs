@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore;
 using QuickForm.Modules.Users.Domain;
 using QuickForm.Common.Infrastructure.Persistence;
+using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Users.Persistence;
 public class AuthActionTokenConfiguration : EntityMapBase<AuthActionTokenDomain, AuthActionTokenId>
@@ -32,9 +33,9 @@ public class AuthActionTokenConfiguration : EntityMapBase<AuthActionTokenDomain,
         
         builder.Property(uat => uat.IdUserAction)
             .HasConversion(
-                new ValueConverter<AuthActionId, Guid>(
+                new ValueConverter<MasterId, Guid>(
                     userActionId => userActionId.Value,
-                    guid => new AuthActionId(guid)
+                    guid => new MasterId(guid)
                 ))
             .IsRequired();
 

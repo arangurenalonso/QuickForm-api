@@ -43,7 +43,7 @@ public class EmailConfirmationCommandHandler(
     private async Task<ResultT<AuthActionTokenDomain>> GetAuthActionTokenByToken(string token)
     {
         var idAuthActionEmailVerificacion = AuthActionType.EmailConfirmation.GetId();
-        var idAuthAction = new AuthActionId(idAuthActionEmailVerificacion);
+        var idAuthAction = new MasterId(idAuthActionEmailVerificacion);
         var tokenResult = TokenVO.Create(token);
         if (tokenResult.IsFailure)
         {

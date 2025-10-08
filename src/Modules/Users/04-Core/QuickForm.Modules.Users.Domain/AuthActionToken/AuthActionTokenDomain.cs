@@ -4,7 +4,7 @@ namespace QuickForm.Modules.Users.Domain;
 public class AuthActionTokenDomain : BaseDomainEntity<AuthActionTokenId>
 {
     public UserId IdUser { get; private set; }
-    public AuthActionId IdUserAction { get; private set; }
+    public MasterId IdUserAction { get; private set; }
     public TokenVO Token { get; private set; }
     public bool Used { get; private set; }
     public ExpirationDate ExpiresAt { get; private set; }
@@ -19,7 +19,7 @@ public class AuthActionTokenDomain : BaseDomainEntity<AuthActionTokenId>
     private AuthActionTokenDomain() { }
 
     private AuthActionTokenDomain(
-        AuthActionTokenId id, UserId idUser, AuthActionId idUserAction, TokenVO token, bool used, ExpirationDate expiresAt
+        AuthActionTokenId id, UserId idUser, MasterId idUserAction, TokenVO token, bool used, ExpirationDate expiresAt
         ) : base(id)
     {
         IdUser = idUser;
@@ -29,7 +29,7 @@ public class AuthActionTokenDomain : BaseDomainEntity<AuthActionTokenId>
         ExpiresAt = expiresAt;
     }
 
-    public static ResultT<AuthActionTokenDomain> Create(UserId idUser, AuthActionId idUserAction,
+    public static ResultT<AuthActionTokenDomain> Create(UserId idUser, MasterId idUserAction,
         DateTime expiredDate)
     {
         var tokenResult = TokenVO.GenerateNewToken();
