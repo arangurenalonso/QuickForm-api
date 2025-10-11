@@ -47,6 +47,7 @@ public static class UserPersistenceServiceRegistration
         services.AddSingleton<IDbConnectionFactory>(sp =>
                         new DbConnectionFactory(connectionString!));
 
+        services.AddScoped(typeof(IGenericUserRepository<,>), typeof(GenericUserRepository<,>));
         return services;
     }
 

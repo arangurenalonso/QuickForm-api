@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Reflection;
 using System.Text;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
 using QuickForm.Common.Presentation;
+using QuickForm.Modules.Users.Application;
 
 namespace QuickForm.Modules.Users.Presentation;
 
@@ -15,7 +17,7 @@ internal sealed class EndpointsExplorer : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("_meta/endpoints", (EndpointDataSource dataSource) =>
+        app.MapGet("_meta/endpoints",async (EndpointDataSource dataSource, ISender sender) =>
         {
             var routes = dataSource.Endpoints
                 .OfType<RouteEndpoint>()
@@ -47,7 +49,12 @@ internal sealed class EndpointsExplorer : IEndpoint
                 .ThenBy(r => string.Join(",", r.Methods))
                 .ToList();
 
-            return Results.Ok(routes);
+            var command = new RegisterPermissionCommand(routes);
+
+
+            var result = await sender.Send(command);
+
+            return result.Match(Results.Ok, ApiResults.Problem);
         })
         .RequireAuthorization()
         .WithTags(Tags.System)
@@ -102,12 +109,4 @@ internal sealed class EndpointsExplorer : IEndpoint
         return sb.Length == 0 ? "/" : sb.ToString();
     }
 
-    private sealed record EndpointInfo(
-        string Pattern,
-        string[] Methods,
-        string? Name,
-        string? DisplayName,
-        string[] Tags,
-        bool RequiresAuthorization
-    );
 }
