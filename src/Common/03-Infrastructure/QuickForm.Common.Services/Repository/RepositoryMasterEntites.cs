@@ -45,7 +45,7 @@ public class RepositoryMasterEntities<TEntity>
 
         return await query.FirstOrDefaultAsync(cancellationToken);
     }
-    public async Task<TEntity?> GetFromIdOrKeyName(IdOrKeyName? aplicacionRef, CancellationToken ct)
+    public async Task<TEntity?> GetFromIdOrKeyName(IdOrKeyName? aplicacionRef, bool asNoTracking, CancellationToken ct)
     {
         if (aplicacionRef is null)
         {
@@ -53,12 +53,12 @@ public class RepositoryMasterEntities<TEntity>
         }
         if (aplicacionRef.IsById)
         {
-            return await GetById(aplicacionRef.Id.Value, true, ct);
+            return await GetById(aplicacionRef.Id.Value, asNoTracking, ct);
         }
 
         if (aplicacionRef.IsByKeyName)
         {
-            return await GetByKeyName(aplicacionRef.Name, true, ct);
+            return await GetByKeyName(aplicacionRef.Name, asNoTracking, ct);
         }
 
         throw new InvalidOperationException("Referencia de aplicación inválida.");
