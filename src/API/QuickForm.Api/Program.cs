@@ -79,7 +79,7 @@ await app.RunAsync();
 // Seleccionar el Api
 // Seleccionar la carpeta Persistencia de cada contexto
 
-// Add-Migration ChangeAuthActionAndRoleWithMaster -Context UsersDbContext -OutputDir Migrations
+// Add-Migration ChangePermissionTable -Context UsersDbContext -OutputDir Migrations
 // Add-Migration AuditConfiguration -Context SurveyDbContext -OutputDir Migrations
 // Add-Migration AuditConfiguration -Context PersonDbContext -OutputDir Migrations
 

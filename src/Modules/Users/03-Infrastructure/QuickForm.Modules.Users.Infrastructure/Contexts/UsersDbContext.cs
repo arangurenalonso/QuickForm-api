@@ -10,7 +10,6 @@ using QuickForm.Modules.Users.Domain;
 namespace QuickForm.Modules.Users.Persistence;
 public sealed class UsersDbContext(DbContextOptions<UsersDbContext> options) : DbContext(options), IUnitOfWork
 {
-    public required DbSet<UserDomain> Users { get; set; }
     public required DbSet<RoleDomain> Role { get; set; }
     public required DbSet<AuthActionDomain> AuthAction { get; set; }
     public required DbSet<AuthActionTokenDomain> AuthActionToken { get; set; }

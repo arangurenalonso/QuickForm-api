@@ -9,18 +9,18 @@ public class UserRepository(
 
     public async Task<UserDomain?> GetByEmailAsync(EmailVO email)
     {
-        var usuario = await _context.Users.FirstOrDefaultAsync(usuario => usuario.Email == email && !usuario.IsDeleted);
+        var usuario = await _context.Set<UserDomain>().FirstOrDefaultAsync(usuario => usuario.Email == email && !usuario.IsDeleted);
         return usuario;
     }
     public async Task<UserDomain?> GetByIdAsync(UserId userId)
     {
-        var usuario = await _context.Users.FirstOrDefaultAsync(usuario => usuario.Id == userId && !usuario.IsDeleted);
+        var usuario = await _context.Set<UserDomain>().FirstOrDefaultAsync(usuario => usuario.Id == userId && !usuario.IsDeleted);
         return usuario;
     }
 
     public async Task<bool> IsEmailExistsAsync(EmailVO email, UserId? userId = null)
     {
-        return await _context.Users
+        return await _context.Set<UserDomain>()
                                 .AsNoTracking()
                                 .AnyAsync(usuario =>
                                 (userId == null || usuario.Id != userId) &&
@@ -31,7 +31,7 @@ public class UserRepository(
     public async Task<UserDomain?> GetByEmailWithActiveAuthActionsAsync(EmailVO email, DateTime currentDatetime)
     {
         var currentDateTimeVO = ExpirationDate.Restore(currentDatetime);
-        var usuario = await _context.Users
+        var usuario = await _context.Set<UserDomain>()
                                     .Include(usuario => usuario.AuthActionTokens.Where(x =>
                                                                                             !x.IsDeleted &&
                                                                                             !x.Used &&
@@ -47,7 +47,7 @@ public class UserRepository(
         try
         {
             var currentDateTimeVO = ExpirationDate.Restore(currentDatetime);
-            var usuario = await _context.Users
+            var usuario = await _context.Set<UserDomain>()
                                         .Include(usuario => usuario.AuthActionTokens.Where(x=>
                                                                                                 !x.IsDeleted &&
                                                                                                 !x.Used&&
@@ -71,10 +71,10 @@ public class UserRepository(
 
     public void Insert(UserDomain user)
     {
-        _context.Users.Add(user);
+        _context.Set<UserDomain>().Add(user);
     }
     public void Update(UserDomain user)
     {
-        _context.Users.Update(user);
+        _context.Set<UserDomain>().Update(user);
     }
 }

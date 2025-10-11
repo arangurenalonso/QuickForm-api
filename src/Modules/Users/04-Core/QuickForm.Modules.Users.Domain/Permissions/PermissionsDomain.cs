@@ -3,8 +3,13 @@
 namespace QuickForm.Modules.Users.Domain;
 public class PermissionsDomain : BaseDomainEntity<PermissionsId>
 {
+    public KeyNameVO KeyName { get; private set; }
+    public PathUrlVO PathUrl { get; set; }
+    public HttpMethodVO HttpMethod { get; set; }
+    public MasterId IdApplication { get; set; }
     public MasterId IdResources { get; set; }
     public MasterId IdAction { get; set; }
+    public ApplicationDomain Application { get; private set; }
     public ResourcesDomain Resources { get; private set; }
     public PermissionsActionsDomain Action { get; private set; }
 
@@ -22,6 +27,7 @@ public class PermissionsDomain : BaseDomainEntity<PermissionsId>
     {
         IdResources = idResources;
         IdAction = idAction;
+        
     }
     public static ResultT<PermissionsDomain> Create(
             PermissionsId permissionsId,
