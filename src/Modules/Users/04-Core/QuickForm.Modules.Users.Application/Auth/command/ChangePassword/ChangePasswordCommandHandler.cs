@@ -38,10 +38,10 @@ public class ChangePasswordCommandHandler(
             return ResultT<ResultResponse>.FailureT(transactionResut.ResultType,transactionResut.Errors);
         }
 
-        var confirmTransactionResult =await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
+        var confirmTransactionResult = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
         if (confirmTransactionResult.IsFailure)
         {
-            return ResultT<ResultResponse>.FailureT(transactionResut.ResultType, transactionResut.Errors);
+            return ResultT<ResultResponse>.FailureT(confirmTransactionResult.ResultType, confirmTransactionResult.Errors);
         }
         return ResultResponse.Success("Password changed successfully.");
     }
@@ -76,7 +76,8 @@ public class ChangePasswordCommandHandler(
         {
             return Result.Failure(ResultType.DomainValidation, resultChange.Errors);
         }
-        _userRepository.Update(user);
+
+        _unitOfWork.Repository<UserDomain, UserId>().UpdateEntity(user);
 
         return Result.Success();
     }

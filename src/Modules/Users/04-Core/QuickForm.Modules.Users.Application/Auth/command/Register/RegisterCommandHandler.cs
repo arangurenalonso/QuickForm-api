@@ -28,11 +28,10 @@ public class RegisterCommandHandler(
             return ResultT<ResultResponse>.FailureT(newUserResult.ResultType,newUserResult.Errors);
         }
 
-        var transactionResut = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
-
-        if (transactionResut.IsFailure)
+        var confirmTransactionResult = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
+        if (confirmTransactionResult.IsFailure)
         {
-            return ResultT<ResultResponse>.FailureT(transactionResut.ResultType,transactionResut.Errors);
+            return ResultT<ResultResponse>.FailureT(confirmTransactionResult.ResultType, confirmTransactionResult.Errors);
         }
         return ResultResponse.Success("User created successfully.");
     }
@@ -77,7 +76,8 @@ public class RegisterCommandHandler(
         }
         var userDomain = userDomainResult.Value;
 
-        _userRepository.Insert(userDomain);
+
+        _unitOfWork.Repository<UserDomain, UserId>().AddEntity(userDomain);
         return userDomain;
     }
 

@@ -12,7 +12,7 @@ internal sealed class UpdateCountryCommandHandler(
     {
         var masterId = new MasterId(request.Id);
         var country =await _unitOfWork.Repository<CountryDomain, MasterId>()
-                                        .GetById(masterId);
+                                        .GetById(masterId,false, cancellationToken);
 
         if (country == null)
         {
@@ -27,10 +27,10 @@ internal sealed class UpdateCountryCommandHandler(
             return ResultT<ResultResponse>.FailureT(ResultType.DomainValidation, resultUpdate.Errors);
         }
 
-        var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
-        if (resultTransaction.IsFailure)
+        var confirmTransactionResult = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
+        if (confirmTransactionResult.IsFailure)
         {
-            return ResultT<ResultResponse>.FailureT(resultTransaction.ResultType, resultTransaction.Errors);
+            return ResultT<ResultResponse>.FailureT(confirmTransactionResult.ResultType, confirmTransactionResult.Errors);
         }
 
         return ResultResponse.Success($"Country successfully updated.");

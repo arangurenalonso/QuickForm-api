@@ -28,13 +28,15 @@ public class ResetPasswordCommandHandler(
         user.ChangePassword(request.Password, _passwordHashingService);
         authActionToken.UseToken();
 
-        _userRepository.Update(user);
-        _authActionTokenRepository.Update(authActionToken);
 
-        var result = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
-        if (result.IsFailure)
+        _unitOfWork.Repository<UserDomain, UserId>().UpdateEntity(user);
+
+        _unitOfWork.Repository<AuthActionTokenDomain, AuthActionTokenId>().UpdateEntity(authActionToken);
+
+        var confirmTransactionResult = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
+        if (confirmTransactionResult.IsFailure)
         {
-            return ResultT<ResultResponse>.FailureT(result.ResultType,result.Errors);
+            return ResultT<ResultResponse>.FailureT(confirmTransactionResult.ResultType, confirmTransactionResult.Errors);
         }
         return ResultResponse.Success("Your password has been reset successfully.");
 

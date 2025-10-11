@@ -69,12 +69,4 @@ public class UserRepository(
         }
     }
 
-    public void Insert(UserDomain user)
-    {
-        _context.Set<UserDomain>().Add(user);
-    }
-    public void Update(UserDomain user)
-    {
-        _context.Set<UserDomain>().Update(user);
-    }
 }

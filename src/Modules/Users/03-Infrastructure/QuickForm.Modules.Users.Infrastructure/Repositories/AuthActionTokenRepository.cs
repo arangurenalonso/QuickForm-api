@@ -20,12 +20,4 @@ public class AuthActionTokenRepository(
                                                                             !authActionToken.IsDeleted);
         return authActionToken;
     }
-    public void Insert(AuthActionTokenDomain authActionTokenDomain)
-    {
-        _context.AuthActionToken.Add(authActionTokenDomain);
-    }
-    public void Update(AuthActionTokenDomain authActionTokenDomain)
-    {
-        _context.AuthActionToken.Update(authActionTokenDomain);
-    }
 }

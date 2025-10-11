@@ -19,10 +19,10 @@ internal sealed class RegisterCountryCommandHandler(
         }
         _unitOfWork.Repository<CountryDomain, MasterId>().AddEntity(countryCreated.Value);
 
-        var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
-        if (resultTransaction.IsFailure)
+        var confirmTransactionResult = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
+        if (confirmTransactionResult.IsFailure)
         {
-            return ResultT<ResultResponse>.FailureT(resultTransaction.ResultType, resultTransaction.Errors);
+            return ResultT<ResultResponse>.FailureT(confirmTransactionResult.ResultType, confirmTransactionResult.Errors);
         }
         var countryId = countryCreated.Value.Id; 
 

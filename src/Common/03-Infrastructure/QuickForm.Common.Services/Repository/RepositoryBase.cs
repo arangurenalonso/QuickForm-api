@@ -2,16 +2,27 @@
 using QuickForm.Common.Domain;
 
 namespace QuickForm.Common.Infrastructure;
-public class RepositoryBase<TEntity,TEntityId>(
-        DbContext _context
-    ) : IRepositoryBase<TEntity, TEntityId>
+public class RepositoryBase<TEntity,TEntityId>: IRepositoryBase<TEntity, TEntityId>
     where TEntityId : EntityId
     where TEntity : BaseDomainEntity<TEntityId>
 {
-    public async Task<TEntity> GetById(TEntityId id)
+    protected readonly DbContext _context;
+
+    public RepositoryBase(DbContext context)
     {
-        return await _context.Set<TEntity>()
-                        .FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted);
+        _context = context;
+    }
+
+    public async Task<TEntity> GetById(TEntityId id,
+               bool asNoTracking,
+               CancellationToken cancellationToken = default)
+    {
+        var query = _context.Set<TEntity>().Where(x => x.Id == id && !x.IsDeleted);
+        if (asNoTracking)
+        {
+            query = query.AsNoTracking();
+        }
+        return await query.FirstOrDefaultAsync(cancellationToken);
     } 
     public void AddEntity(TEntity entity)
     {

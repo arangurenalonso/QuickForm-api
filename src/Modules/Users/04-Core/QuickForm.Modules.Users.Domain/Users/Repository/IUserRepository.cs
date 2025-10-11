@@ -8,6 +8,4 @@ public interface IUserRepository
     Task<bool> IsEmailExistsAsync(EmailVO email, UserId? userId = null);
     Task<UserDomain?> GetByEmailWithActiveAuthActionsAsync(EmailVO email, DateTime currentDatetime);
     Task<UserDomain?> GetByIdWithActiveAuthActionsAsync(UserId userId, DateTime currentDatetime);
-    void Insert(UserDomain user);
-    void Update(UserDomain user);
 }

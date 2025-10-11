@@ -22,13 +22,13 @@ public class ResentEmailConfirmationCommandHandler(
         var idAuthAction = new MasterId(idAuthActionPasswordRecovery);
         user.AddAction(idAuthAction, _dateTimeProvider.UtcNow);
 
-        userRepository.Update(user);
 
-        var result = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
-         
-        if (result.IsFailure)
+        _unitOfWork.Repository<UserDomain, UserId>().UpdateEntity(user);
+
+        var confirmTransactionResult = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
+        if (confirmTransactionResult.IsFailure)
         {
-            return ResultT<ResultResponse>.FailureT(result.ResultType, result.Errors);
+            return ResultT<ResultResponse>.FailureT(confirmTransactionResult.ResultType, confirmTransactionResult.Errors);
         }
 
         return ResultResponse.Success("Email Confirmation sent successfully.");

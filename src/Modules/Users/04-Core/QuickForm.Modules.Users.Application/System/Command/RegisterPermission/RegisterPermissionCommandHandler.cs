@@ -1,19 +1,20 @@
 ﻿using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
-using QuickForm.Modules.Users.Domain;
 
 namespace QuickForm.Modules.Users.Application;
 public class RegisterPermissionCommandHandler(
-        IUnitOfWork _unitOfWork,
-        IUserRepository _userRepository,
-        IPasswordHashingService _passwordHashingService,
-        IDateTimeProvider _dateTimeProvider,
-        IRoleRepository _roleRepository
+        IUnitOfWork _unitOfWork
     ) : ICommandHandler<RegisterPermissionCommand, ResultResponse>
 {
 
     public async Task<ResultT<ResultResponse>> Handle(RegisterPermissionCommand request, CancellationToken cancellationToken)
     {
+
+        var confirmTransactionResult = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
+        if (confirmTransactionResult.IsFailure)
+        {
+            return ResultT<ResultResponse>.FailureT(confirmTransactionResult.ResultType, confirmTransactionResult.Errors);
+        }
 
         return ResultResponse.Success("User created successfully.");
     }

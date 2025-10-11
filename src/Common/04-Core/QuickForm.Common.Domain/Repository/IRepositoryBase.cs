@@ -4,7 +4,10 @@ public interface IRepositoryBase<TEntity, TEntityId>
     where TEntityId : EntityId
     where TEntity : BaseDomainEntity<TEntityId>
 {
-    Task<TEntity> GetById(TEntityId id);
+    Task<TEntity> GetById(TEntityId id,
+               bool asNoTracking,
+               CancellationToken cancellationToken = default
+        );
     void AddEntity(TEntity entity);
     void AddEntity(List<TEntity> entities);
     void UpdateEntity(TEntity entity);
