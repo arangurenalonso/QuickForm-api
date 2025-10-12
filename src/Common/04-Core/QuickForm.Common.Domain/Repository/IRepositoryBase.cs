@@ -8,6 +8,9 @@ public interface IRepositoryBase<TEntity, TEntityId>
                bool asNoTracking,
                CancellationToken cancellationToken = default
         );
+    Task<TEntity> GetAll(
+               bool asNoTracking,
+               CancellationToken cancellationToken = default);
     void AddEntity(TEntity entity);
     void AddEntity(List<TEntity> entities);
     void UpdateEntity(TEntity entity);

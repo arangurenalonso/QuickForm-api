@@ -39,4 +39,8 @@ public record ResultError
     {
         PropertyName = field;
     }
+    public override string ToString()
+       => string.IsNullOrWhiteSpace(PropertyName)
+           ? $"{Type}: {Description}"
+           : $"{PropertyName}: {Description} ({Type})";
 }

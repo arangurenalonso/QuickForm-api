@@ -2,7 +2,8 @@
 
 namespace QuickForm.Modules.Users.Application;
 public sealed record RegisterPermissionCommand(
-        List<EndpointInfo> Endpoints
+        List<EndpointInfo> Endpoints,
+        Guid IdApplication
     ) : ICommand<ResultResponse>;
 
 public sealed record EndpointInfo(

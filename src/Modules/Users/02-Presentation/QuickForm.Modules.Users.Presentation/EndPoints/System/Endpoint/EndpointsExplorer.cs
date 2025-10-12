@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
+using QuickForm.Common.Domain;
 using QuickForm.Common.Presentation;
 using QuickForm.Modules.Users.Application;
 
@@ -49,7 +50,8 @@ internal sealed class EndpointsExplorer : IEndpoint
                 .ThenBy(r => string.Join(",", r.Methods))
                 .ToList();
 
-            var command = new RegisterPermissionCommand(routes);
+            var idApplication = AppConstants.ApplicationCode;
+            var command = new RegisterPermissionCommand(routes, idApplication);
 
 
             var result = await sender.Send(command);

@@ -23,7 +23,18 @@ public class RepositoryBase<TEntity,TEntityId>: IRepositoryBase<TEntity, TEntity
             query = query.AsNoTracking();
         }
         return await query.FirstOrDefaultAsync(cancellationToken);
-    } 
+    }
+    public async Task<TEntity> GetAll(
+               bool asNoTracking,
+               CancellationToken cancellationToken = default)
+    {
+        var query = _context.Set<TEntity>().Where(x => !x.IsDeleted);
+        if (asNoTracking)
+        {
+            query = query.AsNoTracking();
+        }
+        return await query.FirstOrDefaultAsync(cancellationToken);
+    }
     public void AddEntity(TEntity entity)
     {
         _context.Set<TEntity>().Add(entity);

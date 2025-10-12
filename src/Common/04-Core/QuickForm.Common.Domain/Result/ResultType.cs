@@ -4,6 +4,7 @@ public enum ResultType
     None = 0,
     NullValue=2,
     Unspecified = 3,
+    BadRequest = 9,
     ModelDataValidation = 10,
     FluentValidation = 11,
     DomainValidation = 12,

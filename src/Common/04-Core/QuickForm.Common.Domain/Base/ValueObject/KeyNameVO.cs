@@ -1,7 +1,7 @@
 ﻿namespace QuickForm.Common.Domain;
 public sealed record KeyNameVO
 {
-    public string Value { get; }
+    public string Value { get; private set; }
 
     private KeyNameVO(string value)
     {
@@ -16,10 +16,14 @@ public sealed record KeyNameVO
         {
             return ResultError.EmptyValue("KeyName", "KeyName cannot be null or empty.");
         }
-
-        return new KeyNameVO(keyName);
+        var normalizedKeyName = keyName.Trim(); 
+        return new KeyNameVO(normalizedKeyName);
     }
 
+    public override string ToString()
+    {
+        return Value;
+    }
 
     public static implicit operator string(KeyNameVO key) => key.Value;
 

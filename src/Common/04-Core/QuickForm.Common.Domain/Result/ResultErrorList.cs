@@ -43,5 +43,10 @@ public class ResultErrorList
     public int Count => _errors.Count;
 
     public ResultError this[int index] => _errors[index];
+    public override string ToString()
+       => string.Join("; ",
+           _errors
+               .Where(e => e is not null && e != ResultError.None)
+               .Select(e => e!.ToString()));
 
 }

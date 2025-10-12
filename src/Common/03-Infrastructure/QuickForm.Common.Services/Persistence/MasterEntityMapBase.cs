@@ -1,7 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics.Contracts;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.VisualBasic;
 using QuickForm.Common.Domain;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace QuickForm.Common.Infrastructure.Persistence;
 public abstract class MasterEntityMapBase<TEntity>
@@ -55,6 +58,10 @@ public abstract class MasterEntityMapBase<TEntity>
         //                            : null
         //            ))
 
+
+        //Con OwnsOne: en la query debes comparar por el escalar de la columna, o sea x.KeyName.Value.
+        //Con ValueConverter: EF trata el miembro como escalar en la BD.Igual
+        //te recomiendo comparar contra escalares para Contains(lista → strings), aunque == con un VO único suele traducir bien.
 
         ConfigureMaster(builder);
     }
