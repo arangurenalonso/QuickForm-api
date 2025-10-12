@@ -64,4 +64,10 @@ public sealed class SurveyDbContext(
     }
 
 
+    public ISurveryMasterRepository<TEntity> Repository<TEntity>()
+     where TEntity : BaseMasterEntity
+    {
+        return serviceProvider.GetRequiredService<ISurveryMasterRepository<TEntity>>();
+    }
+
 }

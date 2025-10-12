@@ -55,5 +55,10 @@ public sealed class PersonDbContext(
     }
 
 
+    public IGenericMasterEntityPersonRepository<TEntity> Repository<TEntity>()
+     where TEntity : BaseMasterEntity
+    {
+        return serviceProvider.GetRequiredService<IGenericMasterEntityPersonRepository<TEntity>>();
+    }
 }
 

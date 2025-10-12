@@ -8,4 +8,6 @@ public interface IUnitOfWork
     ISurveyRepository<TEntity, TEntityId> Repository<TEntity, TEntityId>()
      where TEntity : BaseDomainEntity<TEntityId>
      where TEntityId : EntityId;
+    ISurveryMasterRepository<TEntity> Repository<TEntity>()
+     where TEntity : BaseMasterEntity;
 }

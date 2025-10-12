@@ -8,4 +8,6 @@ public interface IUnitOfWork
     IGenericUserRepository<TEntity, TEntityId> Repository<TEntity, TEntityId>()
      where TEntity : BaseDomainEntity<TEntityId>
      where TEntityId : EntityId;
+    IGenericUserMasterEntityRepository<TEntity> Repository<TEntity>()
+     where TEntity : BaseMasterEntity;
 }

@@ -48,6 +48,8 @@ public static class UserPersistenceServiceRegistration
                         new DbConnectionFactory(connectionString!));
 
         services.AddScoped(typeof(IGenericUserRepository<,>), typeof(GenericUserRepository<,>));
+        services.AddScoped(typeof(IGenericUserMasterEntityRepository<>), typeof(GenericUserMasterEntityRepository<>));
+        
         return services;
     }
 

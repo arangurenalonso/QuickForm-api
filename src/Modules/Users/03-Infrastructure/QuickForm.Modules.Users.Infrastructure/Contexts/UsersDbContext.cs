@@ -58,4 +58,11 @@ public sealed class UsersDbContext(
     }
 
 
+    public IGenericUserMasterEntityRepository<TEntity> Repository<TEntity>()
+     where TEntity : BaseMasterEntity
+    {
+        return serviceProvider.GetRequiredService<IGenericUserMasterEntityRepository<TEntity>>();
+    }
+
+
 }

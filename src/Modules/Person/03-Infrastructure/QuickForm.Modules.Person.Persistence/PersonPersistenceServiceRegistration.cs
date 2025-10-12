@@ -40,6 +40,7 @@ public static class SurveyPersistenceServiceRegistration
                         new DbConnectionFactory(connectionString!));
 
         services.AddScoped(typeof(IGenericPersonRepository<,>), typeof(GenericPersonRepository<,>));
+        services.AddScoped(typeof(IGenericMasterEntityPersonRepository<>), typeof(GenericMasterEntityPersonRepository<>));
         return services;
     }
 
