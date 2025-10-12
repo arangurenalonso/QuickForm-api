@@ -46,7 +46,7 @@ public class RepositoryMasterEntities<TEntity>
             CancellationToken cancellationToken = default
         )
     {
-        var query = _context.Set<TEntity>().Where(x => x.KeyName == keyName && !x.IsDeleted);
+        var query = _context.Set<TEntity>().Where(x => x.KeyName.Value == keyName.Value && !x.IsDeleted);
         if (asNoTracking)
         {
             query = query.AsNoTracking();
@@ -87,10 +87,12 @@ public class RepositoryMasterEntities<TEntity>
             CancellationToken cancellationToken = default
         )
     {
+        var needleValues = keyNames.Select(k => k.Value).ToList();
+
         var query = _context
                         .Set<TEntity>()
                         .AsNoTracking()
-                        .Where(x => keyNames.Contains(x.KeyName) && !x.IsDeleted);
+                        .Where(x => needleValues.Contains(x.KeyName.Value) && !x.IsDeleted);
         
         if (predicado is not null)
         {
@@ -136,7 +138,7 @@ public class RepositoryMasterEntities<TEntity>
            )
     {
         var query = _context.Set<TEntity>()
-                            .Where(x => x.KeyName == keyName && !x.IsDeleted);
+                            .Where(x => x.KeyName.Value == keyName.Value && !x.IsDeleted);
 
         if (predicado is not null)
         {

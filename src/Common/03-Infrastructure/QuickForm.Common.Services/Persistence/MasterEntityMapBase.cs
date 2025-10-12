@@ -1,4 +1,7 @@
-﻿using System.Diagnostics.Contracts;
+﻿using System.Diagnostics;
+using System.Diagnostics.Contracts;
+using System.Runtime.ConstrainedExecution;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -62,6 +65,23 @@ public abstract class MasterEntityMapBase<TEntity>
         //Con OwnsOne: en la query debes comparar por el escalar de la columna, o sea x.KeyName.Value.
         //Con ValueConverter: EF trata el miembro como escalar en la BD.Igual
         //te recomiendo comparar contra escalares para Contains(lista → strings), aunque == con un VO único suele traducir bien.
+
+        //1) Si usas OwnsOne
+        //La columna real es "KeyName"(string).Entonces:
+
+        //      var needles = keyNames.Select(k => k.Value).ToList()
+        //      var query = _context.Set<TEntity>()
+        //                          .Where(x => needles.Contains(x.KeyName.Value) && !x.IsDeleted)
+
+        //Contains debe ser sobre una lista de strings, y del lado de la entidad usar x.KeyName.Value.
+
+        //2) Si usas ValueConverter(recomendado para VO mono - escalar)
+        //Aquí EF convierte KeyNameVO ⇄ string al hablar con la BD.
+        //Comparación por igualdad con un VO único(ok):
+        //        var vo = KeyNameVO.Create("APP_ADMIN").Value
+        //        var q = _context.Set<TEntity>().Where(x => x.KeyName == vo)
+        //Esto suele traducir correctamente(EF aplica el converter al parámetro).
+
 
         ConfigureMaster(builder);
     }
