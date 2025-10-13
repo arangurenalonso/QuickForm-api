@@ -55,8 +55,10 @@ internal sealed class EndpointsExplorer : IEndpoint
 
 
             var result = await sender.Send(command);
+            Console.WriteLine(result);
 
-            return result.Match(Results.Ok, ApiResults.Problem);
+            //return result.Match(Results.Ok, ApiResults.Problem)
+            return Results.Ok(routes);
         })
         .RequireAuthorization()
         .WithTags(Tags.System)

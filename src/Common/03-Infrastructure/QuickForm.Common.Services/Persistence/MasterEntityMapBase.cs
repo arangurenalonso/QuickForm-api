@@ -1,13 +1,7 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.Contracts;
-using System.Runtime.ConstrainedExecution;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.VisualBasic;
 using QuickForm.Common.Domain;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace QuickForm.Common.Infrastructure.Persistence;
 public abstract class MasterEntityMapBase<TEntity>

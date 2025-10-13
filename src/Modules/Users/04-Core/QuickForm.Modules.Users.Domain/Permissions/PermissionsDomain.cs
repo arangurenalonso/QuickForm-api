@@ -9,6 +9,9 @@ public class PermissionsDomain : BaseDomainEntity<PermissionsId>
     public MasterId IdApplication { get; set; }
     public MasterId IdResources { get; set; }
     public MasterId IdAction { get; set; }
+
+
+
     public ApplicationDomain Application { get; private set; }
     public ResourcesDomain Resources { get; private set; }
     public PermissionsActionsDomain Action { get; private set; }
