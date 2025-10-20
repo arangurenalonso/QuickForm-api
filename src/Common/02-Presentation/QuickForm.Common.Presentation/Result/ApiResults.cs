@@ -57,6 +57,12 @@ public static class ApiResults
 public class ResultResponse
 {
     public int StatusCode { get; set; }
-    public string? Title { get; set; } = "";
+    public string Title { get; set; } = "";
+    public string? Message =>
+       (Errors != null && Errors.Count > 0)
+           ? string.Join("; ",
+                Errors.Select(e => e.Message)
+               )
+           : Title;
     public List<ResultError> Errors { get; set; } = new List<ResultError>();
 }

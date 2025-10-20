@@ -4,6 +4,12 @@ public record ResultError
     public string PropertyName { get; private set; } = "";
     public ErrorType Type { get; }
     public string Description { get; }
+
+    public string Message =>
+        string.IsNullOrWhiteSpace(PropertyName)
+            ? $"{Description}"
+            : $"{PropertyName}: {Description}";
+
     private ResultError(string field, string description, ErrorType type)
     {
         PropertyName = field;
