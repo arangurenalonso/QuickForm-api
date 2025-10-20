@@ -38,6 +38,19 @@ builder.Services.AddUsersModule(builder.Configuration);
 builder.Services.AddSurveyModule(builder.Configuration);
 builder.Services.AddPersonModule(builder.Configuration);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigins",
+        policyBuilder =>
+        {
+            policyBuilder
+                   .SetIsOriginAllowed(_ => true)
+                   .AllowAnyHeader()
+                   .AllowAnyMethod()
+                   .AllowCredentials();
+        });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -48,7 +61,12 @@ if (app.Environment.IsDevelopment())
     app.ApplyMigrations();
 }
 
+
+
 app.UseHttpsRedirection();
+
+app.UseCors("AllowSpecificOrigins");
+
 
 app.MapEndpoints();
 
