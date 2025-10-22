@@ -59,11 +59,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
     app.ApplyMigrations();
-    app.Use(async (ctx, next) =>
-    {
-        await next();
-        ctx.Response.Headers.Remove("Strict-Transport-Security");
-    });
 }
 
 
