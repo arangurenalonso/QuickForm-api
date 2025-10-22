@@ -62,18 +62,21 @@ if (app.Environment.IsDevelopment())
 }
 
 
+app.UseExceptionHandler();
+
+app.UseHsts();
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
+
+
 app.UseCors("AllowSpecificOrigins");
-
-
-app.MapEndpoints();
-
-app.UseExceptionHandler();
 
 app.UseAuthentication();    
 app.UseAuthorization();
+
+app.MapEndpoints();
 
 app.MapPost("/api/admin/seed", async (DatabaseSeeder seeder, ILogger<DatabaseSeeder> logger) =>
 {
