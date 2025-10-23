@@ -7,8 +7,8 @@ public sealed class Customer : BaseDomainEntity<CustomerId>
 {
 
     public string Email { get; private set; }
-    public string FirstName { get; private set; }
-    public string LastName { get; private set; }
+    public string FirstName { get; private set; } = string.Empty;
+    public string LastName { get; private set; } = string.Empty;
     [NotMapped]
     public string FullName => $"{FirstName} {LastName}";
 
@@ -16,19 +16,17 @@ public sealed class Customer : BaseDomainEntity<CustomerId>
     private Customer()
     {
     }
-    private Customer(CustomerId id, string email, string firstName, string lastName) : base(id)
+    private Customer(CustomerId id, string email) : base(id)
     {
         Email = email;
-        FirstName = firstName;
-        LastName = lastName;
     }
 
 
-    public static Customer Create(Guid id, string email, string firstName, string lastName)
+    public static Customer Create(Guid id, string email)
     {
         CustomerId customerId =new CustomerId(id);
 
-        return new Customer(customerId, email, firstName, lastName);
+        return new Customer(customerId, email);
     }
 
     public void Update(string firstName, string lastName)

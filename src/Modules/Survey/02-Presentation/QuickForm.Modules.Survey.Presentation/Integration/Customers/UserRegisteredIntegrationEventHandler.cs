@@ -13,9 +13,7 @@ internal sealed class UserRegisteredIntegrationEventHandler(ISender sender)
     {
         var command = new CreateCustomerCommand(
                 integrationEvent.UserId,
-                integrationEvent.Email,
-                integrationEvent.FirstName,
-                integrationEvent.LastName);
+                integrationEvent.Email);
         var result = await sender.Send(command, cancellationToken);
 
         if (result.IsFailure)

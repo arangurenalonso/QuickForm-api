@@ -12,9 +12,7 @@ public sealed class UserDapperRepository(IDbConnectionFactory dbConnectionFactor
            $"""
              SELECT
                  Id AS {nameof(UserResponse.Id)},
-                 Email AS {nameof(UserResponse.Email)},
-                 Name AS {nameof(UserResponse.FirstName)},
-                 LastName AS {nameof(UserResponse.LastName)}
+                 Email AS {nameof(UserResponse.Email)}
              FROM {Schemas.Auth}.Users
              WHERE Id = @UserId
         

@@ -16,9 +16,7 @@ internal sealed class RegisterUser : IEndpoint
             var result = await sender.Send(new RegisterCommand(
                 request.Email,
                 request.Password,
-                request.ConfirmPassword,
-                request.FirstName,
-                request.LastName));
+                request.ConfirmPassword));
 
             return result.Match(Results.Ok, ApiResults.Problem);
         })
@@ -33,9 +31,5 @@ internal sealed class RegisterUser : IEndpoint
 
         public string Password { get; init; }
         public string ConfirmPassword { get; init; }
-
-        public string FirstName { get; init; }
-
-        public string LastName { get; init; }
     }
 }

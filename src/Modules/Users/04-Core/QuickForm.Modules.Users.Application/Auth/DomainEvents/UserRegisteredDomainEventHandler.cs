@@ -24,9 +24,7 @@ internal sealed class UserRegisteredDomainEventHandler(IEventBus bus, IUserDappe
                 domainEvent.Id,
                 domainEvent.OccurredOnUtc,
                 user.Id,
-                user.Email,
-                user.FirstName,
-                user.LastName),
+                user.Email),
             cancellationToken);
     }
 }
