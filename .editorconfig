@@ -235,7 +235,6 @@ dotnet_diagnostic.CA1000.severity = none
 
 # CA1002: Do not expose generic lists
 dotnet_diagnostic.CA1002.severity = none
-
 # CA1008: Enums should have zero value
 dotnet_diagnostic.CA1008.severity = none
 
@@ -395,3 +394,6 @@ dotnet_diagnostic.S6605.severity = none
 end_of_line = crlf
 dotnet_style_allow_multiple_blank_lines_experimental = true:silent
 dotnet_style_allow_statement_immediately_after_block_experimental = true:silent
+
+# CA1054: Uri parameters should not be strings
+dotnet_diagnostic.CA1054.severity = none

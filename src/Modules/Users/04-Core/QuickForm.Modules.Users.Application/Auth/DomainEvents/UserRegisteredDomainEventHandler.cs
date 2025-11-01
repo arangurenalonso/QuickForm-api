@@ -4,8 +4,10 @@ using QuickForm.Modules.Users.Domain;
 using QuickForm.Modules.Users.IntegrationEvents;
 
 namespace QuickForm.Modules.Users.Application;
-internal sealed class UserRegisteredDomainEventHandler(IEventBus bus, IUserDapperRepository _userDapperRepository)
-    : DomainEventHandler<UserRegisteredDomainEvent>
+internal sealed class UserRegisteredDomainEventHandler(
+    IEventBus bus, 
+    IUserDapperRepository _userDapperRepository
+    ) : DomainEventHandler<UserRegisteredDomainEvent>
 {
     public override async Task Handle(
         UserRegisteredDomainEvent domainEvent,

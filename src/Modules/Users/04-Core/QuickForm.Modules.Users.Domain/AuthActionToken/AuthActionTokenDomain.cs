@@ -32,7 +32,14 @@ public class AuthActionTokenDomain : BaseDomainEntity<AuthActionTokenId>
     public static ResultT<AuthActionTokenDomain> Create(UserId idUser, MasterId idUserAction,
         DateTime expiredDate)
     {
-        var tokenResult = TokenVO.GenerateNewToken();
+
+        int length = idUserAction.Value switch
+        {
+            var v when v == AuthActionType.RecoveryPassword.GetId() => 6,
+            var v when v == AuthActionType.EmailConfirmation.GetId() => 6,
+            _ => 32
+        };
+        var tokenResult = TokenVO.GenerateNewToken(length);
         var expiredDateResult = ExpirationDate.Create(expiredDate);
 
         if ( expiredDateResult.IsFailure)

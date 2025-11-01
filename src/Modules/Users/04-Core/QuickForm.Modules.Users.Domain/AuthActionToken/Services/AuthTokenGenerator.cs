@@ -5,7 +5,7 @@ public static class AuthTokenGenerator
 {
     public static string GenerateAlphanumericToken(int length = 32)
     {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         var token = new char[length];
 
         using (var rng = RandomNumberGenerator.Create())
@@ -18,7 +18,7 @@ public static class AuthTokenGenerator
                 token[i] = chars[data[i] % chars.Length];
             }
         }
-        var tokenString = $"{new string(token)}{Guid.NewGuid().ToString()}";
+        var tokenString = $"{new string(token)}";
 
         return tokenString;
     }

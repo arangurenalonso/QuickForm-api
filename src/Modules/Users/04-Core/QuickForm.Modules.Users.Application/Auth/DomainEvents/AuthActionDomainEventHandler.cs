@@ -52,15 +52,21 @@ internal sealed class AuthActionDomainEventHandler(
         }
 
         var (fileStream, _) = fileResult.Value;
-
         await using var memoryStream = new MemoryStream();
         await fileStream.CopyToAsync(memoryStream);
         var fileBytes = memoryStream.ToArray();
         var htmlTemplate = Encoding.UTF8.GetString(fileBytes);
+
         string username = user.Email.Value.Split('@')[0];
+        var year = _dateTimeProvider.UtcNow.Year;
+        string verifyUrl = $"{_commonOptionsProvider.GetFrontEndApplicationUrl().ToString()}auth/email-confirmation?token={token}&email={user.Email.Value}";
+
         var personalizedHtml = htmlTemplate
-            .Replace("{{name}}", username)
-            .Replace("{{link_confirm}}", $"{_commonOptionsProvider.GetFrontEndApplicationUrl().ToString()}auth/email-confirmation?token={token}&email={user.Email.Value}");
+            .Replace("{name}", username)
+            .Replace("{otp_code}", token)
+            .Replace("{support_email}","aranguren.alonso@gmail.com")
+            .Replace("{year}", $"{year}")
+            .Replace("{verify_url}", verifyUrl);
         await _azureCommunicationEmailService.SendEmailAsync(user.Email.Value, "Email Confirmation", personalizedHtml);
 
     }

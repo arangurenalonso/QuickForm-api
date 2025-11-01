@@ -17,13 +17,7 @@ public record TokenVO
             return ResultError.EmptyValue("Token", "Token cannot be null or empty.");
         }
 
-        // Validación de longitud del token
-        if (token.Length < 32)
-        {
-            return ResultError.InvalidInput("Token", "Token must be at least 32 characters long.");
-        }
 
-        // Validación del contenido alfanumérico
         var textValidation = new TextValidationBuilder()
                                     .AddAlphanumericCharacters()
                                     .AddUnderscore()
