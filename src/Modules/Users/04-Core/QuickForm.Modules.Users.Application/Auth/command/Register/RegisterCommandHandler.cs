@@ -40,8 +40,7 @@ public class RegisterCommandHandler(
         var email = newUserResult.Value.Email.Value;
         Uri frontendBaseUrl = _commonOptionsProvider.GetFrontEndApplicationUrl();
         var verificationLink =
-            $"{frontendBaseUrl.AbsoluteUri.TrimEnd('/')}/verify-email" +
-            $"?token={Uri.EscapeDataString(emailToken)}&email={Uri.EscapeDataString(email)}";
+            $"{frontendBaseUrl.AbsoluteUri.TrimEnd('/')}/verify-email?token={Uri.EscapeDataString(emailToken)}&email={Uri.EscapeDataString(email)}";
 
         return ResultResponse.Success(
                                     "User created successfully. We sent you an email with the verification token"
