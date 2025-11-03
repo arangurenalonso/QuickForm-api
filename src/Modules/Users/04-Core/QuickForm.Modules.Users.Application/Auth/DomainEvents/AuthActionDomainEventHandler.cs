@@ -59,7 +59,7 @@ internal sealed class AuthActionDomainEventHandler(
 
         string username = user.Email.Value.Split('@')[0];
         var year = _dateTimeProvider.UtcNow.Year;
-        string verifyUrl = $"{_commonOptionsProvider.GetFrontEndApplicationUrl().ToString()}auth/email-confirmation?token={token}&email={user.Email.Value}";
+        string verifyUrl = $"{_commonOptionsProvider.GetFrontEndApplicationUrl().ToString()}auth/email-confirmation?verification-code={token}&email={user.Email.Value}";
 
         var personalizedHtml = htmlTemplate
             .Replace("{name}", username)

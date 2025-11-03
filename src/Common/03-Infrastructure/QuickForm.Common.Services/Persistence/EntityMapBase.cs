@@ -20,6 +20,8 @@ public abstract class EntityMapBase<TEntity, TEntityId>
         builder.HasIndex(b => b.IsDeleted)
                .HasDatabaseName($"IX_{typeof(TEntity).Name}_IsDeleted");
 
+        builder.Property(p => p.Id).ValueGeneratedNever();
+
         Configure(builder);
     }
 

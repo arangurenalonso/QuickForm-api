@@ -14,6 +14,7 @@ internal sealed class ResetPassword : IEndpoint
         app.MapPost("auth/reset-password", async (RequestResetPassword request, ISender sender) =>
         {
             var result = await sender.Send(new ResetPasswordCommand(
+                request.Email,
                 request.Token,
                 request.Password,
                 request.ConfirmPassword
@@ -28,6 +29,7 @@ internal sealed class ResetPassword : IEndpoint
 
     internal sealed class RequestResetPassword
     {
+        public string Email { get; init; }
         public string Token { get; init; }
         public string Password { get; init; }
         public string ConfirmPassword { get; init; }

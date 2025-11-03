@@ -13,24 +13,26 @@ public class ResetPasswordCommandHandler(
 {
     public async Task<ResultT<ResultResponse>> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
     {
-        var authActionTokenResult = await GetUserByAuthActionToken(request.Token);
-        if (authActionTokenResult.IsFailure)
-        {
-            return ResultT<ResultResponse>.FailureT(authActionTokenResult.ResultType,authActionTokenResult.Errors);
-        }
-        var authActionToken = authActionTokenResult.Value;
-        var userDomainResult = await ValidateInputData(authActionToken.IdUser);
+
+        var userDomainResult = await GetUserByEmail(request.Email);
         if (userDomainResult.IsFailure)
         {
             return ResultT<ResultResponse>.FailureT(userDomainResult.ResultType,userDomainResult.Errors);
         }
         var user = userDomainResult.Value;
+
+
+        var authActionTokenResult = await GetUserByAuthActionToken(user.Email,request.Token);
+        if (authActionTokenResult.IsFailure)
+        {
+            return ResultT<ResultResponse>.FailureT(authActionTokenResult.ResultType,authActionTokenResult.Errors);
+        }
+        var authActionToken = authActionTokenResult.Value;
+
         user.ChangePassword(request.Password, _passwordHashingService);
         authActionToken.UseToken();
 
-
         _unitOfWork.Repository<UserDomain, UserId>().UpdateEntity(user);
-
         _unitOfWork.Repository<AuthActionTokenDomain, AuthActionTokenId>().UpdateEntity(authActionToken);
 
         var confirmTransactionResult = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
@@ -41,7 +43,7 @@ public class ResetPasswordCommandHandler(
         return ResultResponse.Success("Your password has been reset successfully.");
 
     }
-    private async Task<ResultT<AuthActionTokenDomain>> GetUserByAuthActionToken(string token)
+    private async Task<ResultT<AuthActionTokenDomain>> GetUserByAuthActionToken(EmailVO email, string token)
     {
         var idAuthActionRecoveryPassword = AuthActionType.RecoveryPassword.GetId();
         var idAuthAction = new MasterId(idAuthActionRecoveryPassword);
@@ -51,7 +53,11 @@ public class ResetPasswordCommandHandler(
         {
             return ResultT<AuthActionTokenDomain>.FailureT(ResultType.DomainValidation, tokenResult.Errors);
         }
-        var authActionToken = await _authActionTokenRepository.GetAuthActionTokenByAuthActionIdAndTokenAsync(idAuthAction, tokenResult.Value);
+
+        var authActionToken = await _authActionTokenRepository.GetAuthActionTokenByAuthActionIdEmailAndTokenAsync(
+                                                                        idAuthAction,
+                                                                        email,
+                                                                        tokenResult.Value);
         if (authActionToken is null)
         {
             var error = ResultError.NullValue(
@@ -82,13 +88,28 @@ public class ResetPasswordCommandHandler(
         return authActionToken;
     }
 
-    private async Task<ResultT<UserDomain>> ValidateInputData(UserId userId)
+
+    private async Task<ResultT<UserDomain>> GetUserByEmail(string email)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
+        var emailResult = EmailVO.Create(email);
+        if (emailResult.IsFailure)
+        {
+            return ResultT<UserDomain>.FailureT(ResultType.DomainValidation, emailResult.Errors);
+        }
+        var user = await _userRepository.GetByEmailAsync(emailResult.Value);
         if (user is null)
         {
-            var error = ResultError.NullValue("UserId", $"User with id '{userId}' not found.");
-            return ResultT<UserDomain>.FailureT(ResultType.NotFound,error);
+            var error = ResultError.NullValue("UserId", $"User with email '{email}' not found.");
+            return ResultT<UserDomain>.FailureT(ResultType.NotFound, error);
+        }
+        if (!user.IsEmailVerify)
+        {
+            var error = ResultError.InvalidOperation(
+                "User",
+                $"The user with email '{email}' has not verified their email address. Password reset is only allowed for users with verified email addresses."
+            );
+
+            return ResultT<UserDomain>.FailureT(ResultType.DomainValidation, error);
         }
         return user;
     }

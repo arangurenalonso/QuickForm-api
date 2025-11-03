@@ -45,6 +45,7 @@ public class LoginCommandHandler(
         if (!user.IsEmailVerify)
         {
             var error = ResultError.InvalidOperation("Email", "Email has not been verified. Please verify your email to proceed.");
+            error.SetRedirectUrl($"/auth/resend-verification?email={email}");
             return ResultT<UserDomain>.FailureT(ResultType.DomainValidation, error);
 
         }

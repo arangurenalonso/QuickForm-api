@@ -1,7 +1,6 @@
 ﻿using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
 using QuickForm.Modules.Users.Domain;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace QuickForm.Modules.Users.Application;
 public class RegisterCommandHandler(
@@ -9,7 +8,6 @@ public class RegisterCommandHandler(
         IUserRepository _userRepository,
         IPasswordHashingService _passwordHashingService,
         IDateTimeProvider _dateTimeProvider,
-        ICommonOptionsProvider _commonOptionsProvider,
         IRoleRepository _roleRepository
     ) : ICommandHandler<RegisterCommand, ResultResponse>
 {
@@ -36,11 +34,9 @@ public class RegisterCommandHandler(
             return ResultT<ResultResponse>.FailureT(confirmTransactionResult.ResultType, confirmTransactionResult.Errors);
         }
 
-        var emailToken = "5457";
         var email = newUserResult.Value.Email.Value;
-        Uri frontendBaseUrl = _commonOptionsProvider.GetFrontEndApplicationUrl();
         var verificationLink =
-            $"{frontendBaseUrl.AbsoluteUri.TrimEnd('/')}/verify-email?token={Uri.EscapeDataString(emailToken)}&email={Uri.EscapeDataString(email)}";
+            $"/auth/email-confirmation?email={Uri.EscapeDataString(email)}";
 
         return ResultResponse.Success(
                                     "User created successfully. We sent you an email with the verification token"

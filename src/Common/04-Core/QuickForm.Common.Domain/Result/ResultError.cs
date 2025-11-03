@@ -4,6 +4,7 @@ public record ResultError
     public string PropertyName { get; private set; } = "";
     public ErrorType Type { get; }
     public string Description { get; }
+    public string? RedirectUrl { get; private set; }
 
     public string Message =>
         string.IsNullOrWhiteSpace(PropertyName)
@@ -23,6 +24,11 @@ public record ResultError
     }
     public static readonly ResultError None = new ResultError(string.Empty,ErrorType.None );
 
+
+    public void SetRedirectUrl(string url)
+    {
+        RedirectUrl = url;
+    }
 
     public static ResultError NullValue(string field, string description) =>
         new(field, description, ErrorType.NullValue);

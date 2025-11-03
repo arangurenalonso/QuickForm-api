@@ -30,8 +30,8 @@ public class ResentEmailConfirmationCommandHandler(
         {
             return ResultT<ResultResponse>.FailureT(confirmTransactionResult.ResultType, confirmTransactionResult.Errors);
         }
-
-        return ResultResponse.Success("Email Confirmation sent successfully.");
+        var msg = "We have resent you an email with the confirmation token, please verify your email.";
+        return ResultResponse.Success(msg);
     }
     private async Task<ResultT<UserDomain>> GetUser(string email)
     {

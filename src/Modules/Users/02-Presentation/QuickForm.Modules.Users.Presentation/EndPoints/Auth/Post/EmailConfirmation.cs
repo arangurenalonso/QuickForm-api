@@ -14,7 +14,8 @@ internal sealed class EmailConfirmation : IEndpoint
         app.MapPost("auth/confirm-email", async (RequestEmailConfirmation request, ISender sender) =>
         {
             var result = await sender.Send(new EmailConfirmationCommand(
-                request.Token));
+                request.Email,
+                request.VerificationCode));
 
             return result.Match(Results.Ok, ApiResults.Problem);
         })
@@ -25,6 +26,7 @@ internal sealed class EmailConfirmation : IEndpoint
 
     internal sealed class RequestEmailConfirmation
     {
-        public string Token { get; init; }
+        public string Email { get; set; }
+        public string VerificationCode { get; init; }
     }
 }

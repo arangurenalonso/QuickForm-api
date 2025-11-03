@@ -4,6 +4,7 @@ public sealed class UserDomain : BaseDomainEntity<UserId>
 {
     public EmailVO Email { get; private set; }
     public PasswordVO PasswordHash { get; private set; }
+    //public string DisplayName { get; private set; } = string.Empty
     public bool IsPasswordChanged { get; private set; }
     public bool IsEmailVerify { get; private set; }
 

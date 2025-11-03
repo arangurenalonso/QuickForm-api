@@ -10,14 +10,18 @@ public class AuthActionTokenRepository(
 {
 
 
-    public async Task<AuthActionTokenDomain?> GetAuthActionTokenByAuthActionIdAndTokenAsync(
+    public async Task<AuthActionTokenDomain?> GetAuthActionTokenByAuthActionIdEmailAndTokenAsync(
         MasterId authActionId,
+        EmailVO email,
         TokenVO userActionToken)
     {
-        var authActionToken = await _context.AuthActionToken.FirstOrDefaultAsync(authActionToken => 
+        var authActionToken = await _context.AuthActionToken
+                                                .FirstOrDefaultAsync(authActionToken => 
                                                                             authActionToken.Token == userActionToken &&
                                                                             authActionToken.IdUserAction == authActionId &&
-                                                                            !authActionToken.IsDeleted);
+                                                                            authActionToken.User.Email == email &&
+                                                                            !authActionToken.IsDeleted
+                                                                            );
         return authActionToken;
     }
 }
