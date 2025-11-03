@@ -40,7 +40,10 @@ public class ResetPasswordCommandHandler(
         {
             return ResultT<ResultResponse>.FailureT(confirmTransactionResult.ResultType, confirmTransactionResult.Errors);
         }
-        return ResultResponse.Success("Your password has been reset successfully.");
+        var msg = "Password has been reset successfully. You can now log in with your new password.";
+        var result =  ResultResponse.Success(msg);
+        result.WithLink("/auth/login");
+        return result;
 
     }
     private async Task<ResultT<AuthActionTokenDomain>> GetUserByAuthActionToken(EmailVO email, string token)

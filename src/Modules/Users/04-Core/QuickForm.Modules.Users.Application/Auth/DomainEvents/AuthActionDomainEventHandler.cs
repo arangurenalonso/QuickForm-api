@@ -85,8 +85,19 @@ internal sealed class AuthActionDomainEventHandler(
         await fileStream.CopyToAsync(memoryStream);
         var fileBytes = memoryStream.ToArray();
         var htmlTemplate = Encoding.UTF8.GetString(fileBytes);
+
+
+        string username = user.Email.Value.Split('@')[0];
+        var year = _dateTimeProvider.UtcNow.Year;
+        string resetUrl = $"{_commonOptionsProvider.GetFrontEndApplicationUrl().ToString()}auth/reset-password?verification-code={token}&email={user.Email.Value}";
+
         var personalizedHtml = htmlTemplate
-            .Replace("{{link_reset}}", $"{_commonOptionsProvider.GetFrontEndApplicationUrl().ToString()}auth/reset-password?token={token}&email={user.Email.Value}");
+            .Replace("{name}", username)
+            .Replace("{otp_code}", token)
+            .Replace("{support_email}", "aranguren.alonso@gmail.com")
+            .Replace("{year}", $"{year}")
+            .Replace("{reset_url}", resetUrl);
+        
 
         await _azureCommunicationEmailService.SendEmailAsync(user.Email.Value, "Password Reset", personalizedHtml);
     }
