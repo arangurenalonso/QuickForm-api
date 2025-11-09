@@ -21,7 +21,6 @@ internal sealed class SendWellcomeEmailDomainEventHandler(
             throw new QuickFormException(nameof(UserRegisteredDomainEventHandler), error);
         }
 
-        throw new NotImplementedException();
 
     }
 }

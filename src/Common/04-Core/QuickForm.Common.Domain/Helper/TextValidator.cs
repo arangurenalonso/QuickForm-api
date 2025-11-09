@@ -23,7 +23,7 @@ public class TextValidation
         var pattern = $"[{string.Join("", _rules)}]";
         var invalidChars = valueText
             .Where(c => !Regex.IsMatch(c.ToString(), pattern))
-            .Distinct()
+            .Distinct() 
             .ToList();
 
         if (_regexPattern == null)
@@ -33,12 +33,13 @@ public class TextValidation
 
         if (!_regexPattern.IsMatch(valueText))
         {
-            var invalidCharsList = invalidChars.Select(c => ResultError.InvalidCharacter(
-                field,
-               char.IsWhiteSpace(c) ? "whitespace" : c.ToString()
-           )).ToList();
+            var errorMessage = $"The field contains invalid characters [{
+                                        string.Join(",",
+                                                    invalidChars.Select(x=>char.IsWhiteSpace(x) ? "whitespace" : x.ToString())
+                                                    )
+                                        }]";
 
-            return invalidCharsList;
+            return ResultError.InvalidCharacter(field,errorMessage);
         }
 
         return Result.Success();
