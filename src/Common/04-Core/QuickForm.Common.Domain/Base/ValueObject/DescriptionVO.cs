@@ -20,9 +20,9 @@ public sealed record DescriptionVO
             return ResultError.EmptyValue("Description", "Description cannot be null or empty.");
         }
 
-        if (description.Length > 255)
+        if (description.Length > 1000)
         {
-            return ResultError.InvalidFormat("Description", "Description must be at most 255 characters long.");
+            return ResultError.InvalidFormat("Description", "Description must be at most 1000 characters long.");
         }
 
         return new DescriptionVO(description);

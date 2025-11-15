@@ -1,6 +1,5 @@
 ﻿
 using System.Linq.Expressions;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuickForm.Common.Domain;
 
@@ -130,8 +129,8 @@ public class RepositoryMasterEntities<TEntity>
                         }
                         ).FirstOrDefaultAsync(cancellationToken);
     }
-
-    public async Task<MasterEntityDto?> GetDtotByKeyName(
+    
+    public async Task<MasterEntityDto?> GetDtoByKeyName(
                KeyNameVO keyName,
                Expression<Func<TEntity, bool>>? predicado = null,
                CancellationToken cancellationToken = default
@@ -174,7 +173,7 @@ public class RepositoryMasterEntities<TEntity>
 
         if (idOrKeyName.IsByKeyName)
         {
-            return await GetDtotByKeyName(idOrKeyName.Name, predicado, ct);
+            return await GetDtoByKeyName(idOrKeyName.Name, predicado, ct);
         }
 
         throw new InvalidOperationException("Referencia de aplicación inválida.");

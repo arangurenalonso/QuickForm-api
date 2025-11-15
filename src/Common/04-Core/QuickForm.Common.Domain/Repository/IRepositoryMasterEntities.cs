@@ -34,7 +34,7 @@ public interface IRepositoryMasterEntities<TEntity>
                MasterId id,
                CancellationToken cancellationToken = default
            );
-    Task<MasterEntityDto?> GetDtotByKeyName(
+    Task<MasterEntityDto?> GetDtoByKeyName(
                KeyNameVO keyName,
                Expression<Func<TEntity, bool>>? predicado = null,
                CancellationToken cancellationToken = default

@@ -13,7 +13,13 @@ public class CountryDomain : BaseMasterEntity
     {
         var newDomain = new CountryDomain();
         var masterUpdateBase = new MasterUpdateBase(keyName, description);
-        newDomain.SetBaseProperties(masterUpdateBase);
+
+        var result = newDomain.SetBaseProperties(masterUpdateBase);
+
+        if (result.IsFailure)
+        {
+            return result.Errors;
+        }      
 
         return newDomain;
     }

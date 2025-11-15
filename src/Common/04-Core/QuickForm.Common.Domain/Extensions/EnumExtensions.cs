@@ -1,28 +1,27 @@
 ﻿using System.ComponentModel;
+using System.Reflection;
 
 namespace QuickForm.Common.Domain;
 public static class EnumExtensions
 {
     public static Guid GetId(this Enum value)
     {
-        var description = value.ToString();
-        var fieldInfo = value.GetType().GetField(value.ToString());
-        if (fieldInfo != null)
-        {
-            var attributes = (DescriptionAttribute[])fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
-            if (attributes.Length > 0)
-            {
-                description = attributes[0].Description;
-            }
-        }
-        if (Guid.TryParse(description, out var result))
-        {
-            return result;
-        }
-        else
+        var type = value.GetType();
+        var name = value.ToString();
+
+        var fieldInfo = type.GetField(name);
+        if (fieldInfo is null)
         {
             return Guid.Empty;
         }
+
+        var attribute = fieldInfo.GetCustomAttribute<IdAttribute>(inherit: false);
+        if (attribute is null)
+        {
+            return Guid.Empty;
+        }
+
+        return attribute.Value;
     }
     public static string GetDetail(this Enum value)
     {
@@ -30,7 +29,7 @@ public static class EnumExtensions
 
         if (fieldInfo != null)
         {
-            var attributes = (DetailAttribute[])fieldInfo.GetCustomAttributes(typeof(DetailAttribute), false);
+            var attributes = (NameAttribute[])fieldInfo.GetCustomAttributes(typeof(NameAttribute), false);
 
             if (attributes != null)
             {

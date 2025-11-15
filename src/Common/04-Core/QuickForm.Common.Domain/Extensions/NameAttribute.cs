@@ -1,10 +1,10 @@
 ﻿namespace QuickForm.Common.Domain;
 [AttributeUsage(AttributeTargets.Field)]
-public sealed class DetailAttribute : Attribute
+public sealed class NameAttribute : Attribute
 {
     public string Description { get; }
 
-    public DetailAttribute(string description)
+    public NameAttribute(string description)
     {
         Description = description;
     }

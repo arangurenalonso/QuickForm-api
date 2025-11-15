@@ -6,13 +6,13 @@ public class FormDomain : BaseDomainEntity<FormId>
 
     public FormNameVO Name { get; private set; }
     public FormDescription Description { get; private set; }
-    public bool IsPublished { get; private set; }
-    public bool IsClosed { get; private set; }
     public DateEnd? DateEnd { get; private set; }
     public CustomerId IdCustomer { get; private set; }
+    public MasterId IdStatus { get; private set; }
 
     #region One to Many
     public Customer Customer { get; private set; }
+    public FormStatusDomain Status { get; private set; }
     #endregion
     #region Many to One
     public ICollection<FormSectionDomain> Sections { get; private set; } = [];
@@ -26,8 +26,7 @@ public class FormDomain : BaseDomainEntity<FormId>
     {
         Name = name;
         Description = description;
-        IsPublished = false;
-        IsClosed = false;
+        IdStatus = new MasterId(FormStatusType.Draft.GetId());
         IdCustomer = idCustomer;
     }
 
@@ -48,7 +47,8 @@ public class FormDomain : BaseDomainEntity<FormId>
     }
     public Result Update(string name, string? description)
     {
-        if (IsPublished)
+        var isPublished = IdStatus.Value == FormStatusType.Published.GetId();
+        if (isPublished)
         {
             return  ResultError.InvalidOperation("IsPublished", "Form is published, cannot be updated.");
         }
@@ -69,11 +69,12 @@ public class FormDomain : BaseDomainEntity<FormId>
     }
     public Result Publish(bool IsPremiun)
     {
-        if (IsPublished)
+        var isPublished = IdStatus.Value == FormStatusType.Published.GetId();
+        if (isPublished)
         {
             return ResultError.InvalidOperation("IsPublished", "Form is already published.");
         }
-        IsPublished = true;
+        IdStatus = new MasterId(FormStatusType.Published.GetId());
         DateEnd = IsPremiun ?DateEnd.NoRestriction():DateEnd.WithRestriction();
 
         return Result.Success();
@@ -82,11 +83,12 @@ public class FormDomain : BaseDomainEntity<FormId>
 
     public Result Close()
     {
-        if (IsClosed)
+        var isClosed = IdStatus.Value == FormStatusType.Closed.GetId(); 
+        if (isClosed)
         {
             return ResultError.InvalidOperation("IsClose", "Form is already close.");
         }
-        IsClosed = true;
+        IdStatus = new MasterId(FormStatusType.Closed.GetId());
 
         return Result.Success();
 

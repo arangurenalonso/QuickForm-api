@@ -2,13 +2,13 @@
 namespace QuickForm.Common.Domain;
 public abstract class BaseAuditableEntity: BaseDomainEventEntity
 {
-    public string CreatedBy { get; set; }
-    public DateTime CreatedDate { get; set; }
-    public string? ModifiedBy { get; set; } 
-    public DateTime? ModifiedDate { get; set; }
-    public bool IsDeleted { get; protected set; }
-    public DateTime? DeletedAt { get; protected set; }
-    public string? DeletedBy { get; protected set; }
+    public string CreatedBy { get; private set; }
+    public DateTime CreatedDate { get; private set; }
+    public string? ModifiedBy { get; private set; } 
+    public DateTime? ModifiedDate { get; private set; }
+    public bool IsDeleted { get; private set; }
+    public DateTime? DeletedAt { get; private set; }
+    public string? DeletedBy { get; private set; }
 
 
     public void MarkCreated(string createdBy, DateTime createdDate)

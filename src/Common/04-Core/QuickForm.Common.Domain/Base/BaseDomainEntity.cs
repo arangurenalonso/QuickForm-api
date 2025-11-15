@@ -6,7 +6,7 @@ namespace QuickForm.Common.Domain;
 public abstract class BaseDomainEntity<TEntityId> : BaseAuditableEntity, ITrackableEntity
     where TEntityId : EntityId
 {
-    public TEntityId Id { get; init; }
+    public TEntityId Id { get; protected set; }
     protected BaseDomainEntity(TEntityId id)
     {
         Id = id;

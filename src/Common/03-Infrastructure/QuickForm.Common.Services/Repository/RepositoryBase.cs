@@ -13,7 +13,7 @@ public class RepositoryBase<TEntity,TEntityId>: IRepositoryBase<TEntity, TEntity
         _context = context;
     }
 
-    public async Task<TEntity> GetById(TEntityId id,
+    public async Task<TEntity?> GetById(TEntityId id,
                bool asNoTracking,
                CancellationToken cancellationToken = default)
     {
@@ -24,7 +24,7 @@ public class RepositoryBase<TEntity,TEntityId>: IRepositoryBase<TEntity, TEntity
         }
         return await query.FirstOrDefaultAsync(cancellationToken);
     }
-    public async Task<TEntity> GetAll(
+    public async Task<List<TEntity>> GetAll(
                bool asNoTracking,
                CancellationToken cancellationToken = default)
     {
@@ -33,7 +33,7 @@ public class RepositoryBase<TEntity,TEntityId>: IRepositoryBase<TEntity, TEntity
         {
             query = query.AsNoTracking();
         }
-        return await query.FirstOrDefaultAsync(cancellationToken);
+        return await query.ToListAsync(cancellationToken);
     }
     public void AddEntity(TEntity entity)
     {
@@ -63,6 +63,6 @@ public class RepositoryBase<TEntity,TEntityId>: IRepositoryBase<TEntity, TEntity
 
     public async Task<bool> ExistEntity(TEntityId entityId)
     {
-        return await _context.Set<TEntity>().AnyAsync(e => e.Id == entityId && e.IsDeleted);
+        return await _context.Set<TEntity>().AnyAsync(e => e.Id == entityId && !e.IsDeleted);
     }
 }

@@ -32,16 +32,19 @@ public abstract class MasterEntityMapBase<TEntity>
                  .IsRequired();
 
             owned.HasIndex(v => v.Value)
-                 .HasDatabaseName($"UX_{typeof(TEntity).Name}_KeyName");
+                 .HasDatabaseName($"IX_{typeof(TEntity).Name}_KeyName");
         });
 
         builder.OwnsOne(e => e.Description, owned =>
         {
             owned.Property(v => v.Value)
                  .HasColumnName("Description")
+                 .HasMaxLength(1000)
                  .IsRequired(false);
         });
 
+        //El prefijo UX_ normalmente se usa para índices únicos (Unique Index)
+        // El prfijo IX_ se usa para índices no únicos (Index)
 
         //builder.Property(p => p.Description)
         //        .HasColumnName("Description")

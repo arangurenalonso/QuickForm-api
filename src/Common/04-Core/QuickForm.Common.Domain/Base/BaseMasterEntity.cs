@@ -28,12 +28,12 @@ public abstract class BaseMasterEntity: BaseDomainEntity<MasterId>
             Description = descriptionResult.Value;
         }
 
-        var KeyNameResult = KeyNameVO.Create(dto.KeyName);
-        if (KeyNameResult.IsFailure)
+        var keyNameResult = KeyNameVO.Create(dto.KeyName);
+        if (keyNameResult.IsFailure)
         {
-            return KeyNameResult.Errors;
+            return keyNameResult.Errors;
         }
-        KeyName = KeyNameResult.Value;
+        KeyName = keyNameResult.Value;
         SortOrder = dto.SortOrder ?? 0;
         return Result.Success();
     }

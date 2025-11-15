@@ -22,32 +22,21 @@ public class FormConfiguration : EntityMapBase<FormDomain, FormId>
         builder.HasKey(p => p.Id);
 
 
-        builder.Property(p => p.Name)
-                .HasColumnName("Name")
-                .HasMaxLength(255)
-                .IsRequired()
-                .HasConversion(
-                    nameVO => nameVO.Value,
-                    nameString => FormNameVO.Create(nameString).Value
-                    );
+        builder.OwnsOne(e => e.Name, owned =>
+        {
+            owned.Property(v => v.Value)
+                 .HasColumnName("Name")
+                 .HasMaxLength(255)
+                 .IsRequired();
+        });
 
-        builder.Property(p => p.Description)
-                .HasColumnName("Description")
-                .HasMaxLength(500)
-                .IsRequired()
-                .HasConversion(
-                    formDescriptionVO => formDescriptionVO.Value,
-                    formDescription => FormDescription.Create(formDescription).Value
-                    );
-
-
-        builder.Property(p => p.IsPublished)
-            .HasColumnName("IsPublished")
-            .IsRequired();
-
-        builder.Property(p => p.IsClosed)
-            .HasColumnName("IsClosed")
-            .IsRequired();
+        builder.OwnsOne(e => e.Description, owned =>
+        {
+            owned.Property(v => v.Value)
+                 .HasColumnName("Description")
+                 .HasMaxLength(255)
+                 .IsRequired();
+        });
 
 
         builder.Property(p => p.DateEnd)
@@ -65,5 +54,13 @@ public class FormConfiguration : EntityMapBase<FormDomain, FormId>
             .HasForeignKey(from => from.IdCustomer)
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired();
+
+
+        builder.HasOne(from => from.Status)
+            .WithMany(status => status.Forms)
+            .HasForeignKey(from => from.IdStatus)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
+
     }
 }
