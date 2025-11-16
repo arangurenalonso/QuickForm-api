@@ -16,7 +16,7 @@ internal sealed class AuthActionSeeder(UsersDbContext _context, ILogger<Database
                                     .Select(enumType => new
                                     {
                                         Id = new MasterId(enumType.GetId()),
-                                        Description = enumType.GetDetail()
+                                        Description = enumType.GetName()
                                     })
                                     .ToList();
 

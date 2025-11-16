@@ -28,7 +28,8 @@ internal sealed class DatabaseSeeder(
             await questionTypeSeeder.SeedAsync();
             var questionTypeAttributesSeeder = new QuestionTypeAttributesSeeder(_surveyDbContext, _logger);
             await questionTypeAttributesSeeder.SeedAsync();
-
+            var formStatusSeeder = new FormStatusSeeder(_surveyDbContext, _logger);
+            await formStatusSeeder.SeedAsync();
 
 
             _logger.LogInformation("Database seeding completed successfully.");

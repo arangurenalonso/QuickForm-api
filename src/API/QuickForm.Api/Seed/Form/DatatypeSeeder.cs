@@ -15,7 +15,7 @@ internal sealed class DatatypeSeeder(SurveyDbContext _context, ILogger<DatabaseS
                                     .Select(enumType => new
                                     {
                                         Id = new DataTypeId(enumType.GetId()),
-                                        Description = enumType.GetDetail()
+                                        Description = enumType.GetName()
                                     })
                                     .ToList();
 

@@ -1,10 +1,10 @@
 ﻿namespace QuickForm.Common.Domain;
 [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
-public sealed class StatusIconAttribute : Attribute
+public sealed class IconAttribute : Attribute
 {
     public string Value { get; }
 
-    public StatusIconAttribute(string value)
+    public IconAttribute(string value)
     {
         Value = value;
     }

@@ -15,7 +15,7 @@ internal sealed class QuestionTypeSeeder(SurveyDbContext _context, ILogger<Datab
                                     .Select(enumType => new
                                     {
                                         Id = new QuestionTypeId(enumType.GetId()),
-                                        KeyName = enumType.GetDetail()
+                                        KeyName = enumType.GetName()
                                     })
                                     .ToList();
 

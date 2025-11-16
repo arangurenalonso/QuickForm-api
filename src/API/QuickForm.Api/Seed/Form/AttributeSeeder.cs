@@ -18,7 +18,7 @@ internal sealed class AttributeSeeder(SurveyDbContext _context, ILogger<Database
             .Select(attribute => new
             {
                 Id = new AttributeId(attribute.AttributeType.GetId()),
-                KeyName = attribute.AttributeType.GetDetail(),
+                KeyName = attribute.AttributeType.GetName(),
                 attribute.Description,
                 DataTypeId = new DataTypeId(attribute.DataTypeType.GetId()),
                 attribute.MustBeUnique

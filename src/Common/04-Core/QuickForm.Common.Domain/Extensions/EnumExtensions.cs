@@ -23,7 +23,7 @@ public static class EnumExtensions
 
         return attribute.Value;
     }
-    public static string GetDetail(this Enum value)
+    public static string GetName(this Enum value)
     {
         var fieldInfo = value.GetType().GetField(value.ToString());
 
@@ -31,7 +31,7 @@ public static class EnumExtensions
         {
             var attributes = (NameAttribute[])fieldInfo.GetCustomAttributes(typeof(NameAttribute), false);
 
-            if (attributes != null)
+            if (attributes is { Length: > 0 } && attributes[0] != null)
             {
                 return attributes[0].Description;
             }
@@ -39,10 +39,52 @@ public static class EnumExtensions
 
         return value.ToString();
     }
-    public static TEnum? FromDetail<TEnum>(string detail) where TEnum : struct, Enum
+    public static string GetColor(this Enum value)
+    {
+        var type = value.GetType();
+        var name = value.ToString();
+
+        var fieldInfo = type.GetField(name);
+        if (fieldInfo is null)
+        {
+            return string.Empty;
+        }
+
+        var attribute = fieldInfo.GetCustomAttribute<ColorAttribute>(inherit: false);
+        if (attribute is null)
+        {
+            return string.Empty;
+        }
+
+        return attribute.Value;
+    }
+    public static string GetIcon(this Enum value)
+    {
+        var type = value.GetType();
+        var name = value.ToString();
+
+        var fieldInfo = type.GetField(name);
+        if (fieldInfo is null)
+        {
+            return string.Empty;
+        }
+
+        var attribute = fieldInfo.GetCustomAttribute<IconAttribute>(inherit: false);
+        if (attribute is null)
+        {
+            return string.Empty;
+        }
+
+        return attribute.Value;
+    }
+    public static TEnum? FromId<TEnum>(Guid id) where TEnum : struct, Enum
+    {
+        return Array.Find(Enum.GetValues<TEnum>(), t => t.GetId() == id);
+    }
+    public static TEnum? FromName<TEnum>(string detail) where TEnum : struct, Enum
     {
         return Array.Find(Enum.GetValues<TEnum>(), t =>
-            string.Equals(t.GetDetail(), detail, StringComparison.OrdinalIgnoreCase));
+            string.Equals(t.GetName(), detail, StringComparison.OrdinalIgnoreCase));
     }
 
 }

@@ -56,6 +56,6 @@ public class PredefinedAttribute
     }
     public override string ToString()
     {
-        return $"{AttributeType.GetDetail()}:{DataTypeType.GetDetail()}";
+        return $"{AttributeType.GetName()}:{DataTypeType.GetName()}";
     }
 }

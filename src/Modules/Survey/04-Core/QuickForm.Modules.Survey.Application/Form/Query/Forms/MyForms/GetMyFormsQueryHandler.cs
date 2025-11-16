@@ -1,18 +1,17 @@
-﻿using System.Text.Json;
-using QuickForm.Common.Application;
+﻿using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
 using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Application;
-internal sealed class GetMeFormsQueryHandler(
+internal sealed class GetMyFormsQueryHandler(
         ICurrentUserService _currentUserService,
         IQuestionTypeRepository _questionTypeRepository,
         IFormRepository _formRepository,
         IUnitOfWork _unitOfWork
     )
-    : IQueryHandler<GetMeFormsQuery, List<FormStructureSectionReponse>>
+    : IQueryHandler<GetMyFormsQuery, List<FormStructureSectionReponse>>
 {
-    public async Task<ResultT<List<FormStructureSectionReponse>>> Handle(GetMeFormsQuery request, CancellationToken cancellationToken)
+    public async Task<ResultT<List<FormStructureSectionReponse>>> Handle(GetMyFormsQuery request, CancellationToken cancellationToken)
     {
         var userIdResult = _currentUserService.UserId;
         if (userIdResult.IsFailure)

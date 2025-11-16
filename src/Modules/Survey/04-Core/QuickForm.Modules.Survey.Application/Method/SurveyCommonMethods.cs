@@ -8,7 +8,7 @@ public static class SurveyCommonMethods
 {
     public static Result ValidateDataType(string propertyName, string dataType, JsonElement value)
     {
-        var dataTypeEnum = EnumExtensions.FromDetail<DataTypeType>(dataType);
+        var dataTypeEnum = EnumExtensions.FromName<DataTypeType>(dataType);
 
         if (dataTypeEnum == null)
         {
@@ -50,7 +50,7 @@ public static class SurveyCommonMethods
             return null;
         }
 
-        var dataTypeEnum = EnumExtensions.FromDetail<DataTypeType>(dataType);
+        var dataTypeEnum = EnumExtensions.FromName<DataTypeType>(dataType);
 
         if (dataTypeEnum == null)
         {

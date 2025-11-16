@@ -1,45 +1,55 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuickForm.Common.Domain;
 using QuickForm.Modules.Survey.Domain;
-using QuickForm.Modules.Users.Domain;
-using QuickForm.Modules.Users.Persistence;
+using QuickForm.Modules.Survey.Persistence;
 
 namespace QuickForm.Api.Seed;
 
-internal sealed class RoleSeeder(UsersDbContext _context, ILogger<DatabaseSeeder> _logger)
+internal sealed class FormStatusSeeder(SurveyDbContext _context, ILogger<DatabaseSeeder> _logger)
 {
 
     public async Task SeedAsync()
     {
         _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
-        var enumTypesArray = Enum.GetValues<RoleType>()
+        var enumTypesArray = Enum.GetValues<FormStatusType>()
                                     .Select(enumType => new
                                     {
                                         Id = new MasterId(enumType.GetId()),
-                                        KeyName = enumType.GetName()
+                                        KeyName = enumType.GetName(),
+                                        Color = enumType.GetColor(),
+                                        Icon = enumType.GetIcon()
                                     })
                                     .ToList();
 
         var ids = enumTypesArray.Select(x => x.Id).ToList();
 
-        List<RoleDomain> existingDomains = await _context.Role
+        List<FormStatusDomain> existingDomains = await _context.Set<FormStatusDomain>()
                                             .Where(x => ids.Contains(x.Id))
                                             .ToListAsync();
         foreach (var enumType in enumTypesArray)
         {
-            MasterId idRole = enumType.Id;
-            RoleDomain? existingDomain = existingDomains.Find(x=>x.Id==idRole);
+            MasterId idFormStatus = enumType.Id;
+            FormStatusDomain? existingDomain = existingDomains.Find(x => x.Id == idFormStatus);
 
             if (existingDomain == null)
             {
-                RoleDomain newDomain = RoleDomain.Create(idRole,enumType.KeyName).Value;
+                FormStatusDomain newDomain = FormStatusDomain.FromExisting(idFormStatus);
+                newDomain.Update(
+                    enumType.KeyName,
+                    enumType.Color,
+                    enumType.Icon
+                    );
                 newDomain.ClassOrigin = GetType().Name;
-                _context.Role.Add(newDomain);
+                _context.Set<FormStatusDomain>().Add(newDomain);
             }
             else if (existingDomain.KeyName.Value != enumType.KeyName)
             {
                 existingDomain.ClassOrigin = GetType().Name;
-                existingDomain.Update(enumType.KeyName);
+                existingDomain.Update(
+                    enumType.KeyName,
+                    enumType.Color,
+                    enumType.Icon
+                    );
             }
         }
 

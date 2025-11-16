@@ -15,6 +15,10 @@ public class FormStatusDomain : BaseStatusEntity
     private FormStatusDomain() { }
     private FormStatusDomain(MasterId id) : base(id) { }
 
+    public static FormStatusDomain FromExisting(MasterId id)
+    {
+        return new FormStatusDomain(id);
+    }
     public static ResultT<FormStatusDomain> Create(
             string keyName,
             string color,
