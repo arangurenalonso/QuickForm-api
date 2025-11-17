@@ -41,7 +41,7 @@ internal sealed class FormStatusPermissionSeeder(SurveyDbContext _context, ILogg
             from action in statusEntry.Value
             let idStatus = new MasterId(statusEntry.Key.GetId())
             let idAction = new MasterId(action.Action.GetId())
-            let idPermission = new FormStatusPermissionIdVO(action.PermissionId)
+            let idPermission = new FormStatusPermissionId(action.PermissionId)
             select new
             {
                 Id = idPermission,
@@ -56,7 +56,7 @@ internal sealed class FormStatusPermissionSeeder(SurveyDbContext _context, ILogg
                                             .ToListAsync();
         foreach (var enumType in enumTypesArray)
         {
-            FormStatusPermissionIdVO idFormStatusPermission = enumType.Id;
+            FormStatusPermissionId idFormStatusPermission = enumType.Id;
             FormStatusPermissionDomain? existingDomain = existingDomains.Find(x => x.Id == idFormStatusPermission);
 
             if (existingDomain == null)

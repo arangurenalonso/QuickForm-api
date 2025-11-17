@@ -44,6 +44,12 @@ public class FormDomain : BaseDomainEntity<FormId>
                 );
         }
         var newForm = new FormDomain(FormId.Create(), nameResult.Value, descriptionResult.Value,customer.Id);
+        
+        var registerStatusHistory = newForm.RegisterStatusHistory();
+        if (registerStatusHistory.IsFailure)
+        {
+            return registerStatusHistory.Errors;
+        }
 
         return newForm;
     }
