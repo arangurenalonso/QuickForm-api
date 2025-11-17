@@ -318,6 +318,21 @@ internal sealed class SaveFormStructureCommandHandler(
             );
             return ResultT<FormDomain>.FailureT(ResultType.Forbidden, errorForm);
         }
+        var statusValidToUpdate = new[]
+        {
+            new MasterId(FormStatusType.Draft.GetId()),
+            new MasterId(FormStatusType.Paused.GetId()),
+        };
+
+        if (!statusValidToUpdate.Contains(form.IdStatus))
+        {
+            var errorForm = ResultError.InvalidOperation(
+            "FormStatus",
+            $"The form with ID '{idForm}' is in a status that does not allow updates. Current status ID: '{form.IdStatus.Value}'."
+            );
+            return ResultT<FormDomain>.FailureT(ResultType.DomainValidation, errorForm);
+        }
+
         return form;
 
     }
