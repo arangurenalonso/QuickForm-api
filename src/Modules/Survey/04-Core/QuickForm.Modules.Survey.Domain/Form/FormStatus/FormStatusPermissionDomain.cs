@@ -1,7 +1,7 @@
 ﻿using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Survey.Domain;
-public sealed class FormStatusPermissionDomain : BaseDomainEntity<FormStatusPermissionIdVO>
+public sealed class FormStatusPermissionDomain : BaseDomainEntity<FormStatusPermissionId>
 {
     public MasterId IdFormAction { get; private set; }
     public MasterId IdFormStatus { get; private set; }
@@ -9,9 +9,9 @@ public sealed class FormStatusPermissionDomain : BaseDomainEntity<FormStatusPerm
     public FormStatusDomain FormStatus { get; private set; }
     public FormActionDomain FormAction { get; private set; }
     public FormStatusPermissionDomain() { }
-    private FormStatusPermissionDomain(FormStatusPermissionIdVO id) : base(id) { }
+    private FormStatusPermissionDomain(FormStatusPermissionId id) : base(id) { }
     private FormStatusPermissionDomain(
-        FormStatusPermissionIdVO id,
+        FormStatusPermissionId id,
         MasterId idFormAction,
         MasterId idFormStatus
     ) : base(id)
@@ -21,7 +21,7 @@ public sealed class FormStatusPermissionDomain : BaseDomainEntity<FormStatusPerm
     }
 
     public static ResultT<FormStatusPermissionDomain> Create(
-            FormStatusPermissionIdVO id,
+            FormStatusPermissionId id,
             MasterId idFormAction,
             MasterId idFormStatus
         )
@@ -34,5 +34,13 @@ public sealed class FormStatusPermissionDomain : BaseDomainEntity<FormStatusPerm
         return newDomain;
     }
 
+    public void Update(
+        MasterId idFormAction,
+        MasterId idFormStatus
+    )
+    {
+        IdFormAction = idFormAction;
+        IdFormStatus = idFormStatus;
+    }
 
 }

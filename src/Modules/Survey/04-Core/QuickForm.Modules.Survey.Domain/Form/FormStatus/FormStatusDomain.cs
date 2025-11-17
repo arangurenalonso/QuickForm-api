@@ -8,6 +8,7 @@ public class FormStatusDomain : BaseStatusEntity
     #region Many-to-One Relationship
     public ICollection<FormDomain> Forms { get; private set; } = [];
     public ICollection<FormStatusPermissionDomain> Permissions { get; private set; } = [];
+    public ICollection<FormStatusHistoryDomain> StatusHistory { get; private set; } = [];
 
     #endregion
     private FormStatusDomain() { }

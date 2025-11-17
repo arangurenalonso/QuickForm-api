@@ -19,7 +19,11 @@ public enum FormActionType
     [Name("FormClose")]
     FormClose = 4,
 
+    [Id("DCDEA642-18D3-461E-B5E1-4C9F77877FBC")]
+    [Name("FormResume")]
+    FormResume = 5,
+
     [Id("40D5DD5A-EBCB-48F3-A36E-3822459249C8")]
     [Name("ViewResponses")]
-    ViewResponses = 5,
+    ViewResponses = 6,
 }

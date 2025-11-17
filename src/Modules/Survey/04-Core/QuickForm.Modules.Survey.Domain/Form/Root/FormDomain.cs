@@ -16,6 +16,8 @@ public class FormDomain : BaseDomainEntity<FormId>
     #endregion
     #region Many to One
     public ICollection<FormSectionDomain> Sections { get; private set; } = [];
+    public ICollection<FormStatusHistoryDomain> StatusHistory { get; private set; } = [];
+    
     #endregion
     private FormDomain() { }
     private FormDomain(
@@ -74,11 +76,28 @@ public class FormDomain : BaseDomainEntity<FormId>
         {
             return ResultError.InvalidOperation("IsPublished", "Form is already published.");
         }
+
+        var registerStatusHistory = RegisterStatusHistory();
+        if (registerStatusHistory.IsFailure)
+        {
+            return registerStatusHistory.Errors;
+        }
+
         IdStatus = new MasterId(FormStatusType.Published.GetId());
         DateEnd = IsPremiun ?DateEnd.NoRestriction():DateEnd.WithRestriction();
 
         return Result.Success();
 
+    }
+    public Result RegisterStatusHistory()
+    {
+        var formStatusHistory = FormStatusHistoryDomain.Create(Id, IdStatus);
+        if (formStatusHistory.IsFailure)
+        {
+            return formStatusHistory.Errors;
+        }
+        StatusHistory.Add(formStatusHistory.Value);
+        return Result.Success();
     }
 
     public Result Close()
@@ -87,6 +106,11 @@ public class FormDomain : BaseDomainEntity<FormId>
         if (isClosed)
         {
             return ResultError.InvalidOperation("IsClose", "Form is already close.");
+        }
+        var registerStatusHistory = RegisterStatusHistory();
+        if (registerStatusHistory.IsFailure)
+        {
+            return registerStatusHistory.Errors;
         }
         IdStatus = new MasterId(FormStatusType.Closed.GetId());
 

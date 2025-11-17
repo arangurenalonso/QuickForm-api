@@ -22,6 +22,12 @@ public enum FormStatusType
     [Icon("PauseCircle")]
     Paused,
 
+    [Id("A3F5D1B4-1C2B-4E2D-8F1C-3D6F0B8E2B7E")]
+    [Name("Resumen")]
+    [Color("primary")]
+    [Icon("BarChartLine")]
+    Resumen,
+
     [Id("5C558B1C-0C1F-4CB2-A492-D4DFAC742A4A")]
     [Name("Closed")]
     [Color("error")]

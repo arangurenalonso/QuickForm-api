@@ -5,7 +5,7 @@ using QuickForm.Common.Infrastructure.Persistence;
 using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Persistence;
-public class FormStatusPermissionConfiguration : EntityMapBase<FormStatusPermissionDomain, FormStatusPermissionIdVO>
+public class FormStatusPermissionConfiguration : EntityMapBase<FormStatusPermissionDomain, FormStatusPermissionId>
 {
     protected override void Configure(EntityTypeBuilder<FormStatusPermissionDomain> builder)
     {
@@ -13,9 +13,9 @@ public class FormStatusPermissionConfiguration : EntityMapBase<FormStatusPermiss
 
         builder.Property(p => p.Id)
             .HasConversion(
-                new ValueConverter<FormStatusPermissionIdVO, Guid>(
+                new ValueConverter<FormStatusPermissionId, Guid>(
                     idVO => idVO.Value,
-                    guid => new FormStatusPermissionIdVO(guid)
+                    guid => new FormStatusPermissionId(guid)
                 ))
             .IsRequired();
 

@@ -22,23 +22,23 @@ public enum AttributeType
     Placeholder = 4,
 
     [Name("InformationText")]
-    [Description("1E451ACC-0CE7-4FC2-87BF-FD8BDEE7F8CD")]
+    [Id("1E451ACC-0CE7-4FC2-87BF-FD8BDEE7F8CD")]
     InformationText = 5,
 
 
     [Name("Prefix")]
-    [Description("E8FD7A8B-985B-4439-A87F-519AA0F6BC41")]
+    [Id("E8FD7A8B-985B-4439-A87F-519AA0F6BC41")]
     Prefix = 6,
 
     [Name("Suffix")]
-    [Description("F5D0F732-3BD5-4264-9999-67B764607A2A")]
+    [Id("F5D0F732-3BD5-4264-9999-67B764607A2A")]
     Suffix = 7,
 
     [Name("DecimalScale")]
-    [Description("BC20FF56-0291-4DEB-872E-DC8DF39781AC")]
+    [Id("BC20FF56-0291-4DEB-872E-DC8DF39781AC")]
     DecimalScale = 8,
 
     [Name("AllowNegative")]
-    [Description("64AC9058-D95B-451F-B36F-4124C7F2585C")]
+    [Id("64AC9058-D95B-451F-B36F-4124C7F2585C")]
     AllowNegative = 9,
 }
