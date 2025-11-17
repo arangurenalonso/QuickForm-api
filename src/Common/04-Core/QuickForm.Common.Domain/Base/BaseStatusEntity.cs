@@ -39,4 +39,35 @@ public abstract class BaseStatusEntity : BaseMasterEntity
 
         return Result.Success();
     }
+    public virtual Result Update(
+            string keyName,
+            string color,
+            string? icon = null,
+            string? description = null
+        )
+    {
+        var baseResult = base.Update(keyName, description);
+        if (baseResult.IsFailure)
+        {
+            return baseResult;
+        }
+        var colorResult = StatusColorVO.Create(color);
+        if (colorResult.IsFailure)
+        {
+            return colorResult.Errors;
+        }
+        if (icon is not null)
+        {
+            var iconResult = StatusIconVO.Create(icon);
+            if (iconResult.IsFailure)
+            {
+                return iconResult.Errors;
+            }
+            Icon = iconResult.Value;
+        }
+
+        Color = colorResult.Value;
+
+        return Result.Success();
+    }
 }

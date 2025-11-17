@@ -31,14 +31,6 @@ public class AuthActionDomain : BaseMasterEntity
         return newDomain;
     }
 
-    public Result Update(
-            string keyName,
-            string? description = null
-        )
-    {
-        var masterUpdateBase = new MasterUpdateBase(keyName, description);
-        return SetBaseProperties(masterUpdateBase);
-    }
 
 
 }

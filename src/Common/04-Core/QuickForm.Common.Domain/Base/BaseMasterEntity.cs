@@ -37,5 +37,14 @@ public abstract class BaseMasterEntity: BaseDomainEntity<MasterId>
         SortOrder = dto.SortOrder ?? 0;
         return Result.Success();
     }
+    public virtual Result Update(
+        string keyName,
+        string? description = null
+    )
+    {
+        var masterUpdateBase = new MasterUpdateBase(keyName, description);
+        return SetBaseProperties(masterUpdateBase);
+    }
+
 
 }
