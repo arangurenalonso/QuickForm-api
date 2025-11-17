@@ -19,7 +19,7 @@ internal sealed class GetFormsByUser : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .RequireAuthorization()
-        .WithName("Form.GetFormStructureByIdForm")
+        .WithName("Form.GetMyForms")
         .WithTags(Tags.Form);
     }
 }
