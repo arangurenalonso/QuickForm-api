@@ -17,7 +17,7 @@ internal sealed class AttributeSeeder(SurveyDbContext _context, ILogger<Database
         var arrayValues = predefinedAttributes
             .Select(attribute => new
             {
-                Id = new AttributeId(attribute.AttributeType.GetId()),
+                Id = new MasterId(attribute.AttributeType.GetId()),
                 KeyName = attribute.AttributeType.GetName(),
                 attribute.Description,
                 DataTypeId = new DataTypeId(attribute.DataTypeType.GetId()),
@@ -34,7 +34,7 @@ internal sealed class AttributeSeeder(SurveyDbContext _context, ILogger<Database
                                             .ToListAsync();
         foreach (var value in arrayValues)
         {
-            AttributeId idEnumType = value.Id;
+            MasterId idEnumType = value.Id;
             AttributeDomain? existingDomain = existingDomains.Find(x => x.Id == idEnumType);
 
             if (existingDomain == null)
@@ -51,7 +51,7 @@ internal sealed class AttributeSeeder(SurveyDbContext _context, ILogger<Database
             }
             else if (
                 existingDomain.IdDataType != value.DataTypeId || 
-                existingDomain.Description.Value != value.Description||
+                existingDomain.Description?.Value != value.Description||
                 existingDomain.KeyName.Value != value.KeyName ||
                 existingDomain.MustBeUnique != value.MustBeUnique
                 )

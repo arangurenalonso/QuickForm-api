@@ -16,17 +16,18 @@ public class AuthActionDomain : BaseMasterEntity
             string? description = null
         )
     {
-        var newDomain = new AuthActionDomain();
-        var masterUpdateBase = new MasterUpdateBase(keyName, description);
-        newDomain.SetBaseProperties(masterUpdateBase);
-
-        return newDomain;
+        var newId = MasterId.Create();
+        return Create(newId, keyName, description);
     }
     public static ResultT<AuthActionDomain> Create(MasterId id, string keyName, string? description = null)
     {
         var newDomain = new AuthActionDomain(id);
         var masterUpdateBase = new MasterUpdateBase(keyName, description);
-        newDomain.SetBaseProperties(masterUpdateBase);
+        var result = newDomain.SetBaseProperties(masterUpdateBase);
+        if (result.IsFailure)
+        {
+            return result.Errors;
+        }
 
         return newDomain;
     }

@@ -8,6 +8,7 @@ public class DataTypeDomain : BaseDomainEntity<DataTypeId>
 
     #region Many to One
     public ICollection<AttributeDomain> Attributes { get; private set; } = [];
+    public ICollection<RuleDomain> Rules { get; private set; } = [];
     #endregion
     private DataTypeDomain() { }
 

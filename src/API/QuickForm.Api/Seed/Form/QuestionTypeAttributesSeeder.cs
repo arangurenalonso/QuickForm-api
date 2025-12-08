@@ -19,7 +19,7 @@ internal sealed  class QuestionTypeAttributesSeeder(SurveyDbContext _context, IL
                             {
                                 Id= new QuestionTypeAttributeId( attr.IdRelation),
                                 IdQuestionType=new QuestionTypeId(q.QuestionTypeType.GetId()),
-                                IdAttribute = new AttributeId(attr.AttributeType.GetId()),
+                                IdAttribute = new MasterId(attr.AttributeType.GetId()),
                                 attr.IsRequired
                             }))
                             .ToArray();

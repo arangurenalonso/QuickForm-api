@@ -1,5 +1,4 @@
 ﻿using QuickForm.Common.Domain;
-using System.ComponentModel;
 
 namespace QuickForm.Modules.Survey.Domain;
 

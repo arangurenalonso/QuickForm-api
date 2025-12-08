@@ -1,11 +1,8 @@
 ﻿using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Survey.Domain;
-public class AttributeDomain : BaseDomainEntity<AttributeId>
+public class AttributeDomain : BaseMasterEntity
 {
-
-    public AttributeKeyNameVO KeyName { get; private set; }
-    public AttributeDescriptionVO Description { get; private set; }
     public DataTypeId IdDataType { get; private set; }
     public bool MustBeUnique { get; private set; }
 
@@ -19,37 +16,31 @@ public class AttributeDomain : BaseDomainEntity<AttributeId>
     private AttributeDomain() { }
 
     private AttributeDomain(
-        AttributeId id, 
-        AttributeKeyNameVO keyName,
-        AttributeDescriptionVO description,
+        MasterId id, 
         DataTypeId idDataType,
         bool mustBeUnique) : base(id)
     {
-        KeyName = keyName;
-        Description = description;
         IdDataType = idDataType;
         MustBeUnique = mustBeUnique;
     }
     public static ResultT<AttributeDomain> Create(
-        AttributeId id,
+        MasterId id,
         string keyName,
         string description,
         DataTypeId idDataType,
         bool mustBeUnique
       )
     {
-        var keyNameResult = AttributeKeyNameVO.Create(keyName);
-        var descriptionResult = AttributeDescriptionVO.Create(description);
-        if (keyNameResult.IsFailure || descriptionResult.IsFailure)
-        {
-            var errorList = new ResultErrorList(
-                new List<ResultErrorList>() { keyNameResult.Errors, descriptionResult.Errors }
-                );
-            return errorList;
-        }
-        var domain = new AttributeDomain(id, keyNameResult.Value, descriptionResult.Value, idDataType, mustBeUnique);
 
-        return domain;
+        var newDomain = new AttributeDomain(id, idDataType, mustBeUnique);
+        var masterUpdateBase = new MasterUpdateBase(keyName, description);
+        var result = newDomain.SetBaseProperties(masterUpdateBase);
+        if (result.IsFailure)
+        {
+            return result.Errors;
+        }
+
+        return newDomain;
     }
     public static ResultT<AttributeDomain> Create(
             string keyName,
@@ -57,7 +48,7 @@ public class AttributeDomain : BaseDomainEntity<AttributeId>
             DataTypeId idDataType,
             bool mustBeUnique
     )
-        => Create(AttributeId.Create(), keyName, description, idDataType, mustBeUnique);
+        => Create(MasterId.Create(), keyName, description, idDataType, mustBeUnique);
 
     public Result Update(
            string keyName,
@@ -66,21 +57,14 @@ public class AttributeDomain : BaseDomainEntity<AttributeId>
            bool mustBeUnique
        )
     {
-        var keyNameResult = AttributeKeyNameVO.Create(keyName);
-        var descriptionResult = AttributeDescriptionVO.Create(description);
-
-        if (keyNameResult.IsFailure || descriptionResult.IsFailure)
-        {
-            var errorList = new ResultErrorList(
-                new List<ResultErrorList>() { keyNameResult.Errors, descriptionResult.Errors }
-                );
-            return errorList;
-        }
-        KeyName = keyNameResult.Value;
-        Description = descriptionResult.Value;
         IdDataType = idDataType;
         MustBeUnique = mustBeUnique;
 
+        var resultUpdated = base.Update(keyName, description);
+        if (resultUpdated.IsFailure)
+        {
+            return resultUpdated.Errors;
+        }   
         return Result.Success();
     }
 }

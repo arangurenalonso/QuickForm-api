@@ -24,6 +24,13 @@ internal sealed class DatabaseSeeder(
             await datatypeSeeder.SeedAsync();
             var attributeSeeder = new AttributeSeeder(_surveyDbContext, _logger);
             await attributeSeeder.SeedAsync();
+            var ruleSeeder = new RuleSeeder(_surveyDbContext, _logger);
+            await ruleSeeder.SeedAsync();
+
+            var questionTypeRuleSeeder = new QuestionTypeRuleSeeder(_surveyDbContext, _logger);
+            await questionTypeRuleSeeder.SeedAsync();
+
+
             var questionTypeSeeder = new QuestionTypeSeeder(_surveyDbContext, _logger);
             await questionTypeSeeder.SeedAsync();
             var questionTypeAttributesSeeder = new QuestionTypeAttributesSeeder(_surveyDbContext, _logger);

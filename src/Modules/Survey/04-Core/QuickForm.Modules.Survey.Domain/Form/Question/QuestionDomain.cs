@@ -13,6 +13,7 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
     #endregion
     #region Many to One
     public ICollection<QuestionAttributeValueDomain> QuestionAttributeValue { get; private set; } = [];
+    public ICollection<QuestionRuleValueDomain> QuestionRuleValue { get; private set; } = [];
     #endregion
     private QuestionDomain() { }
     private QuestionDomain(QuestionId id, FormSectionId idFormSection, QuestionTypeId idQuestionType,int sortOrder) : base(id)

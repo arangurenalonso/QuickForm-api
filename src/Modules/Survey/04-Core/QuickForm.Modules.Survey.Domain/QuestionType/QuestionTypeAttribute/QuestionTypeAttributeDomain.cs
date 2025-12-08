@@ -4,7 +4,7 @@ namespace QuickForm.Modules.Survey.Domain;
 public class QuestionTypeAttributeDomain : BaseDomainEntity<QuestionTypeAttributeId>
 {
     public QuestionTypeId IdQuestionType { get; private set; }
-    public AttributeId IdAttribute { get; private set; }
+    public MasterId IdAttribute { get; private set; }
     public bool IsRequired { get; private set; } 
 
 
@@ -20,7 +20,7 @@ public class QuestionTypeAttributeDomain : BaseDomainEntity<QuestionTypeAttribut
     private QuestionTypeAttributeDomain() { }
 
     private QuestionTypeAttributeDomain(
-        QuestionTypeAttributeId id, QuestionTypeId idQuestionType, AttributeId idAttribute,bool isRequired
+        QuestionTypeAttributeId id, QuestionTypeId idQuestionType, MasterId idAttribute,bool isRequired
         ) : base(id)
     {
         IdQuestionType = idQuestionType;
@@ -31,7 +31,7 @@ public class QuestionTypeAttributeDomain : BaseDomainEntity<QuestionTypeAttribut
     public static ResultT<QuestionTypeAttributeDomain> Create(
         QuestionTypeAttributeId id,
         QuestionTypeId idQuestionType,
-        AttributeId idAttribute,
+        MasterId idAttribute,
         bool isRequired)
     {
         return new QuestionTypeAttributeDomain(
@@ -43,7 +43,7 @@ public class QuestionTypeAttributeDomain : BaseDomainEntity<QuestionTypeAttribut
     }
     public static ResultT<QuestionTypeAttributeDomain> Create(
         QuestionTypeId idQuestionType,
-        AttributeId idAttribute,
+        MasterId idAttribute,
         bool isRequired)
     {
         return new QuestionTypeAttributeDomain(
@@ -55,7 +55,7 @@ public class QuestionTypeAttributeDomain : BaseDomainEntity<QuestionTypeAttribut
     }
     public Result Update(
             QuestionTypeId idQuestionType,
-            AttributeId idAttribute,
+            MasterId idAttribute,
             bool isRequired
        )
     {

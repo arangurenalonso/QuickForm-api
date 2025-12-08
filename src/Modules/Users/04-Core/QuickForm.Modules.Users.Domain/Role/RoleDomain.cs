@@ -15,18 +15,18 @@ public sealed class RoleDomain : BaseMasterEntity
             string? description = null
         )
     {
-        var newDomain = new RoleDomain();
-        var masterUpdateBase = new MasterUpdateBase(keyName, description);
-        newDomain.SetBaseProperties(masterUpdateBase);
-
-        return newDomain;
+        var newId = MasterId.Create();
+        return Create(newId, keyName, description);
     }
     public static ResultT<RoleDomain> Create(MasterId id, string keyName, string? description = null)
     {
         var newDomain = new RoleDomain(id);
         var masterUpdateBase = new MasterUpdateBase(keyName, description);
-        newDomain.SetBaseProperties(masterUpdateBase);
-
+        var result = newDomain.SetBaseProperties(masterUpdateBase);
+        if (result.IsFailure)
+        {
+            return result.Errors;
+        }
         return newDomain;
     }
 }
