@@ -49,7 +49,14 @@ public class AuditFieldsInterceptor(
                     entry.Entity.MarkCreated(userConnected, now);
                     break;
                 case EntityState.Modified:
-                    entry.Entity.MarkUpdated(userConnected, now);
+                    if (entry.Entity.IsDeleted && entry.Entity.DeletedAt == null && entry.Entity.DeletedBy == null)
+                    {
+                        entry.Entity.MarkDeleted(userConnected, now);
+                    }
+                    else
+                    {
+                        entry.Entity.MarkUpdated(userConnected, now);
+                    }
                     break;
                 case EntityState.Detached:
                     break;

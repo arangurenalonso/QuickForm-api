@@ -1,4 +1,5 @@
-﻿using QuickForm.Common.Domain;
+﻿using System.Text.Json;
+using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Survey.Domain;
 public class FormDomain : BaseDomainEntity<FormId>
@@ -53,13 +54,118 @@ public class FormDomain : BaseDomainEntity<FormId>
 
         return newForm;
     }
+    private Result EnsureCanUpdate()
+    {
+        var allowed = new[] { FormStatusType.Draft, FormStatusType.Paused };
+        var isAllowed = allowed.Any(s => s.GetId() == IdStatus.Value);
+
+        if (isAllowed)
+        {
+            return Result.Success();
+
+        }
+
+        var allowedNames = string.Join(", ", allowed);
+        return ResultError.InvalidOperation(
+            "FormStatus",
+            $"The form '{Name.Value}' cannot be updated because its current status is '{Status.KeyName}'. Allowed: {allowedNames}."
+        );
+    }
+
+    public Result ApplySectionsChanges(
+            IReadOnlyCollection<(Guid Id, 
+                                string Title, 
+                                string Description,
+                                List<(Guid Id, JsonElement Properties, QuestionTypeDomain QuestionType)> Questions  
+                            )> incomingSections
+        )
+    {
+
+        var guard = EnsureCanUpdate();
+        if (guard.IsFailure)
+        {
+            return guard;
+        }
+
+        incomingSections ??= Array.Empty<(Guid Id, string Title, string Description, List<(Guid Id, JsonElement Properties, QuestionTypeDomain QuestionType)> Questions)>();
+
+        var duplicatedIds = incomingSections
+            .GroupBy(s => s.Id)
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key)
+            .ToList();
+
+        if (duplicatedIds.Count > 0)
+        {
+            return ResultError.InvalidOperation(
+                "DuplicateSectionIds",
+                $"Incoming sections contain duplicated Ids: {string.Join(", ", duplicatedIds)}");
+        }
+
+        var existingById = Sections
+                              .Where(s => !s.IsDeleted) 
+                              .ToDictionary(s => s.Id.Value, s => s);
+
+        var incomingIds = incomingSections.Select(s => s.Id).ToHashSet();
+        foreach (var section in Sections.Where(s => !s.IsDeleted && !incomingIds.Contains(s.Id.Value)))
+        {
+            section.MarkDeleted();
+        }
+
+        var order = 1;
+        foreach (var dto in incomingSections)
+        {
+            if (existingById.TryGetValue(dto.Id, out var existing))
+            {
+                var updateResult = existing.Update(order, dto.Title, dto.Description);
+                if (updateResult.IsFailure)
+                {
+                    return updateResult;
+                }
+                var questionChangesResult = existing.ApplyQuestionChanges(dto.Questions);
+                if (questionChangesResult.IsFailure)
+                {
+                    return questionChangesResult;
+                }
+
+            }
+            else
+            {
+                var idSection = new FormSectionId(dto.Id);
+
+                var createResult = FormSectionDomain.Create(
+                    idSection,
+                    Id,
+                    dto.Title,
+                    dto.Description,
+                    order);
+
+                if (createResult.IsFailure)
+                {
+                    return Result.Failure(ResultType.DomainValidation, createResult.Errors);
+                }
+
+                var questionChangesResult = createResult.Value.ApplyQuestionChanges(dto.Questions);
+                if (questionChangesResult.IsFailure)
+                {
+                    return questionChangesResult.Errors;
+                }
+                Sections.Add(createResult.Value);
+            }
+
+            order++;
+        }
+        return Result.Success();
+    }
     public Result Update(string name, string? description)
     {
-        var isPublished = IdStatus.Value == FormStatusType.Published.GetId();
-        if (isPublished)
+
+        var guard = EnsureCanUpdate();
+        if (guard.IsFailure)
         {
-            return  ResultError.InvalidOperation("IsPublished", "Form is published, cannot be updated.");
+            return guard;
         }
+
         var nameResult = FormNameVO.Create(name);
         var descriptionResult = FormDescription.Create(description);
 
@@ -105,7 +211,6 @@ public class FormDomain : BaseDomainEntity<FormId>
         StatusHistory.Add(formStatusHistory.Value);
         return Result.Success();
     }
-
     public Result Close()
     {
         var isClosed = IdStatus.Value == FormStatusType.Closed.GetId(); 

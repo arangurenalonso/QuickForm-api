@@ -2,7 +2,6 @@
 using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
 using QuickForm.Modules.Survey.Domain;
-using System.Text.Json;
 
 namespace QuickForm.Modules.Survey.Application;
 internal sealed class SaveFormStructureCommandHandler(
@@ -44,143 +43,27 @@ internal sealed class SaveFormStructureCommandHandler(
 
         List<QuestionTypeDomain> questionsType = questionsTypeResult.Value;
 
-        var resultStoreDatabase = await StoreDatabase(formDomain, request.Sections, questionsType,cancellationToken);
-        if (resultStoreDatabase.IsFailure)
+        var incomingSections = request.Sections
+                                        .Select(section => (
+                                            section.Id,
+                                            section.Title,
+                                            section.Description,
+                                            section.Questions
+                                                .Select(q => (
+                                                    q.Id,
+                                                    q.Properties,
+                                                    questionsType.First( qt => qt.KeyName.Value == q.Type)
+                                                ))
+                                                .ToList()
+                                        ))
+                                        .ToList();
+        var applyResult = formDomain.ApplySectionsChanges(incomingSections);
+        if (applyResult.IsFailure)
         {
-            return ResultT<ResultResponse>.FailureT(resultStoreDatabase.ResultType, resultStoreDatabase.Errors);
+            return ResultT<ResultResponse>.FailureT(applyResult.ResultType, applyResult.Errors);
         }
 
-        return ResultTResponse<Guid>.Success(Guid.NewGuid(), $".");
-    }
-    private async  Task<Result> StoreDatabase(
-        FormDomain formDomain,
-        List<SectionDto> sectionsDto, 
-        List<QuestionTypeDomain> listQuestionType,
-        CancellationToken cancellationToken)
-    {
-        List<FormSectionDomain> sections = await GetSections(formDomain.Id.Value, cancellationToken);
-        var incomingSectionsIds= sectionsDto.Select(x => new FormSectionId(x.Id)).ToList();
-        List<FormSectionDomain> sectionsToDesactivate = sections.Where(x => !incomingSectionsIds.Contains(x.Id)).ToList();
-
-
-        _unitOfWork.Repository<FormSectionDomain, FormSectionId>().DeleteEntity(sectionsToDesactivate);
-
-
-        List<QuestionDomain> questions = await GetQuestion(formDomain.Id.Value, cancellationToken);
-        var incomingQuestionsIds = sectionsDto.SelectMany(x=>x.Questions).Select(q =>new QuestionId(q.Id)).ToHashSet();
-        List<QuestionDomain> questionsToDesactivate = questions.Where(x => !incomingQuestionsIds.Contains(x.Id)).ToList();
-
-        _unitOfWork.Repository<QuestionDomain, QuestionId>().DeleteEntity(questionsToDesactivate);
-
-        int sectionOrder = 1;
-        foreach (var sectionDto in sectionsDto)
-        {
-            var idSection = new FormSectionId(sectionDto.Id);
-            var sectionDomainExisted = sections.Find(x => x.Id == idSection);
-            if (sectionDomainExisted is null)
-            {
-                var formSectionCreatedResult = FormSectionDomain.Create(
-                                                        idSection,
-                                                        formDomain.Id,
-                                                        sectionDto.Title,
-                                                        sectionDto.Description,
-                                                        sectionOrder
-                                                    );
-                if (formSectionCreatedResult.IsFailure)
-                {
-                    return Result.Failure(ResultType.DomainValidation, formSectionCreatedResult.Errors);
-                }
-                var formSectionCreated = formSectionCreatedResult.Value;
-                _unitOfWork.Repository<FormSectionDomain, FormSectionId>().AddEntity(formSectionCreated);
-
-            }
-            else
-            {
-                sectionDomainExisted.Update(
-                                        sectionOrder, 
-                                        sectionDto.Title,
-                                        sectionDto.Description
-                                    );
-
-                _unitOfWork.Repository<FormSectionDomain, FormSectionId>().UpdateEntity(sectionDomainExisted);
-
-            }
-            sectionOrder++;
-        }
-
-
-
-        var questionsSectionDto = sectionsDto
-                                    .SelectMany(section =>
-                                        section.Questions.Select((q, index) => new QuestionSectionDto
-                                        {
-                                            IdSection=section.Id,
-                                            Question=q,
-                                            Order=index+1
-                                        })
-                                    )
-                                    .ToList();
-
-        foreach (var questionSectionDto in questionsSectionDto)
-        {
-            var questionDto = questionSectionDto.Question;
-            var formSectionId = new FormSectionId(questionSectionDto.IdSection);
-            int order = questionSectionDto.Order;
-            QuestionTypeDomain questionType = listQuestionType.Find(x => x.KeyName.Value == questionDto.Type);
-            if (questionType is null)
-            {
-                var errorQuestion = ResultError.InvalidInput(
-                    "QuestionType",
-                    $"The following question type were not found: {questionDto.Type}."
-                );
-
-                return Result.Failure(ResultType.NotFound, errorQuestion);
-            }
-            var questionId=new QuestionId(questionDto.Id);
-            var questionDtoPropertie = questionDto.Properties;
-
-            var questionDomainExisted = questions.Find(x => x.Id == questionId);
-            if (questionDomainExisted is null)
-            {
-                var questionCreatedResult = QuestionDomain.Create(
-                                                        questionId, 
-                                                        formSectionId, 
-                                                        questionType.Id, 
-                                                        order
-                                                    );
-                if (questionCreatedResult.IsFailure)
-                {
-                    return Result.Failure(ResultType.DomainValidation, questionCreatedResult.Errors);
-                }
-                var questionCreated= questionCreatedResult.Value;
-                _unitOfWork.Repository<QuestionDomain, QuestionId>().AddEntity(questionCreated);
-
-
-                var resultStoreQuestionAttributeValue = StoreDatabaseQuestionAttributeValue(questionCreated.Id, questionDtoPropertie, questionType);
-                if (resultStoreQuestionAttributeValue.IsFailure)
-                {
-                    return Result.Failure(resultStoreQuestionAttributeValue.ResultType, resultStoreQuestionAttributeValue.Errors);
-                }
-
-            }
-            else
-            {
-                questionDomainExisted.Update(order,formSectionId);
-
-                _unitOfWork.Repository<QuestionDomain, QuestionId>().UpdateEntity(questionDomainExisted);
-                var resultStoreQuestionAttributeValue = StoreDatabaseQuestionAttributeValue(
-                                                                    questionDomainExisted.Id,
-                                                                    questionDtoPropertie,
-                                                                    questionType,
-                                                                    questionDomainExisted.QuestionAttributeValue.ToList()
-                                                                );
-                if (resultStoreQuestionAttributeValue.IsFailure)
-                {
-                    return Result.Failure(resultStoreQuestionAttributeValue.ResultType, resultStoreQuestionAttributeValue.Errors);
-                }
-
-            }
-        }
+        _unitOfWork.Repository<FormDomain, FormId>().UpdateEntity(formDomain);
 
         var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
 
@@ -189,83 +72,9 @@ internal sealed class SaveFormStructureCommandHandler(
             return ResultT<ResultResponse>.FailureT(resultTransaction.ResultType, resultTransaction.Errors);
         }
 
-        return Result.Success();
-    }
-    private Result StoreDatabaseQuestionAttributeValue(
-        QuestionId idQuestion,
-        JsonElement properties, 
-        QuestionTypeDomain questionType,
-        List<QuestionAttributeValueDomain>? listQuestionAttributeValue = null
-        )
-    {
-
-        var questionTypesAttribute = questionType.QuestionTypeAttributes.ToList();
+        return ResultTResponse<Guid>.Success(Guid.NewGuid(), $".");
 
 
-        var incomingKeys = properties.EnumerateObject()
-                             .Select(p => p.Name)
-                             .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        if (listQuestionAttributeValue is not null)
-        {
-            var toDisable = listQuestionAttributeValue
-                                .Where(qavd => 
-                                    !incomingKeys.Any(incomingKey =>
-                                            string.Equals(incomingKey, qavd.QuestionTypeAttribute.Attribute.KeyName.Value, StringComparison.OrdinalIgnoreCase)
-                                            )
-                                    )
-                                .ToList();
-            _unitOfWork.Repository<QuestionAttributeValueDomain, QuestionAttributeValueId>().DeleteEntity(toDisable);
-
-        }
-        foreach (var property in properties.EnumerateObject())
-        {
-            string propertyName = property.Name;
-            QuestionTypeAttributeDomain? questionTypeAttribute = questionTypesAttribute
-                                                                    .Find(x =>
-                                                                            string.Equals(x.Attribute.KeyName.Value, propertyName, StringComparison.OrdinalIgnoreCase)
-                                                                        );
-
-            if (questionTypeAttribute is null)
-            {
-                var errorQuestion = ResultError.InvalidInput(
-                                        "QuestionTypeAttribute",
-                                        $"The attribute '{propertyName}' is not defined for the question type '{questionType.KeyName}'. Please verify the configuration of the question type."
-                                    );
-
-                return Result.Failure(ResultType.NotFound, errorQuestion);
-            }
-            var questionAttributeValueExisted = listQuestionAttributeValue?.Find(x => x.IdQuestionTypeAttribute == questionTypeAttribute.Id);
-
-            JsonElement value = property.Value;
-            string? valueToStore = value.ValueKind == JsonValueKind.Null ? null : value.ToString();
-
-            if (questionAttributeValueExisted is null)
-            {
-
-                var resultQuestionAttributeValueCreated = QuestionAttributeValueDomain.Create(
-                                                                        idQuestion,
-                                                                        questionTypeAttribute.Id,
-                                                                        valueToStore
-                                                                    );
-                if (resultQuestionAttributeValueCreated.IsFailure)
-                {
-                    return Result.Failure(ResultType.DomainValidation, resultQuestionAttributeValueCreated.Errors);
-                }
-
-                var questionAttributeValueCreated = resultQuestionAttributeValueCreated.Value;
-                _unitOfWork.Repository<QuestionAttributeValueDomain, QuestionAttributeValueId>().AddEntity(questionAttributeValueCreated);
-
-            }
-            else
-            {
-                questionAttributeValueExisted.Update(valueToStore);
-                _unitOfWork.Repository<QuestionAttributeValueDomain, QuestionAttributeValueId>().UpdateEntity(questionAttributeValueExisted);
-
-            }
-
-        }
-        return Result.Success();
     }
     private async Task<ResultT<List<QuestionTypeDomain>>> GetQuestionType(List<QuestionDto> questionsDto,CancellationToken cancellationToken)
     {
@@ -335,15 +144,5 @@ internal sealed class SaveFormStructureCommandHandler(
 
         return form;
 
-    }
-    private async Task<List<QuestionDomain>> GetQuestion(Guid idForm, CancellationToken cancellationToken)
-    {
-        var questions = await _formRepository.GetQuestionByIdFormAsync(idForm, false, cancellationToken);
-        return questions.ToList();
-    }
-    private async Task<List<FormSectionDomain>> GetSections(Guid idForm, CancellationToken cancellationToken)
-    {
-        var sections = await _formRepository.GetSectionsByIdFormAsync(idForm, cancellationToken);
-        return sections;
     }
 }

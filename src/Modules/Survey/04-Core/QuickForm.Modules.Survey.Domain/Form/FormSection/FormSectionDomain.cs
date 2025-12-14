@@ -1,4 +1,5 @@
-﻿using QuickForm.Common.Domain;
+﻿using System.Text.Json;
+using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Survey.Domain;
 public class FormSectionDomain : BaseDomainEntity<FormSectionId>
@@ -72,6 +73,79 @@ public class FormSectionDomain : BaseDomainEntity<FormSectionId>
         Title=titleResult.Value;
         Description=descriptionResult.Value;
 
+        return Result.Success();
+    }
+    public Result ApplyQuestionChanges(
+        IReadOnlyCollection<(Guid Id, JsonElement Properties, QuestionTypeDomain QuestionType)> incomingQuestions
+        )
+    {
+        incomingQuestions ??= Array.Empty<(Guid Id, JsonElement Properties, QuestionTypeDomain QuestionType)>();
+        var duplicatedIds = incomingQuestions
+                                  .GroupBy(q => q.Id)
+                                  .Where(g => g.Count() > 1)
+                                  .Select(g => g.Key)
+                                  .ToList();
+
+        if (duplicatedIds.Count > 0)
+        {
+            return ResultError.InvalidOperation(
+                "DuplicateQuestionIds",
+                $"Incoming questions contain duplicated Ids: {string.Join(", ", duplicatedIds)}");
+        }
+        var existingById = Questions
+                            .Where(q => !q.IsDeleted) 
+                            .ToDictionary(q => q.Id.Value, q => q);
+
+        var incomingIds = incomingQuestions.Select(q => q.Id).ToHashSet();
+
+        foreach (var q in Questions.Where(q => !q.IsDeleted && !incomingIds.Contains(q.Id.Value)))
+        {
+            q.MarkDeleted();
+        }
+
+        var order = 1;
+        foreach (var dto in incomingQuestions)
+        {
+            if (existingById.TryGetValue(dto.Id, out var existing))
+            {
+                var updateResult = existing.UpdateSortOrder(order);
+
+                if (updateResult.IsFailure)
+                {
+                    return updateResult;
+                }
+                var applAttributesResult = existing.ApplyAttributeChanges(dto.Properties, dto.QuestionType);
+                if (applAttributesResult.IsFailure)
+                {
+                    return applAttributesResult;
+                }
+            }
+            else
+            {
+                var questionId = new QuestionId(dto.Id);
+
+                var createResult = QuestionDomain.Create(
+                    questionId,
+                    Id,                  
+                    dto.QuestionType.Id, 
+                    order
+                );
+
+                if (createResult.IsFailure)
+                {
+                    return Result.Failure(ResultType.DomainValidation, createResult.Errors);
+                }
+                var applAttributesResult = createResult.Value.ApplyAttributeChanges(dto.Properties, dto.QuestionType);
+                if (applAttributesResult.IsFailure)
+                {
+                    return applAttributesResult;
+                }
+
+                Questions.Add(createResult.Value);
+            }
+
+            order++;
+        }
         return Result.Success();
     }
 }

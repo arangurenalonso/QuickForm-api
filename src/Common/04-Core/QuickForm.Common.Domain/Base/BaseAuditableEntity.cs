@@ -29,5 +29,9 @@ public abstract class BaseAuditableEntity: BaseDomainEventEntity
         DeletedBy = deletedBy;
         DeletedAt = deletedAt;
     }
+    public void MarkDeleted()
+    {
+        IsDeleted = true;
+    }
 
 }
