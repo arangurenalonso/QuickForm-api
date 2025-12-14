@@ -3,5 +3,8 @@
     <ProjectReference Include="..\..\..\..\Common\04-Core\QuickForm.Common.Application\QuickForm.Common.Application.csproj" />
     <ProjectReference Include="..\QuickForm.Modules.Survey.Domain\QuickForm.Modules.Survey.Domain.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
 
 </Project>

@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using System.Text.Json;
+using MediatR;
 using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
 using QuickForm.Modules.Survey.Domain;
@@ -9,8 +10,7 @@ internal sealed class SaveFormStructureCommandHandler(
     IFormRepository _formRepository,
     IQuestionTypeRepository _questionTypeRepository,
     ICurrentUserService _currentUserService,
-    ICustomerRepository _customerRepository,
-    IMediator _mediator
+    ICustomerRepository _customerRepository
     ) : ICommandHandler<SaveFormStructureCommand, ResultResponse>
 {
     public async Task<ResultT<ResultResponse>> Handle(SaveFormStructureCommand request, CancellationToken cancellationToken)
@@ -20,6 +20,7 @@ internal sealed class SaveFormStructureCommandHandler(
         {
             return ResultT<ResultResponse>.FailureT(ResultType.NotFound, userIdResult.Errors);
         }
+
         var formResult=await GetForm(request.IdForm, userIdResult.Value,cancellationToken);
         if (formResult.IsFailure)
         {
@@ -29,11 +30,6 @@ internal sealed class SaveFormStructureCommandHandler(
 
         var questions = request.Sections.SelectMany(x => x.Questions).ToList();
 
-        var validatePropertiesResult = await _mediator.Send(new ValidateQuestionDtoCommand(questions),cancellationToken);
-        if (validatePropertiesResult.IsFailure)
-        {
-            return ResultT<ResultResponse>.FailureT(ResultType.NotFound, validatePropertiesResult.Errors);
-        }
 
         var questionsTypeResult = await GetQuestionType(questions, cancellationToken);
         if (questionsTypeResult.IsFailure)
@@ -42,6 +38,14 @@ internal sealed class SaveFormStructureCommandHandler(
         }
 
         List<QuestionTypeDomain> questionsType = questionsTypeResult.Value;
+
+        var questionsDto = questions.Select(q =>new QuestionToValidate(q.Id, q.Type, q.Properties)).ToList();
+
+        var validatePropertiesResult = new QuestionValidationService().Validate(questionsDto, questionsType);
+        if (validatePropertiesResult.IsFailure)
+        {
+            return ResultT<ResultResponse>.FailureT(ResultType.NotFound, validatePropertiesResult.Errors);
+        }
 
         var incomingSections = request.Sections
                                         .Select(section => (
@@ -73,8 +77,6 @@ internal sealed class SaveFormStructureCommandHandler(
         }
 
         return ResultTResponse<Guid>.Success(Guid.NewGuid(), $".");
-
-
     }
     private async Task<ResultT<List<QuestionTypeDomain>>> GetQuestionType(List<QuestionDto> questionsDto,CancellationToken cancellationToken)
     {
