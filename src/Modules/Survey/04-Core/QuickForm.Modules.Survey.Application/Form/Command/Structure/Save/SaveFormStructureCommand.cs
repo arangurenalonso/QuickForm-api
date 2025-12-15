@@ -18,7 +18,8 @@ public sealed record SectionDto(
 public sealed record QuestionDto(
         Guid Id,
         string Type,
-        JsonElement Properties
+        JsonElement Properties,
+        JsonElement Rules
     );
 
 public class QuestionSectionDto

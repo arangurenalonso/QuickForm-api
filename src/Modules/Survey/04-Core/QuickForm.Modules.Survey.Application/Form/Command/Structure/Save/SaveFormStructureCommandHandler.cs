@@ -39,7 +39,7 @@ internal sealed class SaveFormStructureCommandHandler(
 
         List<QuestionTypeDomain> questionsType = questionsTypeResult.Value;
 
-        var questionsDto = questions.Select(q =>new QuestionToValidate(q.Id, q.Type, q.Properties)).ToList();
+        var questionsDto = questions.Select(q =>new QuestionToValidate(q.Id, q.Type, q.Properties, q.Rules)).ToList();
 
         var validatePropertiesResult = new QuestionValidationService().Validate(questionsDto, questionsType);
         if (validatePropertiesResult.IsFailure)

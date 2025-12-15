@@ -10,20 +10,26 @@ public class QuestionValidationService
             IReadOnlyList<QuestionTypeDomain> questionsType
         )
     {
-        return ValidateProperties(questions, questionsType);
-    }
-    private Result ValidateProperties(
-            IReadOnlyList<QuestionToValidate> questions,
-            IReadOnlyList<QuestionTypeDomain> questionsType
-        )
-    {
+        var questionTypeByKey = new Dictionary<string, QuestionTypeDomain>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var qt in questionsType)
+        {
+            if (!questionTypeByKey.TryAdd(qt.KeyName.Value, qt))
+            {
+                return Result.Failure(
+                    ResultType.ModelDataValidation,
+                    ResultError.InvalidInput(
+                        "QuestionType",
+                        $"Duplicate QuestionType keyName detected: '{qt.KeyName.Value}'."
+                    )
+                );
+            }
+        }
+
+
         foreach (var question in questions)
         {
-            var questionType = questionsType.FirstOrDefault(x => 
-                                        string.Equals(x.KeyName.Value, question.Type, StringComparison.OrdinalIgnoreCase)
-                                    );
-
-            if (questionType is null)
+            if (!questionTypeByKey.TryGetValue(question.Type, out var questionType))
             {
                 var errorQuestion = ResultError.InvalidInput(
                     "QuestionType",
@@ -31,28 +37,19 @@ public class QuestionValidationService
                 );
 
                 return Result.Failure(ResultType.NotFound, errorQuestion);
+
             }
-            if (question.Properties.ValueKind != JsonValueKind.Object)
+
+            var validateAttributeResult = ValidateAttribute(questionType, question);
+            if (validateAttributeResult.IsFailure)
             {
-                return Result.Failure(
-                    ResultType.ModelDataValidation,
-                    ResultError.InvalidInput(
-                        "Properties",
-                        $"Question '{question.Id}' of type '{question.Type}' must include 'properties' as a JSON object."
-                    )
-                );
+                return validateAttributeResult;
             }
-            var props = ToPropertyMap(question.Properties);
-            var resultValidateRequiredProperties = ValidateRequiredProperties(questionType, props);
-            if (resultValidateRequiredProperties.IsFailure)
+
+            var validateRulesResult = ValidateRules(questionType, question);
+            if (validateRulesResult.IsFailure)
             {
-                return resultValidateRequiredProperties;
-            }
-            
-            var validatePropertiesResult = ValidateDataTypesOfProperties(questionType, props);
-            if (validatePropertiesResult.IsFailure)
-            {
-                return validatePropertiesResult;
+                return validateRulesResult;
             }
         }
 
@@ -64,6 +61,162 @@ public class QuestionValidationService
 
         return Result.Success();
     }
+    private Result ValidateAttribute(
+        QuestionTypeDomain questionTypeDomain,
+        QuestionToValidate question
+        )
+    {
+        if (question.Properties.ValueKind != JsonValueKind.Object)
+        {
+            return Result.Failure(
+                ResultType.ModelDataValidation,
+                ResultError.InvalidInput(
+                    "Properties",
+                    $"Question '{question.Id}' of type '{question.Type}' must include 'properties' as a JSON object."
+                )
+            );
+        }
+        var props = ToPropertyMap(question.Properties);
+        var resultValidateRequiredProperties = ValidateRequiredProperties(questionTypeDomain, props);
+        if (resultValidateRequiredProperties.IsFailure)
+        {
+            return resultValidateRequiredProperties;
+        }
+
+        var validatePropertiesResult = ValidateDataTypesOfProperties(questionTypeDomain, props);
+        if (validatePropertiesResult.IsFailure)
+        {
+            return validatePropertiesResult;
+        }
+        return Result.Success();
+    }
+    private Result ValidateRules(
+        QuestionTypeDomain questionTypeDomain,
+        QuestionToValidate question
+    )
+    {
+        var requiredRules = questionTypeDomain.QuestionTypeRules
+            .Where(x => x.IsRequired)
+            .Select(x => x.Rule)
+            .DistinctBy(r => r.KeyName.Value)
+            .ToList();
+
+        var hasRequiredRules = requiredRules.Count > 0;
+
+        if (question.Rules.ValueKind is JsonValueKind.Undefined or JsonValueKind.Null)
+        {
+            if (!hasRequiredRules)
+            {
+                return Result.Success();
+            }
+
+            return Result.Failure(
+                ResultType.ModelDataValidation,
+                ResultError.InvalidInput(
+                    "Rules",
+                    $"Question '{question.Id}' of type '{question.Type}' must include 'rules' because this question type has required rules."
+                )
+            );
+        }
+
+        if (question.Rules.ValueKind != JsonValueKind.Object)
+        {
+            return Result.Failure(
+                ResultType.ModelDataValidation,
+                ResultError.InvalidInput(
+                    "Rules",
+                    $"Question '{question.Id}' of type '{question.Type}' must include 'rules' as a JSON object."
+                )
+            );
+        }
+
+        var rulesMap = ToPropertyMap(question.Rules);
+
+        var requiredResult = ValidateRequiredRules(questionTypeDomain, rulesMap, requiredRules);
+        if (requiredResult.IsFailure)
+        {
+            return requiredResult;
+        }
+
+        var typesResult = ValidateDataTypesOfRules(questionTypeDomain, rulesMap);
+        if (typesResult.IsFailure)
+        {
+            return typesResult;
+        }
+
+        return Result.Success();
+    }
+
+    private Result ValidateRequiredRules(
+        QuestionTypeDomain questionTypeDomain,
+        Dictionary<string, JsonElement> rulesMap,
+        List<RuleDomain> requiredRules
+    )
+    {
+
+        foreach (var rule in requiredRules)
+        {
+            if (!rulesMap.TryGetValue(rule.KeyName.Value, out var value))
+            {
+                return Result.Failure(
+                    ResultType.ModelDataValidation,
+                    ResultError.InvalidInput(
+                        "Rule",
+                        $"Question type '{questionTypeDomain.KeyName.Value}' requires rule '{rule.KeyName.Value}'."
+                    )
+                );
+            }
+
+            if (IsNullOrEmpty(value))
+            {
+                return Result.Failure(
+                    ResultType.ModelDataValidation,
+                    ResultError.InvalidInput(
+                        "Rule",
+                        $"Rule '{rule.KeyName.Value}' on question type '{questionTypeDomain.KeyName.Value}' must have a non-empty value."
+                    )
+                );
+            }
+        }
+
+        return Result.Success();
+    }
+
+    private Result ValidateDataTypesOfRules(
+        QuestionTypeDomain questionTypeDomain,
+        Dictionary<string, JsonElement> rulesMap
+    )
+    {
+        var rulesByName = questionTypeDomain.QuestionTypeRules
+            .Select(x => x.Rule)
+            .DistinctBy(r => r.KeyName.Value)
+            .ToDictionary(r => r.KeyName.Value, StringComparer.OrdinalIgnoreCase);
+
+        foreach (var (ruleName, value) in rulesMap)
+        {
+            if (!rulesByName.TryGetValue(ruleName, out var ruleDomain))
+            {
+                return Result.Failure(
+                    ResultType.ModelDataValidation,
+                    ResultError.InvalidInput(
+                        "QuestionTypeRule",
+                        $"Rule '{ruleName}' does not belong to question type '{questionTypeDomain.KeyName.Value}'."
+                    )
+                );
+            }
+
+            var dataTypeName = ruleDomain.DataType.Description.Value;
+
+            var validateResult = ValidateDataType(ruleName, dataTypeName, value);
+            if (validateResult.IsFailure)
+            {
+                return validateResult;
+            }
+        }
+
+        return Result.Success();
+    }
+
     private Dictionary<string, JsonElement> ToPropertyMap(JsonElement properties)
     {
         var map = new Dictionary<string, JsonElement>(StringComparer.OrdinalIgnoreCase);

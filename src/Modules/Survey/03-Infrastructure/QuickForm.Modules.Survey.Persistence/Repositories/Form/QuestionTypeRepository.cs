@@ -11,9 +11,12 @@ public class QuestionTypeRepository(
     {
         List<QuestionTypeKeyNameVO> KeyNameVO = keysName.Select(x => QuestionTypeKeyNameVO.Create(x).Value).ToList();
         var query = _context.QuestionType
-            .Include(x=>x.QuestionTypeAttributes)
-            .ThenInclude(x => x.Attribute)
-            .ThenInclude(x => x.DataType)
+            .Include(x => x.QuestionTypeRules.Where(y=>!y.IsDeleted))
+                .ThenInclude(x=>x.Rule)
+                    .ThenInclude(x=>x.DataType)
+            .Include(x=>x.QuestionTypeAttributes.Where(y => !y.IsDeleted))
+                .ThenInclude(x => x.Attribute)
+                    .ThenInclude(x => x.DataType)
             .Where(x => !x.IsDeleted && KeyNameVO.Contains(x.KeyName));
         if (asNoTracking)
         {
