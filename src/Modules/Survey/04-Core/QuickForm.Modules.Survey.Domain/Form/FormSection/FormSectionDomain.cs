@@ -76,10 +76,10 @@ public class FormSectionDomain : BaseDomainEntity<FormSectionId>
         return Result.Success();
     }
     public Result ApplyQuestionChanges(
-        IReadOnlyCollection<(Guid Id, JsonElement Properties, QuestionTypeDomain QuestionType)> incomingQuestions
+        IReadOnlyCollection<(Guid Id, JsonElement Properties, JsonElement Rules, QuestionTypeDomain QuestionType)> incomingQuestions
         )
     {
-        incomingQuestions ??= Array.Empty<(Guid Id, JsonElement Properties, QuestionTypeDomain QuestionType)>();
+        incomingQuestions ??= Array.Empty<(Guid Id, JsonElement Properties, JsonElement Rules, QuestionTypeDomain QuestionType)>();
         var duplicatedIds = incomingQuestions
                                   .GroupBy(q => q.Id)
                                   .Where(g => g.Count() > 1)
@@ -114,10 +114,15 @@ public class FormSectionDomain : BaseDomainEntity<FormSectionId>
                 {
                     return updateResult;
                 }
-                var applAttributesResult = existing.ApplyAttributeChanges(dto.Properties, dto.QuestionType);
-                if (applAttributesResult.IsFailure)
+                var applyAttributesResult = existing.ApplyAttributeChanges(dto.Properties, dto.QuestionType);
+                if (applyAttributesResult.IsFailure)
                 {
-                    return applAttributesResult;
+                    return applyAttributesResult;
+                }
+                var applyRulesResult = existing.ApplyRuleChanges(dto.Rules, dto.QuestionType);
+                if (applyRulesResult.IsFailure)
+                {
+                    return applyRulesResult;
                 }
             }
             else
@@ -135,10 +140,15 @@ public class FormSectionDomain : BaseDomainEntity<FormSectionId>
                 {
                     return Result.Failure(ResultType.DomainValidation, createResult.Errors);
                 }
-                var applAttributesResult = createResult.Value.ApplyAttributeChanges(dto.Properties, dto.QuestionType);
-                if (applAttributesResult.IsFailure)
+                var applyAttributesResult = createResult.Value.ApplyAttributeChanges(dto.Properties, dto.QuestionType);
+                if (applyAttributesResult.IsFailure)
                 {
-                    return applAttributesResult;
+                    return applyAttributesResult;
+                }
+                var applyRulesResult = createResult.Value.ApplyRuleChanges(dto.Rules, dto.QuestionType);
+                if (applyRulesResult.IsFailure)
+                {
+                    return applyRulesResult;
                 }
 
                 Questions.Add(createResult.Value);

@@ -76,7 +76,7 @@ public class FormDomain : BaseDomainEntity<FormId>
             IReadOnlyCollection<(Guid Id, 
                                 string Title, 
                                 string Description,
-                                List<(Guid Id, JsonElement Properties, QuestionTypeDomain QuestionType)> Questions  
+                                List<(Guid Id, JsonElement Properties,JsonElement Rules, QuestionTypeDomain QuestionType)> Questions  
                             )> incomingSections
         )
     {
@@ -87,7 +87,7 @@ public class FormDomain : BaseDomainEntity<FormId>
             return guard;
         }
 
-        incomingSections ??= Array.Empty<(Guid Id, string Title, string Description, List<(Guid Id, JsonElement Properties, QuestionTypeDomain QuestionType)> Questions)>();
+        incomingSections ??= Array.Empty<(Guid Id, string Title, string Description, List<(Guid Id, JsonElement Properties, JsonElement Rules, QuestionTypeDomain QuestionType)> Questions)>();
 
         var duplicatedIds = incomingSections
             .GroupBy(s => s.Id)

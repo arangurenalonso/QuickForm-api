@@ -56,6 +56,7 @@ internal sealed class SaveFormStructureCommandHandler(
                                                 .Select(q => (
                                                     q.Id,
                                                     q.Properties,
+                                                    q.Rules,
                                                     questionsType.First( qt => qt.KeyName.Value == q.Type)
                                                 ))
                                                 .ToList()

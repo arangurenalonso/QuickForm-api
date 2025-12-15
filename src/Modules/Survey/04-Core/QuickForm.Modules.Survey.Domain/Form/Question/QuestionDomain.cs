@@ -36,6 +36,136 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
 
         return Result.Success();
     }
+
+
+    public Result ApplyRuleChanges(JsonElement rules, QuestionTypeDomain questionType)
+    {
+        if (IdQuestionType != questionType.Id)
+        {
+            return ResultError.InvalidOperation(
+                "QuestionTypeMismatch",
+                "The provided question type does not match the question's current type.");
+        }
+
+       var requiredRules = questionType.QuestionTypeRules
+           .Where(x => x.IsRequired)
+           .Select(x => x.Rule)
+           .DistinctBy(r => r.KeyName.Value)
+           .ToList();
+
+        var hasRequiredRules = requiredRules.Count > 0;
+
+        if (rules.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+        {
+            if (hasRequiredRules)
+            {
+                return ResultError.InvalidInput(
+                    "Rules",
+                    $"Question type '{questionType.KeyName.Value}' has required rules; 'rules' cannot be null/undefined.");
+            }
+            //Clear all existing rules when incoming is null/undefined
+            foreach (var existing in QuestionRuleValue.Where(x => !x.IsDeleted))
+            {
+                existing.MarkDeleted();
+            }
+
+            return Result.Success();
+        }
+
+        if (rules.ValueKind != JsonValueKind.Object)
+        {
+            return ResultError.InvalidInput(
+                "Rules",
+                "Rules must be a JSON object (e.g., { \"min\": 3, \"required\": true }).");
+        }
+
+        var typeRuleByKey = questionType.QuestionTypeRules
+            .ToDictionary(
+                x => x.Rule.KeyName.Value,
+                x => x,
+                StringComparer.OrdinalIgnoreCase);
+
+        var existingValueByTypeRuleId = QuestionRuleValue
+            .Where(x => !x.IsDeleted)
+            .ToDictionary(x => x.IdQuestionTypeRule, x => x);
+
+        var incomingKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var prop in rules.EnumerateObject())
+        {
+            incomingKeys.Add(prop.Name);
+
+            if (!typeRuleByKey.TryGetValue(prop.Name, out var typeRule))
+            {
+                return ResultError.InvalidInput(
+                    "QuestionTypeRule",
+                    $"The rule '{prop.Name}' is not defined for the question type '{questionType.KeyName.Value}'.");
+            }
+
+            if (!TryConvertScalar(prop.Name, prop.Value, "Rules", out var valueToStore, out var convertError))
+            {
+                return convertError!;
+            }
+
+            if (typeRule.IsRequired && string.IsNullOrWhiteSpace(valueToStore))
+            {
+                return ResultError.InvalidInput(
+                    "Rule",
+                    $"Rule '{prop.Name}' on question type '{questionType.KeyName.Value}' must have a non-empty value.");
+            }
+
+            if (existingValueByTypeRuleId.TryGetValue(typeRule.Id, out var existing))
+            {
+                existing.Update(valueToStore);
+            }
+            else
+            {
+                var createdResult = QuestionRuleValueDomain.Create(
+                    Id,
+                    typeRule.Id,
+                    valueToStore);
+
+                if (createdResult.IsFailure)
+                {
+                    return Result.Failure(ResultType.DomainValidation, createdResult.Errors);
+
+                }
+
+                QuestionRuleValue.Add(createdResult.Value);
+            }
+        }
+
+        //Ensure required rules exist in payload(same semantics as your properties method)
+        foreach (var rr in requiredRules)
+        {
+            if (!incomingKeys.Contains(rr.KeyName.Value))
+            {
+                return ResultError.InvalidInput(
+                    "Rule",
+                    $"Question type '{questionType.KeyName.Value}' requires rule '{rr.KeyName.Value}'.");
+            }
+        }
+
+        var keyByTypeRuleId = questionType.QuestionTypeRules
+            .ToDictionary(x => x.Id, x => x.Rule.KeyName.Value);
+
+        foreach (var existing in QuestionRuleValue.Where(x => !x.IsDeleted))
+        {
+            if (!keyByTypeRuleId.TryGetValue(existing.IdQuestionTypeRule, out var key))
+            {
+                existing.MarkDeleted();
+                continue;
+            }
+
+            if (!incomingKeys.Contains(key))
+            {
+                existing.MarkDeleted();
+            }
+        }
+
+        return Result.Success();
+    }
+
     public Result ApplyAttributeChanges(JsonElement properties, QuestionTypeDomain questionType)
     {
         if (IdQuestionType != questionType.Id)
@@ -43,6 +173,30 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
             return ResultError.InvalidOperation(
                 "QuestionTypeMismatch",
                 "The provided question type does not match the question's current type.");
+        }
+        var requiredAttributes = questionType.QuestionTypeAttributes
+                                    .Where(x => x.IsRequired)
+                                    .Select(x => x.Attribute)
+                                    .DistinctBy(a => a.KeyName.Value)
+                                    .ToList();
+
+        var hasRequiredAttributes = requiredAttributes.Count > 0;
+
+        if (properties.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+        {
+            if (hasRequiredAttributes)
+            {
+                return ResultError.InvalidInput(
+                    "Properties",
+                    $"Question type '{questionType.KeyName.Value}' has required attributes; 'properties' cannot be null/undefined.");
+            }
+            //Clear existing attributes where no properties provided
+            foreach (var existing in QuestionAttributeValue.Where(x => !x.IsDeleted))
+            {
+                existing.MarkDeleted();
+            }
+
+            return Result.Success();
         }
 
         if (properties.ValueKind != JsonValueKind.Object)
@@ -75,41 +229,17 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
                     $"The attribute '{prop.Name}' is not defined for the question type '{questionType.KeyName}'.");
             }
 
-            string? valueToStore;
 
-            switch (prop.Value.ValueKind)
+            if (!TryConvertScalar(prop.Name, prop.Value, "Properties", out var valueToStore, out var convertError))
             {
-                case JsonValueKind.Undefined:
-                case JsonValueKind.Null:
-                    valueToStore = null;
-                    break;
+                return convertError!;
+            }
 
-                case JsonValueKind.String:
-                    valueToStore = prop.Value.GetString();
-                    break;
-
-                case JsonValueKind.Number:
-                    valueToStore = prop.Value.GetRawText();
-                    break;
-
-                case JsonValueKind.True:
-                    valueToStore = "true";
-                    break;
-
-                case JsonValueKind.False:
-                    valueToStore = "false";
-                    break;
-
-                case JsonValueKind.Array:
-                case JsonValueKind.Object:
-                    return ResultError.InvalidInput(
-                        "Properties",
-                        $"Attribute '{prop.Name}' does not support arrays or objects."
-                    );
-
-                default:
-                    valueToStore = prop.Value.ToString();
-                    break;
+            if (typeAttr.IsRequired && string.IsNullOrWhiteSpace(valueToStore))
+            {
+                return ResultError.InvalidInput(
+                    "Properties",
+                    $"Property '{prop.Name}' on question type '{questionType.KeyName.Value}' must have a non-empty value.");
             }
 
             if (existingValueByTypeAttrId.TryGetValue(typeAttr.Id, out var existing))
@@ -131,6 +261,16 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
                 QuestionAttributeValue.Add(createdResult.Value);
             }
         }
+        foreach (var ra in requiredAttributes)
+        {
+            if (!incomingKeys.Contains(ra.KeyName.Value))
+            {
+                return ResultError.InvalidInput(
+                    "Properties",
+                    $"Question type '{questionType.KeyName.Value}' requires property '{ra.KeyName.Value}'.");
+            }
+        }
+
         var keyByAttrId = questionType.QuestionTypeAttributes
                                 .ToDictionary(x => x.Id, x => x.Attribute.KeyName.Value);
 
@@ -151,5 +291,52 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
 
 
         return Result.Success();
+    }
+
+    private static bool TryConvertScalar(
+        string key,
+        JsonElement value,
+        string payloadName,
+        out string? valueToStore,
+        out Result? error
+)
+    {
+        valueToStore = null;
+        error = null;
+
+        switch (value.ValueKind)
+        {
+            case JsonValueKind.Undefined:
+            case JsonValueKind.Null:
+                valueToStore = null;
+                return true;
+
+            case JsonValueKind.String:
+                valueToStore = value.GetString();
+                return true;
+
+            case JsonValueKind.Number:
+                valueToStore = value.GetRawText();
+                return true;
+
+            case JsonValueKind.True:
+                valueToStore = "true";
+                return true;
+
+            case JsonValueKind.False:
+                valueToStore = "false";
+                return true;
+
+            case JsonValueKind.Array:
+            case JsonValueKind.Object:
+                error = ResultError.InvalidInput(
+                    payloadName,
+                    $"Key '{key}' does not support arrays or objects.");
+                return false;
+
+            default:
+                valueToStore = value.ToString();
+                return true;
+        }
     }
 }
