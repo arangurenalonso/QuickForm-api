@@ -25,7 +25,8 @@ internal sealed class FormStructureSave : IEndpoint
                     x.Question.Select(q => new QuestionDto(
                             q.Id,
                             q.Type,
-                            q.Properties
+                            q.Properties,
+                            q.Rules
                         )).ToList()
                 )).ToList();
             var result = await sender.Send(new SaveFormStructureCommand(
@@ -54,5 +55,6 @@ internal sealed class FormStructureSave : IEndpoint
 
         // Usamos JsonElement para representar datos dinámicos (más eficiente que Dictionary<string, object>)
         public JsonElement Properties { get; set; }
+        public JsonElement Rules { get; set; }
     }
 }
