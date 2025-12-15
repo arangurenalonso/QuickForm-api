@@ -21,10 +21,3 @@ public sealed record QuestionDto(
         JsonElement Properties,
         JsonElement Rules
     );
-
-public class QuestionSectionDto
-{
-    public Guid IdSection { get; set; }
-    public QuestionDto Question { get; set; }
-    public int Order { get; set; }
-}
