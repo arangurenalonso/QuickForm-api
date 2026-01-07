@@ -37,6 +37,11 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
         return Result.Success();
     }
 
+    public Result MoveToSection(FormSectionId newSectionId)
+    {
+        IdFormSection = newSectionId;
+        return Result.Success();
+    }
 
     public Result ApplyRuleChanges(JsonElement rules, QuestionTypeDomain questionType)
     {

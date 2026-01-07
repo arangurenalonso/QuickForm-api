@@ -54,24 +54,7 @@ public class FormDomain : BaseDomainEntity<FormId>
 
         return newForm;
     }
-    private Result EnsureCanUpdate()
-    {
-        var allowed = new[] { FormStatusType.Draft, FormStatusType.Paused };
-        var isAllowed = allowed.Any(s => s.GetId() == IdStatus.Value);
-
-        if (isAllowed)
-        {
-            return Result.Success();
-
-        }
-
-        var allowedNames = string.Join(", ", allowed);
-        return ResultError.InvalidOperation(
-            "FormStatus",
-            $"The form '{Name.Value}' cannot be updated because its current status is '{Status.KeyName}'. Allowed: {allowedNames}."
-        );
-    }
-
+    
     public Result ApplySectionsChanges(
             IReadOnlyCollection<(Guid Id, 
                                 string Title, 
@@ -89,45 +72,119 @@ public class FormDomain : BaseDomainEntity<FormId>
 
         incomingSections ??= Array.Empty<(Guid Id, string Title, string Description, List<(Guid Id, JsonElement Properties, JsonElement Rules, QuestionTypeDomain QuestionType)> Questions)>();
 
-        var duplicatedIds = incomingSections
+        
+        var resultValidateSections = ValidateIncomingSectionsAndQuestions(incomingSections);
+        if (resultValidateSections.IsFailure)
+        {
+            return resultValidateSections;
+        }
+
+        var resultUpdateBasicSectionsInformation = UpdateBasicSectionsInformation(incomingSections);
+        if (resultUpdateBasicSectionsInformation.IsFailure)
+        {
+            return resultUpdateBasicSectionsInformation;
+        }
+
+        var resultRelocateExistingQuestionsToSections = RelocateExistingQuestionsToSections(incomingSections);
+        if (resultRelocateExistingQuestionsToSections.IsFailure)
+        {
+            return resultRelocateExistingQuestionsToSections;
+        }
+
+        var resultUpdateQuestionsSections = UpdateQuestionsSections(incomingSections);
+        if (resultUpdateQuestionsSections.IsFailure)
+        {
+            return resultUpdateQuestionsSections;
+        }
+
+        return Result.Success();
+    }
+    private Result EnsureCanUpdate()
+    {
+        var allowed = new[] { FormStatusType.Draft, FormStatusType.Paused };
+        var isAllowed = allowed.Any(s => s.GetId() == IdStatus.Value);
+
+        if (isAllowed)
+        {
+            return Result.Success();
+
+        }
+
+        var allowedNames = string.Join(", ", allowed);
+        return ResultError.InvalidOperation(
+            "FormStatus",
+            $"The form '{Name.Value}' cannot be updated because its current status is '{Status.KeyName}'. Allowed: {allowedNames}."
+        );
+    }
+    private Result ValidateIncomingSectionsAndQuestions(
+        IReadOnlyCollection<(Guid Id,
+                             string Title,
+                             string Description,
+                             List<(Guid Id, JsonElement Properties, JsonElement Rules, QuestionTypeDomain QuestionType)> Questions
+                            )> incomingSections
+    )
+    {
+        var duplicatedSectionIds = incomingSections
             .GroupBy(s => s.Id)
             .Where(g => g.Count() > 1)
             .Select(g => g.Key)
             .ToList();
 
-        if (duplicatedIds.Count > 0)
+        if (duplicatedSectionIds.Count > 0)
         {
             return ResultError.InvalidOperation(
                 "DuplicateSectionIds",
-                $"Incoming sections contain duplicated Ids: {string.Join(", ", duplicatedIds)}");
+                $"Incoming sections contain duplicated Ids: {string.Join(", ", duplicatedSectionIds)}");
         }
 
-        var existingById = Sections
-                              .Where(s => !s.IsDeleted) 
+        var incomingQuestionIds = incomingSections
+            .SelectMany(s => (s.Questions ?? []).Select(q => q.Id))
+            .ToList();
+
+        var duplicatedQuestionIds = incomingQuestionIds
+            .GroupBy(id => id)
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key)
+            .ToList();
+
+        if (duplicatedQuestionIds.Count > 0)
+        {
+            return ResultError.InvalidOperation(
+                "DuplicateQuestionIds",
+                $"Incoming questions contain duplicated Ids across sections: {string.Join(", ", duplicatedQuestionIds)}");
+        }
+
+        return Result.Success();
+    }
+
+    private Result UpdateBasicSectionsInformation(
+            IReadOnlyCollection<(Guid Id,
+                                string Title,
+                                string Description,
+                                List<(Guid Id, JsonElement Properties, JsonElement Rules, QuestionTypeDomain QuestionType)> Questions
+                            )> incomingSections
+        )
+    {
+        var activeSectionsById = Sections
+                              .Where(s => !s.IsDeleted)
                               .ToDictionary(s => s.Id.Value, s => s);
 
-        var incomingIds = incomingSections.Select(s => s.Id).ToHashSet();
-        foreach (var section in Sections.Where(s => !s.IsDeleted && !incomingIds.Contains(s.Id.Value)))
+        var incomingSectionIds = incomingSections.Select(s => s.Id).ToHashSet();
+        foreach (var section in Sections.Where(s => !s.IsDeleted && !incomingSectionIds.Contains(s.Id.Value)))
         {
             section.MarkDeleted();
         }
 
-        var order = 1;
+        var orderSection = 1;
         foreach (var dto in incomingSections)
         {
-            if (existingById.TryGetValue(dto.Id, out var existing))
+            if (activeSectionsById.TryGetValue(dto.Id, out var existing))
             {
-                var updateResult = existing.Update(order, dto.Title, dto.Description);
+                var updateResult = existing.Update(orderSection, dto.Title, dto.Description);
                 if (updateResult.IsFailure)
                 {
                     return updateResult;
                 }
-                var questionChangesResult = existing.ApplyQuestionChanges(dto.Questions);
-                if (questionChangesResult.IsFailure)
-                {
-                    return questionChangesResult;
-                }
-
             }
             else
             {
@@ -138,25 +195,116 @@ public class FormDomain : BaseDomainEntity<FormId>
                     Id,
                     dto.Title,
                     dto.Description,
-                    order);
+                    orderSection);
 
                 if (createResult.IsFailure)
                 {
                     return Result.Failure(ResultType.DomainValidation, createResult.Errors);
                 }
-
-                var questionChangesResult = createResult.Value.ApplyQuestionChanges(dto.Questions);
-                if (questionChangesResult.IsFailure)
-                {
-                    return questionChangesResult.Errors;
-                }
                 Sections.Add(createResult.Value);
+                activeSectionsById[idSection.Value] = createResult.Value;
             }
 
-            order++;
+            orderSection++;
         }
         return Result.Success();
     }
+
+    private Result RelocateExistingQuestionsToSections(
+            IReadOnlyCollection<(Guid Id,
+                                string Title,
+                                string Description,
+                                List<(Guid Id, JsonElement Properties, JsonElement Rules, QuestionTypeDomain QuestionType)> Questions
+                            )> incomingSections
+        )
+    {
+        incomingSections ??= Array.Empty<(Guid Id, string Title, string Description, List<(Guid Id, JsonElement Properties, JsonElement Rules, QuestionTypeDomain QuestionType)> Questions)>();
+
+        var targetSectionsById = Sections
+            .Where(s => !s.IsDeleted)
+            .ToDictionary(s => s.Id.Value, s => s);
+
+        var allSectionsById = Sections
+            .ToDictionary(s => s.Id.Value, s => s);
+
+
+        var activeQuestionsById = Sections
+                                    .SelectMany(s => s.Questions.Where(q => !q.IsDeleted))
+                                    .ToDictionary(q => q.Id.Value, q => q);
+
+        foreach (var incomingSection in incomingSections)
+        {
+            if (!targetSectionsById.TryGetValue(incomingSection.Id, out var targetSection))
+            {
+                return ResultError.InvalidOperation(
+                    "SectionNotFound",
+                    $"Incoming section '{incomingSection.Id}' was not found among active sections.");
+            }
+
+            foreach (var incomingQuestion in incomingSection.Questions ?? [])
+            {
+                if (!activeQuestionsById.TryGetValue(incomingQuestion.Id, out var existingQuestion))
+                {
+                    continue;
+                }
+
+                var currentSectionId = existingQuestion.IdFormSection.Value;
+
+                if (currentSectionId == targetSection.Id.Value)
+                {
+                    continue;
+                }
+
+                if (allSectionsById.TryGetValue(currentSectionId, out var currentSection))
+                {
+                    currentSection.Questions.Remove(existingQuestion);
+                }
+
+                var moveResult = existingQuestion.MoveToSection(targetSection.Id);
+                if (moveResult.IsFailure)
+                {
+                    return moveResult;
+                }
+                if (!targetSection.Questions.Any(q => q.Id.Value == existingQuestion.Id.Value))
+                {
+                    targetSection.Questions.Add(existingQuestion);
+                }
+            }
+        }
+        return Result.Success();
+    }
+
+    private Result UpdateQuestionsSections(
+            IReadOnlyCollection<(Guid Id,
+                                string Title,
+                                string Description,
+                                List<(Guid Id, JsonElement Properties, JsonElement Rules, QuestionTypeDomain QuestionType)> Questions
+                            )> incomingSections
+        )
+    {
+        var activeSectionsById = Sections
+                              .Where(s => !s.IsDeleted)
+                              .ToDictionary(s => s.Id.Value, s => s);
+        foreach (var dto in incomingSections)
+        {
+
+            if (!activeSectionsById.TryGetValue(dto.Id, out var existing))
+            {
+                return ResultError.InvalidOperation(
+                    "SectionNotFound",
+                    $"Incoming section '{dto.Id}' was not found among active sections.");
+            }
+
+            var questionChangesResult = existing.ApplyQuestionChanges(dto.Questions ?? []);
+            if (questionChangesResult.IsFailure)
+            {
+                return questionChangesResult;
+            }
+        }
+        return Result.Success();
+    }
+    
+    
     public Result Update(string name, string? description)
     {
 
