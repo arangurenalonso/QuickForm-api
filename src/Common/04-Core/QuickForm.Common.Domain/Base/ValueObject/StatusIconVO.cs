@@ -26,7 +26,7 @@ public sealed class StatusIconVO
             "Square",
             "MinusCircle",
             "PlusCircle",
-
+            "FilePenLine",
             "Loader2",
             "Clock",
             "PauseCircle",
@@ -36,6 +36,7 @@ public sealed class StatusIconVO
             "Shield",
             "ShieldAlert",
             "ShieldCheck",
+            "BarChartLine"
         };
 
     public static ResultT<StatusIconVO> Create(string? value)

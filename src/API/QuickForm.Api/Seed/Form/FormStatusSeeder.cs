@@ -42,7 +42,10 @@ internal sealed class FormStatusSeeder(SurveyDbContext _context, ILogger<Databas
                 newDomain.ClassOrigin = GetType().Name;
                 _context.Set<FormStatusDomain>().Add(newDomain);
             }
-            else if (existingDomain.KeyName.Value != enumType.KeyName)
+            else if (existingDomain.KeyName.Value != enumType.KeyName ||
+                    existingDomain.Icon?.Value != enumType.Icon ||
+                    existingDomain.Color.Value != enumType.Color 
+                )
             {
                 existingDomain.ClassOrigin = GetType().Name;
                 existingDomain.Update(

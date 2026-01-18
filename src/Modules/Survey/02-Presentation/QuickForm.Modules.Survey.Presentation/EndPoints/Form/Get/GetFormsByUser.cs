@@ -11,11 +11,9 @@ internal sealed class GetFormsByUser : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("me/forms", async (Guid idForm, ISender sender) =>
+        app.MapGet("me/forms", async (ISender sender) =>
         {
-            var result = await sender.Send(new GetFormStructureQuery(
-                    idForm
-                ));
+            var result = await sender.Send(new GetMyFormsQuery());
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .RequireAuthorization()
