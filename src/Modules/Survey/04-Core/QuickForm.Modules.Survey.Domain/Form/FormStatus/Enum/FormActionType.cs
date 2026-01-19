@@ -24,6 +24,6 @@ public enum FormActionType
     FormResume = 5,
 
     [Id("40D5DD5A-EBCB-48F3-A36E-3822459249C8")]
-    [Name("ViewResponses")]
-    ViewResponses = 6,
+    [Name("ViewSubmissions")]
+    ViewSubmissions = 6,
 }
