@@ -43,7 +43,7 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
         return Result.Success();
     }
 
-    public Result ApplyRuleChanges(JsonElement rules, QuestionTypeDomain questionType)
+    public Result ApplyRuleChanges(Dictionary<string, ValidationRule>? rules, QuestionTypeDomain questionType)
     {
         if (IdQuestionType != questionType.Id)
         {
@@ -60,7 +60,7 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
 
         var hasRequiredRules = requiredRules.Count > 0;
 
-        if (rules.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+        if (rules is null || rules.Count == 0)
         {
             if (hasRequiredRules)
             {
@@ -68,20 +68,13 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
                     "Rules",
                     $"Question type '{questionType.KeyName.Value}' has required rules; 'rules' cannot be null/undefined.");
             }
-            //Clear all existing rules when incoming is null/undefined
+
             foreach (var existing in QuestionRuleValue.Where(x => !x.IsDeleted))
             {
                 existing.MarkDeleted();
             }
 
             return Result.Success();
-        }
-
-        if (rules.ValueKind != JsonValueKind.Object)
-        {
-            return ResultError.InvalidInput(
-                "Rules",
-                "Rules must be a JSON object (e.g., { \"min\": 3, \"required\": true }).");
         }
 
         var typeRuleByKey = questionType.QuestionTypeRules
@@ -96,18 +89,18 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
 
         var incomingKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var prop in rules.EnumerateObject())
+        foreach (var (ruleKey, incomingRule) in rules)
         {
-            incomingKeys.Add(prop.Name);
+            incomingKeys.Add(ruleKey);
 
-            if (!typeRuleByKey.TryGetValue(prop.Name, out var typeRule))
+            if (!typeRuleByKey.TryGetValue(ruleKey, out var typeRule))
             {
                 return ResultError.InvalidInput(
                     "QuestionTypeRule",
-                    $"The rule '{prop.Name}' is not defined for the question type '{questionType.KeyName.Value}'.");
+                    $"The rule '{ruleKey}' is not defined for the question type '{questionType.KeyName.Value}'.");
             }
 
-            if (!TryConvertScalar(prop.Name, prop.Value, "Rules", out var valueToStore, out var convertError))
+            if (!TryConvertScalar(ruleKey, incomingRule.Value, "Rules", out var valueToStore, out var convertError))
             {
                 return convertError!;
             }
@@ -116,8 +109,13 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
             {
                 return ResultError.InvalidInput(
                     "Rule",
-                    $"Rule '{prop.Name}' on question type '{questionType.KeyName.Value}' must have a non-empty value.");
+                    $"Rule '{ruleKey}' on question type '{questionType.KeyName.Value}' must have a non-empty value.");
             }
+
+            string messageToStore = string.IsNullOrWhiteSpace(incomingRule.Message) 
+                                            ? typeRule.DefaultValidationMessage
+                                            : incomingRule.Message;
+            
 
             if (existingValueByTypeRuleId.TryGetValue(typeRule.Id, out var existing))
             {
@@ -128,7 +126,8 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
                 var createdResult = QuestionRuleValueDomain.Create(
                     Id,
                     typeRule.Id,
-                    valueToStore);
+                    valueToStore,
+                    messageToStore);
 
                 if (createdResult.IsFailure)
                 {
@@ -140,7 +139,6 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
             }
         }
 
-        //Ensure required rules exist in payload(same semantics as your properties method)
         foreach (var rr in requiredRules)
         {
             if (!incomingKeys.Contains(rr.KeyName.Value))
@@ -195,7 +193,7 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
                     "Properties",
                     $"Question type '{questionType.KeyName.Value}' has required attributes; 'properties' cannot be null/undefined.");
             }
-            //Clear existing attributes where no properties provided
+
             foreach (var existing in QuestionAttributeValue.Where(x => !x.IsDeleted))
             {
                 existing.MarkDeleted();

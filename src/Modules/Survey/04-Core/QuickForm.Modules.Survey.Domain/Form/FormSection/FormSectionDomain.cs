@@ -76,10 +76,10 @@ public class FormSectionDomain : BaseDomainEntity<FormSectionId>
         return Result.Success();
     }
     public Result ApplyQuestionChanges(
-        IReadOnlyCollection<(Guid Id, JsonElement Properties, JsonElement Rules, QuestionTypeDomain QuestionType)> incomingQuestions
+        IReadOnlyCollection<(Guid Id, JsonElement Properties, Dictionary<string, ValidationRule>? Rules, QuestionTypeDomain QuestionType)> incomingQuestions
         )
     {
-        incomingQuestions ??= Array.Empty<(Guid Id, JsonElement Properties, JsonElement Rules, QuestionTypeDomain QuestionType)>();
+        incomingQuestions ??= Array.Empty<(Guid Id, JsonElement Properties, Dictionary<string, ValidationRule>? Rules, QuestionTypeDomain QuestionType)>();
         var duplicatedIds = incomingQuestions
                                   .GroupBy(q => q.Id)
                                   .Where(g => g.Count() > 1)

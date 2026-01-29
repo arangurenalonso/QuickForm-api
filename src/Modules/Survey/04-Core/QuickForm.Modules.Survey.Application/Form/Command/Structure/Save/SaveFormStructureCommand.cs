@@ -8,7 +8,7 @@ public sealed record SaveFormStructureCommand(
     )
     : ICommand<ResultResponse>;
 
-public sealed record SectionDto(
+public sealed record SectionDto( 
         Guid Id,
         string Title,
         string Description,
@@ -19,5 +19,9 @@ public sealed record QuestionDto(
         Guid Id,
         string Type,
         JsonElement Properties,
-        JsonElement Rules
+        Dictionary<string, RuleDto>? Rules 
+    );
+public sealed record RuleDto(
+        JsonElement Value,
+        string? Message
     );

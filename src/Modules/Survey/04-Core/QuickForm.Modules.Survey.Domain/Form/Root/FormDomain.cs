@@ -59,7 +59,12 @@ public class FormDomain : BaseDomainEntity<FormId>
             IReadOnlyCollection<(Guid Id, 
                                 string Title, 
                                 string Description,
-                                List<(Guid Id, JsonElement Properties,JsonElement Rules, QuestionTypeDomain QuestionType)> Questions  
+                                List<(
+                                    Guid Id, 
+                                    JsonElement Properties,
+                                    Dictionary<string, ValidationRule>? Rules, 
+                                    QuestionTypeDomain QuestionType
+                                    )> Questions  
                             )> incomingSections
         )
     {
@@ -70,7 +75,7 @@ public class FormDomain : BaseDomainEntity<FormId>
             return guard;
         }
 
-        incomingSections ??= Array.Empty<(Guid Id, string Title, string Description, List<(Guid Id, JsonElement Properties, JsonElement Rules, QuestionTypeDomain QuestionType)> Questions)>();
+        incomingSections ??= Array.Empty<(Guid Id, string Title, string Description, List<(Guid Id, JsonElement Properties, Dictionary<string, ValidationRule>? Rules, QuestionTypeDomain QuestionType)> Questions)>();
 
         
         var resultValidateSections = ValidateIncomingSectionsAndQuestions(incomingSections);
@@ -120,7 +125,7 @@ public class FormDomain : BaseDomainEntity<FormId>
         IReadOnlyCollection<(Guid Id,
                              string Title,
                              string Description,
-                             List<(Guid Id, JsonElement Properties, JsonElement Rules, QuestionTypeDomain QuestionType)> Questions
+                             List<(Guid Id, JsonElement Properties, Dictionary<string, ValidationRule>? Rules, QuestionTypeDomain QuestionType)> Questions
                             )> incomingSections
     )
     {
@@ -161,7 +166,7 @@ public class FormDomain : BaseDomainEntity<FormId>
             IReadOnlyCollection<(Guid Id,
                                 string Title,
                                 string Description,
-                                List<(Guid Id, JsonElement Properties, JsonElement Rules, QuestionTypeDomain QuestionType)> Questions
+                                List<(Guid Id, JsonElement Properties, Dictionary<string, ValidationRule>? Rules, QuestionTypeDomain QuestionType)> Questions
                             )> incomingSections
         )
     {
@@ -214,11 +219,11 @@ public class FormDomain : BaseDomainEntity<FormId>
             IReadOnlyCollection<(Guid Id,
                                 string Title,
                                 string Description,
-                                List<(Guid Id, JsonElement Properties, JsonElement Rules, QuestionTypeDomain QuestionType)> Questions
+                                List<(Guid Id, JsonElement Properties, Dictionary<string, ValidationRule>? Rules, QuestionTypeDomain QuestionType)> Questions
                             )> incomingSections
         )
     {
-        incomingSections ??= Array.Empty<(Guid Id, string Title, string Description, List<(Guid Id, JsonElement Properties, JsonElement Rules, QuestionTypeDomain QuestionType)> Questions)>();
+        incomingSections ??= Array.Empty<(Guid Id, string Title, string Description, List<(Guid Id, JsonElement Properties, Dictionary<string, ValidationRule>? Rules, QuestionTypeDomain QuestionType)> Questions)>();
 
         var targetSectionsById = Sections
             .Where(s => !s.IsDeleted)
@@ -278,7 +283,7 @@ public class FormDomain : BaseDomainEntity<FormId>
             IReadOnlyCollection<(Guid Id,
                                 string Title,
                                 string Description,
-                                List<(Guid Id, JsonElement Properties, JsonElement Rules, QuestionTypeDomain QuestionType)> Questions
+                                List<(Guid Id, JsonElement Properties, Dictionary<string, ValidationRule>? Rules, QuestionTypeDomain QuestionType)> Questions
                             )> incomingSections
         )
     {

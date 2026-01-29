@@ -5,5 +5,9 @@ public sealed record QuestionToValidate(
             Guid Id, 
             string Type, 
             JsonElement Properties,
-            JsonElement Rules
+            Dictionary<string, ValidationRule>? Rules
         );
+public sealed record ValidationRule(
+    JsonElement Value,
+    string? Message 
+);

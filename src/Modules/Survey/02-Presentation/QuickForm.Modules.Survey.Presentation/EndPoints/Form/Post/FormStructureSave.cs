@@ -26,7 +26,13 @@ internal sealed class FormStructureSave : IEndpoint
                             q.Id,
                             q.Type,
                             q.Properties,
-                            q.Rules
+                            q.Rules?.ToDictionary(
+                                kvp => kvp.Key,
+                                kvp => new RuleDto( 
+                                                kvp.Value.Value, 
+                                                kvp.Value.Message ?? string.Empty
+                                            )
+                            )
                         )).ToList()
                 )).ToList();
             var result = await sender.Send(new SaveFormStructureCommand(
@@ -45,16 +51,21 @@ internal sealed class FormStructureSave : IEndpoint
         public Guid Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public List<FormQuestionRegisterDtoRequest> Question { get; set; }
+        public List<FormQuestionRegisterRequestDto> Question { get; set; }
     }
 
-    internal sealed class FormQuestionRegisterDtoRequest
+    internal sealed class FormQuestionRegisterRequestDto
     {
         public Guid Id { get; set; }
         public string Type { get; set; } = string.Empty;
 
         // Usamos JsonElement para representar datos dinámicos (más eficiente que Dictionary<string, object>)
         public JsonElement Properties { get; set; }
-        public JsonElement Rules { get; set; }
+        public Dictionary<string, RuleRequestDto>? Rules { get; set; } = new();
+    }
+    internal sealed class RuleRequestDto
+    {
+        public JsonElement Value { get; set; }   // admite bool, number, string, etc.
+        public string? Message { get; set; } =string.Empty;
     }
 }

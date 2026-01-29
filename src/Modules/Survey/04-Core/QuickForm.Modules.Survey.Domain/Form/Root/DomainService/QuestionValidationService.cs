@@ -103,7 +103,7 @@ public class QuestionValidationService
 
         var hasRequiredRules = requiredRules.Count > 0;
 
-        if (question.Rules.ValueKind is JsonValueKind.Undefined or JsonValueKind.Null)
+        if (question.Rules is null || question.Rules.Count == 0)
         {
             if (!hasRequiredRules)
             {
@@ -119,26 +119,14 @@ public class QuestionValidationService
             );
         }
 
-        if (question.Rules.ValueKind != JsonValueKind.Object)
-        {
-            return Result.Failure(
-                ResultType.ModelDataValidation,
-                ResultError.InvalidInput(
-                    "Rules",
-                    $"Question '{question.Id}' of type '{question.Type}' must include 'rules' as a JSON object."
-                )
-            );
-        }
 
-        var rulesMap = ToPropertyMap(question.Rules);
-
-        var requiredResult = ValidateRequiredRules(questionTypeDomain, rulesMap, requiredRules);
+        var requiredResult = ValidateRequiredRules(questionTypeDomain, question.Rules, requiredRules);
         if (requiredResult.IsFailure)
         {
             return requiredResult;
         }
 
-        var typesResult = ValidateDataTypesOfRules(questionTypeDomain, rulesMap);
+        var typesResult = ValidateDataTypesOfRules(questionTypeDomain, question.Rules);
         if (typesResult.IsFailure)
         {
             return typesResult;
@@ -149,14 +137,14 @@ public class QuestionValidationService
 
     private Result ValidateRequiredRules(
         QuestionTypeDomain questionTypeDomain,
-        Dictionary<string, JsonElement> rulesMap,
+        Dictionary<string, ValidationRule> rulesMap,
         List<RuleDomain> requiredRules
     )
     {
 
         foreach (var rule in requiredRules)
         {
-            if (!rulesMap.TryGetValue(rule.KeyName.Value, out var value))
+            if (!rulesMap.TryGetValue(rule.KeyName.Value, out var ruleValue))
             {
                 return Result.Failure(
                     ResultType.ModelDataValidation,
@@ -167,7 +155,7 @@ public class QuestionValidationService
                 );
             }
 
-            if (IsNullOrEmpty(value))
+            if (IsNullOrEmpty(ruleValue.Value))
             {
                 return Result.Failure(
                     ResultType.ModelDataValidation,
@@ -184,7 +172,7 @@ public class QuestionValidationService
 
     private Result ValidateDataTypesOfRules(
         QuestionTypeDomain questionTypeDomain,
-        Dictionary<string, JsonElement> rulesMap
+        Dictionary<string, ValidationRule> rulesMap
     )
     {
         var rulesByName = questionTypeDomain.QuestionTypeRules
@@ -192,7 +180,7 @@ public class QuestionValidationService
             .DistinctBy(r => r.KeyName.Value)
             .ToDictionary(r => r.KeyName.Value, StringComparer.OrdinalIgnoreCase);
 
-        foreach (var (ruleName, value) in rulesMap)
+        foreach (var (ruleName, ruleValue) in rulesMap)
         {
             if (!rulesByName.TryGetValue(ruleName, out var ruleDomain))
             {
@@ -207,7 +195,7 @@ public class QuestionValidationService
 
             var dataTypeName = ruleDomain.DataType.Description.Value;
 
-            var validateResult = ValidateDataType(ruleName, dataTypeName, value);
+            var validateResult = ValidateDataType(ruleName, dataTypeName, ruleValue.Value);
             if (validateResult.IsFailure)
             {
                 return validateResult;

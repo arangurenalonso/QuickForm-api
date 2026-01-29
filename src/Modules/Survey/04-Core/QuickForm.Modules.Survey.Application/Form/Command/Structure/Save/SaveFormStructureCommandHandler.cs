@@ -37,7 +37,20 @@ internal sealed class SaveFormStructureCommandHandler(
 
         List<QuestionTypeDomain> questionsType = questionsTypeResult.Value;
 
-        var questionsDto = questions.Select(q =>new QuestionToValidate(q.Id, q.Type, q.Properties, q.Rules)).ToList();
+        var questionsDto = questions.Select(q =>
+                                        new QuestionToValidate(
+                                                q.Id, 
+                                                q.Type, 
+                                                q.Properties,
+                                                q.Rules?.ToDictionary(
+                                                        kvp => kvp.Key,
+                                                        kvp => new ValidationRule(
+                                                            kvp.Value.Value,
+                                                            kvp.Value.Message ?? string.Empty
+                                                        )
+                                                    )
+                                                )
+                                        ).ToList();
 
         var validatePropertiesResult = new QuestionValidationService().Validate(questionsDto, questionsType);
         if (validatePropertiesResult.IsFailure)
@@ -54,12 +67,19 @@ internal sealed class SaveFormStructureCommandHandler(
                                                 .Select(q => (
                                                     q.Id,
                                                     q.Properties,
-                                                    q.Rules,
+                                                    q.Rules?.ToDictionary(
+                                                            kvp => kvp.Key,
+                                                            kvp => new ValidationRule(
+                                                                kvp.Value.Value,
+                                                                kvp.Value.Message ?? string.Empty
+                                                            )
+                                                        ),
                                                     questionsType.First( qt => qt.KeyName.Value == q.Type)
                                                 ))
                                                 .ToList()
                                         ))
                                         .ToList();
+
         var applyResult = formDomain.ApplySectionsChanges(incomingSections);
         if (applyResult.IsFailure)
         {
