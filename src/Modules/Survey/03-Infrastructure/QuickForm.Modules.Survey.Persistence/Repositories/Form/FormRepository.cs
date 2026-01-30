@@ -25,20 +25,4 @@ public class FormRepository(
                                 .FirstOrDefaultAsync(u => u.Id == formId && !u.IsDeleted, cancellationToken);
     }
 
-    public async Task<List<FormSectionDomain>> GetStructureFormAsync(Guid id, bool asNoTracking, CancellationToken cancellationToken = default)
-    {
-        FormId formId = new FormId(id);
-        var query = _context
-                        .Set<FormSectionDomain>()
-                        .Include(x => x.Questions.Where(section => !section.IsDeleted))
-                            .ThenInclude(x => x.QuestionAttributeValue.Where(q => !q.IsDeleted))
-                        .AsSplitQuery()
-                        .Where(u => u.IdForm == formId && !u.IsDeleted);
-
-        if (asNoTracking)
-        {
-            query = query.AsNoTracking();
-        }
-        return await query.ToListAsync(cancellationToken);
-    }
 }

@@ -31,8 +31,11 @@ public class QuestionTypeRepository(
     {
         var query = _context.QuestionType
             .Include(x => x.QuestionTypeAttributes)
-            .ThenInclude(x => x.Attribute)
-            .ThenInclude(x => x.DataType)
+                .ThenInclude(x => x.Attribute)
+                .ThenInclude(x => x.DataType)
+            .Include(x => x.QuestionTypeRules)
+                .ThenInclude(x => x.Rule)
+                .ThenInclude(x => x.DataType)
             .Where(x => !x.IsDeleted && questionTypeIds.Contains(x.Id));
         if (asNoTracking)
         {

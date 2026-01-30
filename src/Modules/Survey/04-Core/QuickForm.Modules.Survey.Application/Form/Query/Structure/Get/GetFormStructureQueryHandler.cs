@@ -1,12 +1,13 @@
 ﻿using System.Text.Json;
 using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
+using QuickForm.Modules.Survey.Application.Forms.Queries;
 using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Application;
 internal sealed class GetFormStructureQueryHandler(
     IQuestionTypeRepository _questionTypeRepository,
-    IFormRepository _formRepository, 
+    IFormQueries _formQuery,
     IUnitOfWork _unitOfWork)
     : IQueryHandler<GetFormStructureQuery, List<FormStructureSectionReponse>>
 {
@@ -19,7 +20,7 @@ internal sealed class GetFormStructureQueryHandler(
             var error = ResultError.NullValue("FormId", $"Form with id '{request.IdForm}' not found.");
             return ResultT<List<FormStructureSectionReponse>>.FailureT(ResultType.NotFound, error);
         }
-        List<FormSectionDomain> formSections = await _formRepository.GetStructureFormAsync(request.IdForm, true, cancellationToken);
+        List<FormSectionDomain> formSections = await _formQuery.GetStructureFormAsync(request.IdForm, true, cancellationToken);
 
         List<QuestionDomain> questions = formSections.SelectMany(x=>x.Questions).ToList();
         var questionsTypeResult = await GetQuestionType(questions, cancellationToken);
@@ -35,103 +36,165 @@ internal sealed class GetFormStructureQueryHandler(
 
     }
     private ResultT<List<FormStructureSectionReponse>> MapSections(
-    List<FormSectionDomain> formSections,
-    List<QuestionTypeDomain> questionsType)
+            List<FormSectionDomain> formSections,
+            List<QuestionTypeDomain> questionsType
+        )
     {
-        var formStructureSectionsReponse = new List<FormStructureSectionReponse>();
+        var qtById = questionsType.ToDictionary(x => x.Id, x => x);
 
-        var sectionsOrdered = formSections.OrderBy(x => x.SortOrder);
-        foreach (var section in sectionsOrdered)
+        var sectionsResponse = new List<FormStructureSectionReponse>();
+
+        foreach (var section in formSections.OrderBy(s => s.SortOrder))
         {
             var questionsResponse = new List<FormStructureQuestionReponse>();
-            var questionsDomainOrdered = section.Questions.OrderBy(x => x.SortOrder);
-            foreach (var question in questionsDomainOrdered)
+
+            foreach (var question in section.Questions.OrderBy(q => q.SortOrder))
             {
-                var questionType = questionsType.Find(x=>x.Id == question.IdQuestionType);
-                if (questionType is null)
+                if (!qtById.TryGetValue(question.IdQuestionType, out var questionType))
                 {
-                    var errorQuestion = ResultError.InvalidInput(
-                        "QuestionType",
-                        $"The following question type were not found: {question.Id}."
+                    return ResultT<List<FormStructureSectionReponse>>.FailureT(
+                        ResultType.NotFound,
+                        ResultError.InvalidInput(
+                            "QuestionType",
+                            $"Question type with id '{question.IdQuestionType.Value}' not found."
+                        )
                     );
-
-                    return ResultT<List<FormStructureSectionReponse>>.FailureT(ResultType.NotFound, errorQuestion);
                 }
 
-                var propertyResult = GetProperty(question.QuestionAttributeValue.ToList(), questionType);
-                if (propertyResult.IsFailure)
+                var propsResult = GetProperty(question.QuestionAttributeValue.ToList(), questionType);
+                if (propsResult.IsFailure)
                 {
-                    return ResultT<List<FormStructureSectionReponse>>.FailureT(ResultType.NotFound, propertyResult.Errors);
+                    return ResultT<List<FormStructureSectionReponse>>.FailureT(
+                        ResultType.NotFound,
+                        propsResult.Errors
+                    );
                 }
 
-                var questionResponse = new FormStructureQuestionReponse()
+                var rulesResult = GetRules(question.QuestionRuleValue.ToList(), questionType);
+                if (rulesResult.IsFailure)
+                {
+                    return ResultT<List<FormStructureSectionReponse>>.FailureT(
+                        ResultType.NotFound,
+                        rulesResult.Errors
+                    );
+                }
+
+                questionsResponse.Add(new FormStructureQuestionReponse
                 {
                     Id = question.Id.Value,
                     Type = questionType.KeyName.Value,
-                    Properties = propertyResult.Value
-                };
-                questionsResponse.Add(questionResponse);
-
+                    Properties = propsResult.Value,
+                    Rules = rulesResult.Value
+                });
             }
 
-            var sectionResponse = new FormStructureSectionReponse()
+            sectionsResponse.Add(new FormStructureSectionReponse
             {
                 Id = section.Id.Value,
                 Title = section.Title.Value,
                 Description = section.Description.Value,
-                Questions = questionsResponse,                
-
-            };
-            formStructureSectionsReponse.Add(sectionResponse);
+                Questions = questionsResponse
+            });
         }
 
-        return formStructureSectionsReponse;
+        return sectionsResponse;
     }
 
+
     private ResultT<JsonElement> GetProperty(
-        List<QuestionAttributeValueDomain> attributes,
-        QuestionTypeDomain questionType)
+    List<QuestionAttributeValueDomain> attributes,
+    QuestionTypeDomain questionType)
     {
-        var obj = new Dictionary<string, object>();
+        var obj = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
+
+        var typeAttrById = questionType.QuestionTypeAttributes
+            .ToDictionary(x => x.Id, x => x);
 
         foreach (var attribute in attributes)
         {
-            var questionTypeAttribute = questionType.QuestionTypeAttributes.FirstOrDefault(x => x.Id == attribute.IdQuestionTypeAttribute);
-            if (questionTypeAttribute is null)
+            if (!typeAttrById.TryGetValue(attribute.IdQuestionTypeAttribute, out var questionTypeAttribute))
             {
-                var errorQuestionTypeAttribute = ResultError.InvalidInput(
+                var err = ResultError.InvalidInput(
                     "QuestionTypeAttribute",
-                    $"The following question type attribute were not found: {attribute.IdQuestionTypeAttribute}."
-                );
-
-                return ResultT<JsonElement>.FailureT(ResultType.NotFound, errorQuestionTypeAttribute);
+                    $"The following question type attribute were not found: {attribute.IdQuestionTypeAttribute}.");
+                return ResultT<JsonElement>.FailureT(ResultType.NotFound, err);
             }
+
             var attributeName = questionTypeAttribute.Attribute.KeyName.Value;
+
             if (obj.ContainsKey(attributeName))
             {
-                var error = ResultError.InvalidInput(
+                var err = ResultError.InvalidInput(
                     "Attribute",
-                    $"Duplicate attribute name found: '{attributeName}'."
-                );
-                return ResultT<JsonElement>.FailureT(ResultType.Conflict, error);
+                    $"Duplicate attribute name found: '{attributeName}'.");
+                return ResultT<JsonElement>.FailureT(ResultType.Conflict, err);
             }
-            var valueToConvert = attribute.Value;
+
             var dataType = questionTypeAttribute.Attribute.DataType.Description.Value.ToLowerInvariant();
-            var valueConvertedResult = SurveyCommonMethods.ConvertValue(valueToConvert, dataType);
+            var valueConvertedResult = SurveyCommonMethods.ConvertValue(attribute.Value, dataType);
+
             if (valueConvertedResult.IsFailure)
             {
                 return ResultT<JsonElement>.FailureT(ResultType.NotFound, valueConvertedResult.Errors);
             }
-            obj[attributeName] = valueConvertedResult.Value;
 
+            obj[attributeName] = valueConvertedResult.Value;
         }
 
-
-        var json = JsonSerializer.Serialize(obj);
-        using var document = JsonDocument.Parse(json);
-        var jsonElement = document.RootElement.Clone();
-        return jsonElement;
+        var element = JsonSerializer.SerializeToElement(obj);
+        return element;
     }
+    private ResultT<Dictionary<string, RuleQuestionResponseDto>> GetRules(
+    List<QuestionRuleValueDomain> rules,
+    QuestionTypeDomain questionType)
+    {
+        var result = new Dictionary<string, RuleQuestionResponseDto>(StringComparer.OrdinalIgnoreCase);
+
+        var typeRuleById = questionType.QuestionTypeRules
+            .ToDictionary(x => x.Id, x => x);
+
+        foreach (var ruleValue in rules.Where(r => !r.IsDeleted))
+        {
+            if (!typeRuleById.TryGetValue(ruleValue.IdQuestionTypeRule, out var typeRule))
+            {
+                var err = ResultError.InvalidInput(
+                    "QuestionTypeRule",
+                    $"The following question type rule were not found: {ruleValue.IdQuestionTypeRule}.");
+                return ResultT<Dictionary<string, RuleQuestionResponseDto>>.FailureT(ResultType.NotFound, err);
+            }
+
+            var ruleName = typeRule.Rule.KeyName.Value;
+
+            if (result.ContainsKey(ruleName))
+            {
+                var err = ResultError.InvalidInput(
+                    "Rule",
+                    $"Duplicate rule name found: '{ruleName}'.");
+                return ResultT<Dictionary<string, RuleQuestionResponseDto>>.FailureT(ResultType.Conflict, err);
+            }
+
+            // Convert string stored value -> proper JSON based on rule datatype
+            var dataType = typeRule.Rule.DataType.Description.Value.ToLowerInvariant();
+
+            var valueConvertedResult = SurveyCommonMethods.ConvertValue(ruleValue.Value, dataType);
+            if (valueConvertedResult.IsFailure)
+            {
+                return ResultT<Dictionary<string, RuleQuestionResponseDto>>.FailureT(ResultType.NotFound, valueConvertedResult.Errors);
+            }
+
+            // Convert to JsonElement to match API contract
+            var jsonValue = JsonSerializer.SerializeToElement(valueConvertedResult.Value);
+
+            result[ruleName] = new RuleQuestionResponseDto
+            {
+                Value = jsonValue,
+                Message = ruleValue.Message // ajusta nombre propiedad si es distinto
+            };
+        }
+
+        return result;
+    }
+
     private async Task<ResultT<List<QuestionTypeDomain>>> GetQuestionType(List<QuestionDomain> questionsDomain, CancellationToken cancellationToken)
     {
         var idsQuestionsType = questionsDomain.Select(x => x.IdQuestionType).DistinctBy(x => x).ToList();

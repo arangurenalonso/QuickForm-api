@@ -18,15 +18,18 @@ public sealed record FormSectionsDescription
     {
         if (string.IsNullOrWhiteSpace(description))
         {
-            return ResultError.EmptyValue("FormSectionDescription", "Form Section description cannot be null or empty.");
+            return new FormSectionsDescription("");
         }
 
-        if (description.Length > 255)
+        var descriptionMaxLength = 1000;
+        if (description.Length > descriptionMaxLength)
         {
-            return ResultError.InvalidFormat("FormSectionDescription", "Form Section description must be at most 255 characters long.");
+            return ResultError.InvalidFormat("FormSectionDescription", $"Form Section description must be at most {descriptionMaxLength} characters long.");
         }
 
-        return new FormSectionsDescription(description);
+        var descriptionTrimmed = description.Trim();
+
+        return new FormSectionsDescription(descriptionTrimmed);
     }
 
     public static implicit operator string(FormSectionsDescription description) => description.Value;

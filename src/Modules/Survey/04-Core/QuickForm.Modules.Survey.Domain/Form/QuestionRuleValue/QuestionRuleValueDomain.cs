@@ -41,8 +41,10 @@ public class QuestionRuleValueDomain : BaseDomainEntity<QuestionRuleValueId>
         return newDomain;
     }
 
-    public void Update(string? value)
+    public void Update(string? value, string message)
     {
         Value = value;
+        Message = message;
+
     }
 }

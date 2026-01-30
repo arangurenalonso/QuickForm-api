@@ -14,4 +14,12 @@ public class FormStructureQuestionReponse
     public Guid Id { get; set; }
     public string Type { get; set; }
     public JsonElement Properties { get; set; }
+    public Dictionary<string, RuleQuestionResponseDto> Rules { get; set; } = new();
+
+}
+
+public class RuleQuestionResponseDto
+{
+    public JsonElement Value { get; set; }
+    public string? Message { get; set; }
 }

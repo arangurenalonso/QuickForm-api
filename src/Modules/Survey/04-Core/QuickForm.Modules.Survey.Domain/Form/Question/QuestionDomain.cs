@@ -119,7 +119,7 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
 
             if (existingValueByTypeRuleId.TryGetValue(typeRule.Id, out var existing))
             {
-                existing.Update(valueToStore);
+                existing.Update(valueToStore, messageToStore);
             }
             else
             {
