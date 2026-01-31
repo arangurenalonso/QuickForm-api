@@ -18,21 +18,18 @@ public class QuestionTypeDomain : BaseDomainEntity<QuestionTypeId>
         QuestionTypeKeyNameVO keyName) : base(id)
     {
         KeyName = keyName;
-
     }
     public static ResultT<QuestionTypeDomain> Create(
         QuestionTypeId id,
         string keyName
+
       )
     {
         var keyNameResult = QuestionTypeKeyNameVO.Create(keyName);
 
-        if (keyNameResult.IsFailure)
+        if (keyNameResult.IsFailure )
         {
-            var errorList = new ResultErrorList(
-                new List<ResultErrorList>() { keyNameResult.Errors }
-                );
-            return errorList;
+            return keyNameResult.Errors;
         }
         var domain = new QuestionTypeDomain(id, keyNameResult.Value);
 

@@ -4,6 +4,7 @@ namespace QuickForm.Modules.Survey.Domain;
 public class RuleDomain : BaseMasterEntity
 {
     public DataTypeId IdDataType { get; private set; }
+    public ValidationMessageTemplateVO DefaultValidationMessageTemplate { get; private set; }
 
     #region One to Many
     public DataTypeDomain DataType { get; private set; }
@@ -15,26 +16,46 @@ public class RuleDomain : BaseMasterEntity
     public RuleDomain() { }
     private RuleDomain(
             MasterId id,
-            DataTypeId idDataType
+            DataTypeId idDataType,
+            ValidationMessageTemplateVO defaultValidationMessageTemplate
         ) : base(id) 
     {
         IdDataType = idDataType;
+        DefaultValidationMessageTemplate = defaultValidationMessageTemplate;
     }
     public static ResultT<RuleDomain> Create(
             DataTypeId idDataType,
             string keyName,
-            string? description = null
+            string validationMessageTemplate,
+            string? description = null,
+            string? placeholder = null
         )
     {
         var newId = MasterId.Create();
-        return Create(newId, idDataType, keyName, description);
+        return Create(newId, idDataType, keyName, validationMessageTemplate, description,placeholder);
     }
-    public static ResultT<RuleDomain> Create(MasterId id, DataTypeId idDataType, string keyName, string? description = null)
+    public static ResultT<RuleDomain> Create(
+            MasterId id, 
+            DataTypeId idDataType, 
+            string keyName,
+            string validationMessageTemplate,
+            string? description = null,
+            string? placeholder = null
+        )
     {
-        var newDomain = new RuleDomain(id, idDataType);
+        var defaultValidationMessageTemplateResult = ValidationMessageTemplateVO.Create(
+            validationMessageTemplate,
+            placeholder
+            );
+        if (defaultValidationMessageTemplateResult.IsFailure)
+        {
+            return defaultValidationMessageTemplateResult.Errors;
+        }
+
+        var newDomain = new RuleDomain(id, idDataType, defaultValidationMessageTemplateResult.Value);
         var masterUpdateBase = new MasterUpdateBase(keyName, description);
         var result = newDomain.SetBaseProperties(masterUpdateBase);
-        if (result.IsFailure)
+        if (result.IsFailure )
         {
             return result.Errors;
         }
@@ -46,16 +67,27 @@ public class RuleDomain : BaseMasterEntity
     public Result Update(
            string keyName,
            string description,
-           DataTypeId idDataType
+           DataTypeId idDataType,
+           string validationMessageTemplate,
+           string? placeholder = null
        )
     {
         IdDataType = idDataType;
 
         var resultUpdated = base.Update(keyName, description);
+
+        var defaultValidationMessageTemplateResult = ValidationMessageTemplateVO.Create(
+            validationMessageTemplate,
+            placeholder
+            );
         if (resultUpdated.IsFailure)
         {
-            return resultUpdated.Errors;
+            var errorList = new ResultErrorList(
+                new List<ResultErrorList>() { resultUpdated.Errors, defaultValidationMessageTemplateResult.Errors }
+                );
+            return errorList;
         }
+
         return Result.Success();
     }
 

@@ -13,16 +13,35 @@ internal sealed class RuleSeeder(SurveyDbContext _context, ILogger<DatabaseSeede
         _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
 
 
-        List<PredefinedRule> predefinedAttributes = PredefinedRules.GetAll();
-        var arrayValues = predefinedAttributes
-            .Select(rule => new
+        var predefinedRules = new Dictionary<RuleType, (DataTypeType DataType, string Description, string DefaultValidationMessage, string? RequiredPlaceholder)>
+        {
+            [RuleType.Min] = (DataTypeType.IntType, "Specifies the minimum allowed numeric value.", "Must be at least {min}", "{min}"),
+            [RuleType.Max] = (DataTypeType.IntType, "Specifies the maximum allowed numeric value.", "Cannot exceed {max}","{max}"),
+            [RuleType.MinLength] = (DataTypeType.IntType, "Defines the minimum number of characters required.", "Minimum length is {minLength}", "{minLength}"),
+            [RuleType.MaxLength] = (DataTypeType.IntType, "Defines the maximum number of characters allowed.", "Maximum length is {maxLength}", "{maxLength}"),
+            [RuleType.Required] = (DataTypeType.BooleanType, "Indicates that this field is mandatory and cannot be left empty.", "Field is required",null),
+        };
+
+        var arrayValues = (
+            from kv in predefinedRules
+            let ruleType = kv.Key
+            let data = kv.Value
+            let id = new MasterId(ruleType.GetId())
+            let keyName = ruleType.GetName()
+            let description = data.Description
+            let dataTypeId = new DataTypeId(data.DataType.GetId())
+            let defaultValidationMessage = data.DefaultValidationMessage
+            let requiredPlaceholder = data.RequiredPlaceholder
+            select new
             {
-                Id = new MasterId(rule.RuleType.GetId()),
-                KeyName = rule.RuleType.GetName(),
-                rule.Description,
-                DataTypeId = new DataTypeId(rule.DataTypeType.GetId())
-            })
-            .ToList();
+                Id = id,
+                KeyName = keyName,
+                Description = description,
+                DataTypeId = dataTypeId,
+                DefaultValidationMessage = defaultValidationMessage,
+                RequiredPlaceholder = requiredPlaceholder
+            }
+        ).ToList();
 
 
 
@@ -42,7 +61,9 @@ internal sealed class RuleSeeder(SurveyDbContext _context, ILogger<DatabaseSeede
                                                     idEnumType,
                                                     value.DataTypeId,
                                                     value.KeyName,
-                                                    value.Description
+                                                    value.DefaultValidationMessage,
+                                                    value.Description,
+                                                    value.RequiredPlaceholder
                                                     ).Value;
                 newDomain.ClassOrigin = GetType().Name;
                 _context.Set<RuleDomain>().Add(newDomain);
@@ -50,11 +71,19 @@ internal sealed class RuleSeeder(SurveyDbContext _context, ILogger<DatabaseSeede
             else if (
                 existingDomain.IdDataType != value.DataTypeId ||
                 existingDomain.Description?.Value != value.Description ||
-                existingDomain.KeyName.Value != value.KeyName 
+                existingDomain.KeyName.Value != value.KeyName  ||
+                existingDomain.DefaultValidationMessageTemplate.ValidationMessage != value.DefaultValidationMessage ||
+                existingDomain.DefaultValidationMessageTemplate.PlaceholderKey != value.RequiredPlaceholder
                 )
             {
                 existingDomain.ClassOrigin = GetType().Name;
-                existingDomain.Update(value.KeyName, value.Description, value.DataTypeId);
+                existingDomain.Update(
+                    value.KeyName,
+                    value.Description,
+                    value.DataTypeId,
+                    value.DefaultValidationMessage,
+                    value.RequiredPlaceholder
+                    );
             }
         }
 

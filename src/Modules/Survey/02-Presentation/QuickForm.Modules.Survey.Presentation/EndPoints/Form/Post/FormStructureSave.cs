@@ -30,7 +30,7 @@ internal sealed class FormStructureSave : IEndpoint
                                 kvp => kvp.Key,
                                 kvp => new RuleDto( 
                                                 kvp.Value.Value, 
-                                                kvp.Value.Message ?? string.Empty
+                                                kvp.Value.MessageTemplate ?? string.Empty
                                             )
                             )
                         )).ToList()
@@ -66,6 +66,6 @@ internal sealed class FormStructureSave : IEndpoint
     internal sealed class RuleRequestDto
     {
         public JsonElement Value { get; set; }   // admite bool, number, string, etc.
-        public string? Message { get; set; } =string.Empty;
+        public string? MessageTemplate { get; set; } =string.Empty;
     }
 }

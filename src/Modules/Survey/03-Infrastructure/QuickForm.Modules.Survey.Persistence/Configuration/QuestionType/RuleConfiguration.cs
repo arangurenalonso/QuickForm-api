@@ -16,5 +16,19 @@ public class RuleConfiguration : MasterEntityMapBase<RuleDomain>
             .HasForeignKey(uat => uat.IdDataType)
             .IsRequired();
 
+        builder.OwnsOne(e => e.DefaultValidationMessageTemplate, owned =>
+        {
+            owned.Property(v => v.ValidationMessage)
+                 .HasColumnName("ValidationMessage_Default")
+                 .HasMaxLength(1000)
+                 .HasDefaultValue("")
+                 .IsRequired();
+
+            owned.Property(v => v.PlaceholderKey)
+                 .HasColumnName("ValidationMessage_Placeholder")
+                 .HasMaxLength(1000)
+                 .IsRequired(false);
+
+        });
     }
 }

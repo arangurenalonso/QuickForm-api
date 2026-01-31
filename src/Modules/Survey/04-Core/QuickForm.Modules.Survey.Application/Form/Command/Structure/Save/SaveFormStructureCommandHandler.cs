@@ -46,7 +46,7 @@ internal sealed class SaveFormStructureCommandHandler(
                                                         kvp => kvp.Key,
                                                         kvp => new ValidationRule(
                                                             kvp.Value.Value,
-                                                            kvp.Value.Message ?? string.Empty
+                                                            kvp.Value.MessageTemplate ?? string.Empty
                                                         )
                                                     )
                                                 )
@@ -71,7 +71,7 @@ internal sealed class SaveFormStructureCommandHandler(
                                                             kvp => kvp.Key,
                                                             kvp => new ValidationRule(
                                                                 kvp.Value.Value,
-                                                                kvp.Value.Message ?? string.Empty
+                                                                kvp.Value.MessageTemplate ?? string.Empty
                                                             )
                                                         ),
                                                     questionsType.First( qt => qt.KeyName.Value == q.Type)

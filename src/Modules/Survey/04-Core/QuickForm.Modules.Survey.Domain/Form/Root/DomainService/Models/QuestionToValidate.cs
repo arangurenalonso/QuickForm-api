@@ -9,5 +9,5 @@ public sealed record QuestionToValidate(
         );
 public sealed record ValidationRule(
     JsonElement Value,
-    string? Message 
+    string? MessageTemplate 
 );

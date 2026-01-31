@@ -112,9 +112,9 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
                     $"Rule '{ruleKey}' on question type '{questionType.KeyName.Value}' must have a non-empty value.");
             }
 
-            string messageToStore = string.IsNullOrWhiteSpace(incomingRule.Message) 
-                                            ? typeRule.DefaultValidationMessage
-                                            : incomingRule.Message;
+            string messageToStore = string.IsNullOrWhiteSpace(incomingRule.MessageTemplate) 
+                                            ? typeRule.Rule.DefaultValidationMessageTemplate.ValidationMessage
+                                            : incomingRule.MessageTemplate;
             
 
             if (existingValueByTypeRuleId.TryGetValue(typeRule.Id, out var existing))

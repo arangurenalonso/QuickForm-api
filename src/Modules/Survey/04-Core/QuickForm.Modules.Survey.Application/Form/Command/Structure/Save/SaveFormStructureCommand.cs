@@ -23,5 +23,5 @@ public sealed record QuestionDto(
     );
 public sealed record RuleDto(
         JsonElement Value,
-        string? Message
+        string? MessageTemplate
     );
