@@ -10,7 +10,7 @@ public sealed record ValidationMessageTemplateVO
 
     public string ValidationMessage { get; }
     public string? PlaceholderKey { get; }
-
+    private ValidationMessageTemplateVO() { }
     private ValidationMessageTemplateVO(string message, string? placeholderKey)
     {
         ValidationMessage = message;

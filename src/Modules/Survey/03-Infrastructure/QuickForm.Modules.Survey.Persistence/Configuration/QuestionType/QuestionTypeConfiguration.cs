@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuickForm.Common.Infrastructure.Persistence;
 using QuickForm.Modules.Survey.Domain;
-using static Dapper.SqlMapper;
 
 namespace QuickForm.Modules.Survey.Persistence;
 public class QuestionTypeConfiguration : EntityMapBase<QuestionTypeDomain, QuestionTypeId>
