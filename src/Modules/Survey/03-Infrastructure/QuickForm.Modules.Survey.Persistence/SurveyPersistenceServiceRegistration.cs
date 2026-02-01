@@ -17,9 +17,9 @@ public static class SurveyPersistenceServiceRegistration
         var connectionString = configuration.GetSection("Survey:ConnectionStrings:Database").Value;
 
 
+        services.AddScoped<AuditLogInterceptor>();
         services.AddScoped<AuditFieldsInterceptor>();
         services.AddScoped<InsertOutboxMessagesInterceptor>();
-        services.AddScoped<AuditLogInterceptor>();
 
 
         services.AddDbContext<SurveyDbContext>((sp, options) =>

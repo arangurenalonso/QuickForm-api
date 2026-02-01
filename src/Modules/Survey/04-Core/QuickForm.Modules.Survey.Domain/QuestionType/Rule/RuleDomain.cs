@@ -87,6 +87,7 @@ public class RuleDomain : BaseMasterEntity
                 );
             return errorList;
         }
+        DefaultValidationMessageTemplate = defaultValidationMessageTemplateResult.Value;
 
         return Result.Success();
     }

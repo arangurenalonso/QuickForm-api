@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
+using QuickForm.Common.Infrastructure.Persistence;
 
 namespace QuickForm.Common.Infrastructure;
 public class AuditFieldsInterceptor(
@@ -32,6 +33,23 @@ public class AuditFieldsInterceptor(
     }
     public void ApplyAuditing(DbContext context)
     {
+
+        context.ChangeTracker.DetectChanges();
+
+        // 0) Si cambió un owned/value object, fuerza al owner a Modified
+        foreach (var owned in context.ChangeTracker.Entries()
+                     .Where(e => e.Metadata.IsOwned() &&
+                                 (e.State == EntityState.Added ||
+                                  e.State == EntityState.Modified ||
+                                  e.State == EntityState.Deleted)))
+        {
+            var owner = AuditHelper.ResolveOwner(owned);
+            if (owner is not null && owner.State == EntityState.Unchanged)
+            {
+                owner.State = EntityState.Modified;
+            }
+        }
+
         var userConnected = "System";
         string userFullName = _currentUserService.UserFullName;
         ResultT<Guid> resultUserId= _currentUserService.UserId;

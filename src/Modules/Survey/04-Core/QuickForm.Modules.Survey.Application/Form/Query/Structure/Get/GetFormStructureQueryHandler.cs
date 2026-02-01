@@ -188,7 +188,8 @@ internal sealed class GetFormStructureQueryHandler(
             result[ruleName] = new RuleQuestionResponseDto
             {
                 Value = jsonValue,
-                Message = ruleValue.Message // ajusta nombre propiedad si es distinto
+                MessageTemplate = ruleValue.Message ?? typeRule.Rule.DefaultValidationMessageTemplate.ValidationMessage,
+                Placeholder = typeRule.Rule.DefaultValidationMessageTemplate.PlaceholderKey
             };
         }
 

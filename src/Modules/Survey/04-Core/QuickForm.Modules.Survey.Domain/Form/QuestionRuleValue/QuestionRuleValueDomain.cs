@@ -6,7 +6,7 @@ public class QuestionRuleValueDomain : BaseDomainEntity<QuestionRuleValueId>
     public QuestionId IdQuestion { get; private set; }
     public QuestionTypeRuleId IdQuestionTypeRule { get; private set; }
     public string? Value { get; private set; }
-    public string ? Message { get; set; }
+    public string? Message { get; set; }
 
     #region One To Many
     public QuestionDomain Question { get; private set; }
