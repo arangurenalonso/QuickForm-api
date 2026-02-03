@@ -22,7 +22,7 @@ internal sealed class FormStructureSave : IEndpoint
                     x.Id,
                     x.Title,
                     x.Description,
-                    x.Question.Select(q => new QuestionDto(
+                    x.Fields.Select(q => new QuestionDto(
                             q.Id,
                             q.Type,
                             q.Properties,
@@ -51,7 +51,7 @@ internal sealed class FormStructureSave : IEndpoint
         public Guid Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public List<FormQuestionRegisterRequestDto> Question { get; set; }
+        public List<FormQuestionRegisterRequestDto> Fields { get; set; }
     }
 
     internal sealed class FormQuestionRegisterRequestDto

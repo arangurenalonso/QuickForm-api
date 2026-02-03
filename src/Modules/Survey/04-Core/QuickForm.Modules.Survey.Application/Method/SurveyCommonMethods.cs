@@ -6,6 +6,15 @@ using System.Text.Json;
 namespace QuickForm.Modules.Survey.Application;
 public static class SurveyCommonMethods
 {
+    public static string ToCamelCase(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return value;
+
+        }
+        return char.ToLowerInvariant(value[0]) + value[1..];
+    }
     public static ResultT<object?> ConvertValue(string? valueToConvert, string dataType)
     {
         if (valueToConvert == null)

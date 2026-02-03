@@ -93,7 +93,7 @@ internal sealed class GetFormStructureQueryHandler(
                 Id = section.Id.Value,
                 Title = section.Title.Value,
                 Description = section.Description.Value,
-                Questions = questionsResponse
+                Fields = questionsResponse
             });
         }
 
@@ -120,7 +120,9 @@ internal sealed class GetFormStructureQueryHandler(
                 return ResultT<JsonElement>.FailureT(ResultType.NotFound, err);
             }
 
-            var attributeName = questionTypeAttribute.Attribute.KeyName.Value;
+            var attributeName = SurveyCommonMethods.ToCamelCase(
+                                        questionTypeAttribute.Attribute.KeyName.Value
+                                    );
 
             if (obj.ContainsKey(attributeName))
             {
@@ -163,7 +165,9 @@ internal sealed class GetFormStructureQueryHandler(
                 return ResultT<Dictionary<string, RuleQuestionResponseDto>>.FailureT(ResultType.NotFound, err);
             }
 
-            var ruleName = typeRule.Rule.KeyName.Value;
+            var ruleName = SurveyCommonMethods.ToCamelCase(
+                                                    typeRule.Rule.KeyName.Value
+                                                );
 
             if (result.ContainsKey(ruleName))
             {
