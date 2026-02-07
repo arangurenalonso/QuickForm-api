@@ -2,14 +2,12 @@
 using Microsoft.Extensions.Logging;
 using QuickForm.Common.Domain.Method;
 using QuickForm.Common.Domain;
-using System;
-using FluentValidation.Results;
 using System.Reflection;
 
 namespace QuickForm.Common.Application;
 internal sealed class ExceptionHandlingPipelineBehavior<TRequest, TResponse>(
-    ILogger<ExceptionHandlingPipelineBehavior<TRequest, TResponse>> logger)
-    : IPipelineBehavior<TRequest, TResponse>
+        ILogger<ExceptionHandlingPipelineBehavior<TRequest, TResponse>> logger
+    ): IPipelineBehavior<TRequest, TResponse>
     where TRequest : class
 {
     public async Task<TResponse> Handle(

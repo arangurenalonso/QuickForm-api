@@ -22,7 +22,7 @@ public static class ApplicationConfiguration
             {
                 foreach (var configure in configures)
                 {
-                    configure.Invoke(config);
+                    configure(config);
                 }
             }
         });

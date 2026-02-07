@@ -11,13 +11,13 @@ internal sealed class GetMyFormById : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("me/forms/{idForm}", async (ISender sender,Guid idForm) =>
+        app.MapGet("me/form/{idForm}", async (ISender sender,Guid idForm) =>
         {
             var result = await sender.Send(new GetMyFormByIdQuery(idForm));
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .RequireAuthorization()
-        .WithName("Form.GetMyForms")
+        .WithName("Form.GetMyFormById")
         .WithTags(Tags.Form);
     }
 }

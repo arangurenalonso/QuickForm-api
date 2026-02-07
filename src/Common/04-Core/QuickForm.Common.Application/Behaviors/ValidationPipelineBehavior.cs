@@ -7,8 +7,8 @@ using System.Reflection;
 namespace QuickForm.Common.Application;
 
 internal sealed class ValidationPipelineBehavior<TRequest, TResponse>(
-    IEnumerable<IValidator<TRequest>> validators)
-    : IPipelineBehavior<TRequest, TResponse>
+        IEnumerable<IValidator<TRequest>> validators
+    ): IPipelineBehavior<TRequest, TResponse>
     where TRequest : IBaseCommand
 {
     public async Task<TResponse> Handle(
@@ -69,5 +69,4 @@ internal sealed class ValidationPipelineBehavior<TRequest, TResponse>(
 
         return validationFailures;
     }
-
 }
