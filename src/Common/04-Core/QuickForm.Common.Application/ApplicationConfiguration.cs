@@ -8,7 +8,8 @@ public static class ApplicationConfiguration
 {
     public static IServiceCollection AddApplication(
         this IServiceCollection services,
-        Assembly[] moduleApplicationAssemblies)
+        Assembly[] moduleApplicationAssemblies,
+        List<Action<MediatRServiceConfiguration>>? configures = null)
     {
         services.AddMediatR(config =>
         {
@@ -17,6 +18,13 @@ public static class ApplicationConfiguration
             config.AddOpenBehavior(typeof(ExceptionHandlingPipelineBehavior<,>));
             //config.AddOpenBehavior(typeof(RequestLoggingPipelineBehavior<,>))
             config.AddOpenBehavior(typeof(ValidationPipelineBehavior<,>));
+            if (configures != null)
+            {
+                foreach (var configure in configures)
+                {
+                    configure.Invoke(config);
+                }
+            }
         });
 
         services.AddValidatorsFromAssemblies(moduleApplicationAssemblies, includeInternalTypes: true);

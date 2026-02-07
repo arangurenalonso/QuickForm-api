@@ -7,13 +7,13 @@ using QuickForm.Modules.Survey.Application;
 
 namespace QuickForm.Modules.Survey.Presentation;
 
-internal sealed class GetFormsByUser : IEndpoint
+internal sealed class GetMyFormById : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("me/forms", async (ISender sender) =>
+        app.MapGet("me/forms/{idForm}", async (ISender sender,Guid idForm) =>
         {
-            var result = await sender.Send(new GetMyFormsQuery());
+            var result = await sender.Send(new GetMyFormByIdQuery(idForm));
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .RequireAuthorization()

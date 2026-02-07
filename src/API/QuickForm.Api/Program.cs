@@ -5,6 +5,7 @@ using QuickForm.Common.Application;
 using QuickForm.Common.Infrastructure;
 using QuickForm.Common.Presentation;
 using QuickForm.Modules.Person.Host;
+using QuickForm.Modules.Survey.Application;
 using QuickForm.Modules.Survey.Host;
 using QuickForm.Modules.Users.Host;
 var builder = WebApplication.CreateBuilder(args);
@@ -33,7 +34,18 @@ builder.Services.AddCommonServicesServices(
         SurveyModule.ConfigureConsumers
     ], builder.Configuration, environment);
 
-builder.Services.AddApplication(moduleApplicationAssemblies);
+
+builder.Services.AddApplication(
+    moduleApplicationAssemblies,
+    configures: new List<Action<MediatRServiceConfiguration>>
+    {
+        cfg => cfg.AddOpenBehavior(
+            typeof(FormOwnershipBehavior<,>)
+        )
+    }
+);
+
+
 builder.Services.AddUsersModule(builder.Configuration);
 builder.Services.AddSurveyModule(builder.Configuration);
 builder.Services.AddPersonModule(builder.Configuration);
