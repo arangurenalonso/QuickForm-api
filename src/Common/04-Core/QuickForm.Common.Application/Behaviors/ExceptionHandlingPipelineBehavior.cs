@@ -1,8 +1,9 @@
-﻿using MediatR;
+﻿using System.Reflection;
+using MediatR;
 using Microsoft.Extensions.Logging;
-using QuickForm.Common.Domain.Method;
 using QuickForm.Common.Domain;
-using System.Reflection;
+using QuickForm.Common.Domain.Method;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace QuickForm.Common.Application;
 internal sealed class ExceptionHandlingPipelineBehavior<TRequest, TResponse>(
@@ -23,22 +24,7 @@ internal sealed class ExceptionHandlingPipelineBehavior<TRequest, TResponse>(
         {
             logger.LogError(e, "Unhandled exception for {RequestName}", typeof(TRequest).Name);
             List<ResultError> errors = CommonMethods.ConvertExceptionToResult(e, "UncontrollableError");
-
-            if (typeof(TResponse).IsGenericType &&
-                typeof(TResponse).GetGenericTypeDefinition() == typeof(ResultT<>))
-            {
-                Type resultType = typeof(TResponse).GetGenericArguments()[0];
-
-                MethodInfo? failureMethod = typeof(ResultT<>)
-                    .MakeGenericType(resultType)
-                    .GetMethod(nameof(ResultT<object>.FailureTListResultError));
-
-                if (failureMethod is not null)
-                {
-                    return (TResponse)failureMethod.Invoke(null, new object[] { ResultType.UnexpectedError, errors });
-                }
-            }
-            return (TResponse)(object)Result.Failure(errors);
+            return ResultHelper.CreateFailureResponse<TResponse>(ResultType.UnexpectedError, errors);
         }
     }
 }

@@ -28,26 +28,8 @@ internal sealed class ValidationPipelineBehavior<TRequest, TResponse>(
                                                         validationFailure.ErrorMessage
                                                         )
                                                     ).ToList();
-        if (typeof(TResponse).IsGenericType &&
-            typeof(TResponse).GetGenericTypeDefinition() == typeof(ResultT<>))
-        {
-            Type resultType = typeof(TResponse).GetGenericArguments()[0];
 
-            MethodInfo? failureMethod = typeof(ResultT<>)
-                .MakeGenericType(resultType)
-                .GetMethod(nameof(ResultT<object>.FailureTListResultError));
-
-            if (failureMethod is not null)
-            {
-                return (TResponse)failureMethod.Invoke(null, new object[] { ResultType.FluentValidation,errors });
-            }
-        }
-        else if (typeof(TResponse) == typeof(Result))
-        {
-            return (TResponse)(object)Result.Failure(errors);
-        }
-
-        throw new ValidationException(validationFailures);
+        return ResultHelper.CreateFailureResponse<TResponse>(ResultType.FluentValidation, errors);
     }
 
     private async Task<ValidationFailure[]> ValidateAsync(TRequest request)
