@@ -3,7 +3,8 @@
 namespace QuickForm.Modules.Survey.Domain;
 public sealed record QuestionTypeKeyNameVO
 {
-    public string Value { get; }
+    public string Value { get; private set; } = default!;
+
 
     private QuestionTypeKeyNameVO(string value)
     {

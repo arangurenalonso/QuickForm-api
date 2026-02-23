@@ -1,24 +1,24 @@
 ﻿using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Survey.Domain;
-public sealed record FormSectionsDescription
+public sealed record FormSectionDescriptionVO
 {
-    public string Value { get; }
+    public string Value { get; private set; } = default!;
 
-    private FormSectionsDescription(string value)
+    private FormSectionDescriptionVO(string value)
     {
         Value = value;
     }
 
-    public FormSectionsDescription()
+    public FormSectionDescriptionVO()
     {
     }
 
-    public static ResultT<FormSectionsDescription> Create(string? description)
+    public static ResultT<FormSectionDescriptionVO> Create(string? description)
     {
         if (string.IsNullOrWhiteSpace(description))
         {
-            return new FormSectionsDescription("");
+            return new FormSectionDescriptionVO("");
         }
 
         var descriptionMaxLength = 1000;
@@ -29,8 +29,8 @@ public sealed record FormSectionsDescription
 
         var descriptionTrimmed = description.Trim();
 
-        return new FormSectionsDescription(descriptionTrimmed);
+        return new FormSectionDescriptionVO(descriptionTrimmed);
     }
 
-    public static implicit operator string(FormSectionsDescription description) => description.Value;
+    public static implicit operator string(FormSectionDescriptionVO description) => description.Value;
 }

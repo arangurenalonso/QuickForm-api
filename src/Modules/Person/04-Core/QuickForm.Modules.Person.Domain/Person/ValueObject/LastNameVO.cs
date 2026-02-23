@@ -20,8 +20,8 @@ public sealed record LastNameVO
             return new LastNameVO();
         }
         var textValdiation = new TextValidationBuilder()
-                                        .AddAlphabeticCharacters()
-                                        .AddWhitespace()
+                                        .AddUnicodeLetters()
+                                        .AddSpace()
                                         .Build().ValidateInvalidCharacter("LastName", name);
         if (textValdiation.IsFailure)
         {

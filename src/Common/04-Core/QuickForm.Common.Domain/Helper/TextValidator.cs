@@ -1,47 +1,48 @@
 ﻿using System.Text.RegularExpressions;
 
 namespace QuickForm.Common.Domain;
-public class TextValidation
+
+public sealed class TextValidation
 {
-    private readonly List<string> _rules;
-    private readonly Regex _regexPattern;
+    private readonly IReadOnlyList<string> _validDescriptions;
+    private readonly Regex _fullRegex;
+    private readonly Regex _singleCharRegex;
 
-    private TextValidation(List<string> rules, Regex regexPattern)
+    private TextValidation(IReadOnlyList<string> validDescriptions, Regex fullRegex, Regex singleCharRegex)
     {
-        _rules = rules;
-        _regexPattern = regexPattern;
+        _validDescriptions = validDescriptions;
+        _fullRegex = fullRegex;
+        _singleCharRegex = singleCharRegex;
     }
 
-    public static TextValidation Create(List<string> rules, Regex regexPattern)
-    {
-        return new TextValidation(rules, regexPattern);
-    }
+    public static TextValidation Create(
+        IReadOnlyList<string> validDescriptions,
+        Regex fullRegex,
+        Regex singleCharRegex
+    )
+        => new TextValidation(validDescriptions, fullRegex, singleCharRegex);
 
     public Result ValidateInvalidCharacter(string field, string value)
     {
-        string valueText = value.Trim();
-        var pattern = $"[{string.Join("", _rules)}]";
+        var valueText = value.Trim();
+
+        if (_fullRegex.IsMatch(valueText))
+        {
+            return Result.Success();
+        }
+
         var invalidChars = valueText
-            .Where(c => !Regex.IsMatch(c.ToString(), pattern))
-            .Distinct() 
+            .Where(c => !_singleCharRegex.IsMatch(c.ToString()))
+            .Distinct()
+            .Select(c => c == ' ' ? "space" : c.ToString())
             .ToList();
 
-        if (_regexPattern == null)
-        {
-            throw new InvalidOperationException("Regex pattern not found; build before validating.");
-        }
+        var allowed = string.Join(", ", _validDescriptions);
 
-        if (!_regexPattern.IsMatch(valueText))
-        {
-            var errorMessage = $"The field contains invalid characters [{
-                                        string.Join(",",
-                                                    invalidChars.Select(x=>char.IsWhiteSpace(x) ? "whitespace" : x.ToString())
-                                                    )
-                                        }]";
+        var errorMessage =
+            $"The field contains invalid characters [{string.Join(", ", invalidChars)}]. " +
+            $"Allowed: {allowed}.";
 
-            return ResultError.InvalidCharacter(field,errorMessage);
-        }
-
-        return Result.Success();
+        return ResultError.InvalidCharacter(field, errorMessage);
     }
 }

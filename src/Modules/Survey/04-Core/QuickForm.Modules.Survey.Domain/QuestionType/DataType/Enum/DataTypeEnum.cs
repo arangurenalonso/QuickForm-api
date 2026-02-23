@@ -23,5 +23,10 @@ public enum DataTypeType
     
     [Name("datetime")]
     [Id("84DD58EF-0E4C-473E-B6C3-5617DA52CB4B")]
-    DatetimeType=5
+    DatetimeType=5,
+
+    [Name("Number")]
+    [Id("B1F3C9B8-5E7A-4C9B-8F2D-9E1B2A6F4D3E")]
+    NumberType=6,
+
 }

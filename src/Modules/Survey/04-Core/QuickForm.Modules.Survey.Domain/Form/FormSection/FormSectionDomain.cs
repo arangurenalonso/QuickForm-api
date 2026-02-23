@@ -6,8 +6,8 @@ public class FormSectionDomain : BaseDomainEntity<FormSectionId>
 {
 
     public FormId IdForm { get; private set; }
-    public FormSectionsDescription Description { get; private set; }
-    public FormSectionTitle Title { get; private set; }
+    public FormSectionDescriptionVO Description { get; private set; }
+    public FormSectionTitleVO Title { get; private set; }
     public int SortOrder { get; private set; }
 
 
@@ -22,8 +22,8 @@ public class FormSectionDomain : BaseDomainEntity<FormSectionId>
     private FormSectionDomain(
         FormSectionId id, 
         FormId idForm,
-        FormSectionTitle title,
-        FormSectionsDescription description,
+        FormSectionTitleVO title,
+        FormSectionDescriptionVO description,
         int sortOrder) : base(id)
     {
         IdForm = idForm;
@@ -40,8 +40,8 @@ public class FormSectionDomain : BaseDomainEntity<FormSectionId>
             int sortOrder
         )
     {
-        var titleResult = FormSectionTitle.Create(title);
-        var descriptionResult = FormSectionsDescription.Create(description);
+        var titleResult = FormSectionTitleVO.Create(title);
+        var descriptionResult = FormSectionDescriptionVO.Create(description);
         if (titleResult.IsFailure || descriptionResult.IsFailure)
         {
             var errorList = new ResultErrorList(
@@ -60,8 +60,8 @@ public class FormSectionDomain : BaseDomainEntity<FormSectionId>
         string description)
     {
 
-        var titleResult = FormSectionTitle.Create(title);
-        var descriptionResult = FormSectionsDescription.Create(description);
+        var titleResult = FormSectionTitleVO.Create(title);
+        var descriptionResult = FormSectionDescriptionVO.Create(description);
         if (titleResult.IsFailure || descriptionResult.IsFailure)
         {
             var errorList = new ResultErrorList(

@@ -18,8 +18,8 @@ public sealed record FormDescription
             return new FormDescription();
         }
         var textValdiation = new TextValidationBuilder()
-                                        .AddAlphabeticCharacters()
-                                        .AddWhitespace()
+                                        .AddUnicodeLetters()
+                                        .AddSpace()
                                         .Build().ValidateInvalidCharacter("Description", description);
         if (textValdiation.IsFailure)
         {

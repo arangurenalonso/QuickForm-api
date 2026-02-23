@@ -13,12 +13,47 @@ internal sealed  class QuestionTypeAttributesSeeder(SurveyDbContext _context, IL
         _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
 
 
-        List<QuestionTypeAttributeSeedConfig> predefinedValues = PredefinedQuestionTypeAttributes.GetAll();
+        var predefinedValues = new Dictionary<QuestionTypeType, (Guid QuestionTypeAttributeId, AttributeType AttributeType,bool IsRequired)[]>
+        {
+            [QuestionTypeType.InputTypeText] = new[]
+            {
+                (Guid.Parse("2194295A-C550-49D9-9CE4-541347C2F21A"), AttributeType.Name, true),
+                (Guid.Parse("2C1487CF-921D-42DA-9734-93D7076C534C"), AttributeType.Label, true),
+                (Guid.Parse("E2F0D7CE-26E5-4881-8A23-E30BCA696908"), AttributeType.HelperText, false),
+                (Guid.Parse("C98EB09A-AD81-46D3-A0EB-F14395B30DC3"), AttributeType.Placeholder, false),
+                (Guid.Parse("C8AD7891-6FD7-42B6-8B7E-A9AF92692313"), AttributeType.InformationText, false),
+            },
+            [QuestionTypeType.InputTypeInteger] = new[]
+                {
+                (Guid.Parse("31F8B98F-90EA-45B5-8AF0-AE7A126B5603"), AttributeType.Name, true),
+                (Guid.Parse("54AB1A43-0E16-49BA-8DED-19AE0BC7ACB7"), AttributeType.Label, true),
+                (Guid.Parse("A02BD294-0FBD-4C6E-955E-BF7710877EAD"), AttributeType.HelperText, false),
+                (Guid.Parse("564466CA-0E44-4DE1-94E5-98AB39B0D1B8"), AttributeType.Placeholder, false),
+                (Guid.Parse("F7CB2D78-D0B8-4A28-960D-05C88BB10A56"), AttributeType.InformationText, false),
+                (Guid.Parse("DA574AF2-DF7A-4ABF-87D9-6424BBA5ED5C"), AttributeType.Prefix, false),
+                (Guid.Parse("BBDBDCB3-6BDE-4F5B-8A8D-16F629BE2A88"), AttributeType.Suffix, false),
+                (Guid.Parse("F1A91279-CF55-4889-826F-2F9123AC0E4A"), AttributeType.AllowNegative, false),
+            },
+            [QuestionTypeType.InputTypeDecimal] = new[]
+            {
+                (Guid.Parse("31F8B98F-90EA-45B5-8AF0-AE7A126B5603"), AttributeType.Name, true),
+                (Guid.Parse("54AB1A43-0E16-49BA-8DED-19AE0BC7ACB7"), AttributeType.Label, true),
+                (Guid.Parse("A02BD294-0FBD-4C6E-955E-BF7710877EAD"), AttributeType.HelperText, false),
+                (Guid.Parse("564466CA-0E44-4DE1-94E5-98AB39B0D1B8"), AttributeType.Placeholder, false),
+                (Guid.Parse("F7CB2D78-D0B8-4A28-960D-05C88BB10A56"), AttributeType.InformationText, false),
+                (Guid.Parse("DA574AF2-DF7A-4ABF-87D9-6424BBA5ED5C"), AttributeType.Prefix, false),
+                (Guid.Parse("BBDBDCB3-6BDE-4F5B-8A8D-16F629BE2A88"), AttributeType.Suffix, false),
+                (Guid.Parse("D1D55CE6-03BB-4364-9B39-2AE7F32929C4"), AttributeType.DecimalScale, false),
+                (Guid.Parse("F1A91279-CF55-4889-826F-2F9123AC0E4A"), AttributeType.AllowNegative, false),
+            },
+        };
+
+
         var arrayValues = predefinedValues
-                            .SelectMany(q => q.AttributeQuestionTypeAttribute.Select(attr => new
+                            .SelectMany(q => q.Value.Select(attr => new
                             {
-                                Id= new QuestionTypeAttributeId( attr.IdRelation),
-                                IdQuestionType=new QuestionTypeId(q.QuestionTypeType.GetId()),
+                                Id= new QuestionTypeAttributeId( attr.QuestionTypeAttributeId),
+                                IdQuestionType=new QuestionTypeId(q.Key.GetId()),
                                 IdAttribute = new MasterId(attr.AttributeType.GetId()),
                                 attr.IsRequired
                             }))

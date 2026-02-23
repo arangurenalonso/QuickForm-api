@@ -1,20 +1,20 @@
 ﻿using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Survey.Domain;
-public sealed record FormSectionTitle
+public sealed record FormSectionTitleVO
 {
-    public string Value { get; }
+    public string Value { get; private set; } = default!;
 
-    private FormSectionTitle(string value)
+    private FormSectionTitleVO(string value)
     {
         Value = value;
     }
 
-    public FormSectionTitle()
+    public FormSectionTitleVO()
     {
     }
 
-    public static ResultT<FormSectionTitle> Create(string? description)
+    public static ResultT<FormSectionTitleVO> Create(string? description)
     {
         if (string.IsNullOrWhiteSpace(description))
         {
@@ -26,9 +26,9 @@ public sealed record FormSectionTitle
             return ResultError.InvalidFormat("FormSectionTitle", "Form Section title must be at most 255 characters long.");
         }
 
-        return new FormSectionTitle(description);
+        return new FormSectionTitleVO(description);
     }
 
-    public static implicit operator string(FormSectionTitle description) => description.Value;
+    public static implicit operator string(FormSectionTitleVO description) => description.Value;
 }
 

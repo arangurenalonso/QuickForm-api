@@ -22,8 +22,8 @@ public sealed record NameVO
             return ResultError.EmptyValue("Name", "Name cannot be null or empty.");
         }
         var textValdiation = new TextValidationBuilder()
-                                        .AddAlphabeticCharacters()
-                                        .AddWhitespace()
+                                        .AddUnicodeLetters()
+                                        .AddSpace()
                                         .Build().ValidateInvalidCharacter("Name", name);
         if (textValdiation.IsFailure)
         {

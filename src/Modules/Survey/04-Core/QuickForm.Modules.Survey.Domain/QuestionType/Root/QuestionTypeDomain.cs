@@ -5,6 +5,8 @@ public class QuestionTypeDomain : BaseDomainEntity<QuestionTypeId>
 {
 
     public QuestionTypeKeyNameVO KeyName { get; private set; }
+    public DescriptionVO Description { get; private set; }
+    public DataTypeId IdDataType { get; private set; }
 
     #region Many to One
     public ICollection<QuestionDomain> Questions { get; private set; } = [];
@@ -15,41 +17,56 @@ public class QuestionTypeDomain : BaseDomainEntity<QuestionTypeId>
 
     private QuestionTypeDomain(
         QuestionTypeId id,
-        QuestionTypeKeyNameVO keyName) : base(id)
+        QuestionTypeKeyNameVO keyName,
+        DescriptionVO description,
+        DataTypeId dataTypeId
+        ) : base(id)
     {
         KeyName = keyName;
+        Description = description;
+        IdDataType = dataTypeId;
     }
     public static ResultT<QuestionTypeDomain> Create(
         QuestionTypeId id,
-        string keyName
+        string keyName,
+        string description,
+        DataTypeId dataTypeId
 
       )
     {
         var keyNameResult = QuestionTypeKeyNameVO.Create(keyName);
 
-        if (keyNameResult.IsFailure )
+        var descriptionResult = DescriptionVO.Create(description);
+        if (descriptionResult.IsFailure || keyNameResult.IsFailure)
         {
-            return keyNameResult.Errors;
+            var errorList = new ResultErrorList(
+                new List<ResultErrorList>() { keyNameResult.Errors, descriptionResult.Errors }
+                );
+            return errorList;
         }
-        var domain = new QuestionTypeDomain(id, keyNameResult.Value);
+        var domain = new QuestionTypeDomain(id, keyNameResult.Value, descriptionResult.Value, dataTypeId);
 
         return domain;
     }
     public static ResultT<QuestionTypeDomain> Create(
-            string keyName
+            string keyName,
+            string description,
+            DataTypeId dataTypeId
         )
-        => Create(QuestionTypeId.Create(), keyName);
+        => Create(QuestionTypeId.Create(), keyName, description, dataTypeId);
 
     public Result Update(
-           string keyName
+           string keyName,
+              string description
        )
     {
         var keyNameResult = QuestionTypeKeyNameVO.Create(keyName);
+        var descriptionResult = DescriptionVO.Create(description);
 
-        if (keyNameResult.IsFailure)
+        if (keyNameResult.IsFailure || descriptionResult.IsFailure)
         {
             var errorList = new ResultErrorList(
-                new List<ResultErrorList>() { keyNameResult.Errors }
+                new List<ResultErrorList>() { keyNameResult.Errors, descriptionResult.Errors }
                 );
             return errorList;
         }

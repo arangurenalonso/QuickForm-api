@@ -28,7 +28,7 @@ public class FormSectionConfiguration : EntityMapBase<FormSectionDomain, FormSec
                 .IsRequired()
                 .HasConversion(
                     titleVO => titleVO.Value,
-                    titleString => FormSectionTitle.Create(titleString).Value
+                    titleString => FormSectionTitleVO.Create(titleString).Value
                     );
 
         builder.Property(p => p.Description)
@@ -37,7 +37,7 @@ public class FormSectionConfiguration : EntityMapBase<FormSectionDomain, FormSec
                 .IsRequired()
                 .HasConversion(
                     formDescriptionVO => formDescriptionVO.Value,
-                    formDescription => FormSectionsDescription.Create(formDescription).Value
+                    formDescription => FormSectionDescriptionVO.Create(formDescription).Value
                     );
 
         builder.HasOne(section => section.Form)

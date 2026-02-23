@@ -19,7 +19,7 @@ public record TokenVO
 
 
         var textValidation = new TextValidationBuilder()
-                                    .AddAlphanumericCharacters()
+                                    .AddUnicodeLetters()
                                     .AddUnderscore()
                                     .AddHyphen()
                                     .Build().ValidateInvalidCharacter("Token", token);

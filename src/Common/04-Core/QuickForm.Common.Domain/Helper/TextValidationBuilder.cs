@@ -1,104 +1,77 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Data;
+using System.Text.RegularExpressions;
 
 namespace QuickForm.Common.Domain;
+
 public sealed class TextValidationBuilder
 {
-    private readonly List<string> _rules = new();
+    private readonly List<string> _charClassParts = new();
     private readonly List<string> _validCharsDescriptions = new();
 
-    public TextValidationBuilder AddLowercaseLetters()
+    public TextValidationBuilder AddUnicodeLetters()
     {
-        _rules.Add("a-z");
-        _validCharsDescriptions.Add("lowercase letters");
+        // \p{L} = letters, \p{M} = combining marks (accents)
+        _charClassParts.Add(@"\p{L}\p{M}");
+        _validCharsDescriptions.Add("letters (including accents)");
         return this;
     }
 
-    public TextValidationBuilder AddUppercaseLetters()
+    // Space only (not \s)
+    public TextValidationBuilder AddSpace()
     {
-        _rules.Add("A-Z");
-        _validCharsDescriptions.Add("uppercase letters");
-        return this;
-    }
-
-    public TextValidationBuilder AddLowercaseAccentedLetters()
-    {
-        _rules.Add("áéíóú");
-        _validCharsDescriptions.Add("lowercase letters with accents");
-        return this;
-    }
-
-    public TextValidationBuilder AddUppercaseAccentedLetters()
-    {
-        _rules.Add("ÁÉÍÓÚ");
-        _validCharsDescriptions.Add("uppercase letters with accents");
-        return this;
-    }
-
-    public TextValidationBuilder AddSpanishLetters()
-    {
-        _rules.Add("ñÑ");
-        _validCharsDescriptions.Add("Spanish letters (ñ, Ñ)");
+        _charClassParts.Add(" ");
+        _validCharsDescriptions.Add("spaces");
         return this;
     }
 
     public TextValidationBuilder AddNumbers()
     {
-        _rules.Add("0-9");
+        _charClassParts.Add("0-9");
         _validCharsDescriptions.Add("numbers");
         return this;
     }
 
-    public TextValidationBuilder AddWhitespace()
+    public TextValidationBuilder AddApostrophe()
     {
-        _rules.Add("\\s");
-        _validCharsDescriptions.Add("spaces");
+        _charClassParts.Add("'");
+        _validCharsDescriptions.Add("apostrophe (')");
         return this;
     }
 
-    public TextValidationBuilder AddPunctuation()
-    {
-        _rules.Add("\\.,'!?¡¿;:");
-        _validCharsDescriptions.Add("punctuation marks");
-        return this;
-    }
-
-    public TextValidationBuilder AddSpecialChars()
-    {
-        _rules.Add("@#$%&*\\-");
-        _validCharsDescriptions.Add("special characters (@, #, $, %, &, *, -)");
-        return this;
-    }
-    public TextValidationBuilder AddAlphabeticCharacters()
-    {
-        return AddLowercaseLetters()
-               .AddUppercaseLetters()
-               .AddLowercaseAccentedLetters()
-               .AddUppercaseAccentedLetters()
-               .AddSpanishLetters();
-    }
-    public TextValidationBuilder AddAlphanumericCharacters()
-    {
-        return AddAlphabeticCharacters()
-               .AddNumbers();
-    }
-    public TextValidationBuilder AddUnderscore()
-    {
-        _rules.Add("_");
-        _validCharsDescriptions.Add("underscore (_)");
-        return this;
-    }
     public TextValidationBuilder AddHyphen()
     {
-        _rules.Add("-");
+        _charClassParts.Add(@"\-"); // safe inside [...]
         _validCharsDescriptions.Add("hyphen (-)");
         return this;
     }
 
+    public TextValidationBuilder AddUnderscore()
+    {
+        _charClassParts.Add("_");
+        _validCharsDescriptions.Add("underscore (_)");
+        return this;
+    }
 
     public TextValidation Build()
     {
-        var pattern = $"^[{string.Join("", _rules)}]+$";
-        var regexPattern = new Regex(pattern);
-        return TextValidation.Create(_rules, regexPattern);
+        if (_charClassParts.Count == 0)
+        {
+            throw new InvalidOperationException("No rules configured.");
+        }
+
+        var charClass = string.Concat(_charClassParts);
+
+        // Full string must be made only of allowed chars
+        var fullPattern = $"^[{charClass}]+$";
+        // Single character validator (for invalid char extraction)
+        var charPattern = $"^[{charClass}]$";
+
+        var options = RegexOptions.Compiled | RegexOptions.CultureInvariant;
+
+        return TextValidation.Create(
+            _validCharsDescriptions,
+            new Regex(fullPattern, options),
+            new Regex(charPattern, options)
+        );
     }
 }
