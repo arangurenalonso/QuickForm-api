@@ -6,9 +6,11 @@ public sealed class SubmissionValueDomain : BaseDomainEntity<SubmissionValueId>
 {
     public SubmissionId IdSubmission { get; private set; }
     public QuestionId IdQuestion { get; private set; }
+    public string Value { get; private set; } = default!;
 
-    // store raw JSON text (keeps number/bool/string)
-    public string ValueJson { get; private set; } = default!;
+    public SubmissionDomain Submission { get; private set; }
+    public QuestionDomain Question { get; private set; }
+
 
     private SubmissionValueDomain() { }
 

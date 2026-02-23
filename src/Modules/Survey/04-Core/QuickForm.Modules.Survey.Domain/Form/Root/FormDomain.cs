@@ -7,9 +7,9 @@ public class FormDomain : BaseDomainEntity<FormId>
 
     public FormNameVO Name { get; private set; }
     public FormDescription Description { get; private set; }
+    public MasterId IdStatus { get; private set; }
     public DateEnd? DateEnd { get; private set; }
     public CustomerId IdCustomer { get; private set; }
-    public MasterId IdStatus { get; private set; }
 
     #region One to Many
     public Customer Customer { get; private set; }
@@ -17,6 +17,7 @@ public class FormDomain : BaseDomainEntity<FormId>
     #endregion
     #region Many to One
     public ICollection<FormSectionDomain> Sections { get; private set; } = [];
+    public ICollection<SubmissionDomain> Submissions { get; private set; } = [];
     public ICollection<FormStatusHistoryDomain> StatusHistory { get; private set; } = [];
     
     #endregion

@@ -6,7 +6,8 @@ public sealed class SubmissionDomain : BaseDomainEntity<SubmissionId>
     public FormId IdForm { get; private set; }
     public DateTime SubmittedAtUtc { get; private set; }
 
-    public ICollection<SubmissionValueDomain> Values { get; private set; } = [];
+    public ICollection<SubmissionValueDomain> SubmissionValues { get; private set; } = [];
+    public FormDomain Form { get; private set; }
 
     private SubmissionDomain() { }
 
@@ -21,7 +22,7 @@ public sealed class SubmissionDomain : BaseDomainEntity<SubmissionId>
 
     public Result AddValue(QuestionId questionId, string valueJson)
     {
-        if (Values.Any(v => v.IdQuestion == questionId && !v.IsDeleted))
+        if (SubmissionValues.Any(v => v.IdQuestion == questionId && !v.IsDeleted))
         {
             return ResultError.InvalidOperation(
                 "DuplicateAnswer",
@@ -34,7 +35,7 @@ public sealed class SubmissionDomain : BaseDomainEntity<SubmissionId>
             return created.Errors;
         }
 
-        Values.Add(created.Value);
+        SubmissionValues.Add(created.Value);
         return Result.Success();
     }
 }
