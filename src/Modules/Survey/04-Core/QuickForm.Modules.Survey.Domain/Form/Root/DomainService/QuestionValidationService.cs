@@ -195,7 +195,7 @@ public class QuestionValidationService
 
             var dataTypeName = ruleDomain.DataType.Description.Value;
 
-            var validateResult = ValidateDataType(ruleName, dataTypeName, ruleValue.Value);
+            var validateResult = SurveyDomainMethod.ValidateDataType(ruleName, dataTypeName, ruleValue.Value);
             if (validateResult.IsFailure)
             {
                 return validateResult;
@@ -300,7 +300,7 @@ public class QuestionValidationService
             }
 
             var dataTypeName = attribute.DataType.Description.Value;
-            var validateResult = ValidateDataType(propertyName, dataTypeName, value);
+            var validateResult = SurveyDomainMethod.ValidateDataType(propertyName, dataTypeName, value);
 
             if (validateResult.IsFailure)
             {
@@ -339,129 +339,39 @@ public class QuestionValidationService
                     continue;
                 }
 
-                var normalized = NormalizeForUniqueness(rawValue);
-                if (normalized is null)
+                if (!SurveyDomainMethod.TryConvertScalar(attr.KeyName.Value, rawValue, "Attribute", out var valueToStore, out var convertError))
+                {
+                    return convertError!;
+                }
+                if (valueToStore is null)
+                {
+                    continue;
+
+                }
+
+                valueToStore = valueToStore.Trim();
+                if (string.IsNullOrWhiteSpace(valueToStore))
                 {
                     continue;
                 }
 
-                if (seen.TryGetValue(normalized, out var firstQuestionId))
+                if (seen.TryGetValue(valueToStore, out var firstQuestionId))
                 {
                     var error = ResultError.InvalidInput(
                         "Attribute",
                         $"Attribute '{attr.KeyName.Value}' must be unique across all questions. " +
-                        $"Duplicate value: '{normalized}'. First question id: '{firstQuestionId}', duplicate question id: '{q.Id}'."
+                        $"Duplicate value: '{valueToStore}'. First question id: '{firstQuestionId}', duplicate question id: '{q.Id}'."
                     );
 
                     return Result.Failure(ResultType.Conflict, error);
                 }
 
-                seen[normalized] = q.Id;
+                seen[valueToStore] = q.Id;
             }
         }
 
         return Result.Success();
     }
 
-
-    private static string? NormalizeForUniqueness(JsonElement value)
-    {
-        if (value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
-        {
-            return null;
-        }
-
-        if (value.ValueKind == JsonValueKind.String)
-        {
-            var s = value.GetString();
-            if (string.IsNullOrWhiteSpace(s))
-            {
-                return null;
-            }
-            return s.Trim();
-        }
-
-        if (value.ValueKind == JsonValueKind.True)
-        {
-            return "true";
-        }
-        if (value.ValueKind == JsonValueKind.False)
-        {
-            return "false";
-        }
-
-        if (value.ValueKind == JsonValueKind.Number)
-        {
-            return value.GetRawText();
-        }
-
-        if (value.ValueKind is JsonValueKind.Object or JsonValueKind.Array)
-        {
-            return value.GetRawText();
-        }
-
-        return value.ToString();
-    }
-
-    public static Result ValidateDataType(string propertyName, string dataType, JsonElement value)
-    {
-        if (string.IsNullOrWhiteSpace(dataType))
-        {
-            var errorUnknown = ResultError.InvalidInput(
-                "DataType",
-                $"Missing data type for attribute '{propertyName}'."
-            );
-            return Result.Failure(ResultType.MismatchValidation, errorUnknown);
-        }
-        var normalizedTypeName = dataType.Trim().ToLowerInvariant();
-        var dataTypeEnum = EnumExtensions.FromName<DataTypeType>(normalizedTypeName);
-
-        if (dataTypeEnum == null)
-        {
-            var errorUnknown = ResultError.InvalidInput(
-                "DataType",
-                $"Unknown data type '{dataType}' for attribute '{propertyName}'."
-            );
-            return Result.Failure(ResultType.MismatchValidation, errorUnknown);
-        }
-
-        bool isValid = dataTypeEnum switch
-        {
-            DataTypeType.StringType => value.ValueKind == JsonValueKind.String,
-
-            DataTypeType.IntType => value.TryGetInt32(out _),
-
-            DataTypeType.DecimalType => value.TryGetDecimal(out _),
-
-            DataTypeType.BooleanType =>
-                value.ValueKind == JsonValueKind.True || value.ValueKind == JsonValueKind.False,
-
-            DataTypeType.DatetimeType =>
-                value.ValueKind == JsonValueKind.String
-                    ? DateTime.TryParse(
-                        value.GetString(),
-                        CultureInfo.InvariantCulture,
-                        DateTimeStyles.RoundtripKind,
-                        out _)
-                    : DateTime.TryParse(
-                        value.GetRawText(),
-                        CultureInfo.InvariantCulture,
-                        DateTimeStyles.RoundtripKind,
-                        out _),
-
-            _ => false
-        };
-
-        if (!isValid)
-        {
-            var error = ResultError.InvalidInput(
-                "DataType",
-                $"Invalid data type for attribute '{propertyName}'. Expected '{dataType}', but received '{value.ValueKind}'."
-            );
-            return Result.Failure(ResultType.DomainValidation, error);
-        }
-
-        return Result.Success();
-    }
 
 }

@@ -95,4 +95,27 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
         return await query.ToListAsync(cancellationToken);
     }
 
+    public async Task<List<QuestionForSubmission>> GetQuestionsForSubmissionAsync(
+        Guid idForm,
+        CancellationToken ct = default)
+    {
+        var formId = new FormId(idForm);
+
+        return await _context.Set<QuestionDomain>()
+            .AsNoTracking()
+            .Where(q => !q.IsDeleted && !q.FormSection.IsDeleted && q.FormSection.IdForm == formId)
+            .Select(q => new QuestionForSubmission(
+                q.Id.Value,
+                q.IdQuestionType.Value,
+                q.QuestionAttributeValue
+                    .Where(av => !av.IsDeleted)
+                    .Select(av => new ValueTuple<Guid, string?>(av.QuestionTypeAttribute.Attribute.Id.Value, av.Value))
+                    .ToList(),
+                q.QuestionRuleValue
+                    .Where(rv => !rv.IsDeleted)
+                    .Select(rv => new ValueTuple<Guid, string?, string?>(rv.QuestionTypeRule.Rule.Id.Value, rv.Value, rv.Message))
+                    .ToList()
+            ))
+            .ToListAsync(ct);
+    }
 }

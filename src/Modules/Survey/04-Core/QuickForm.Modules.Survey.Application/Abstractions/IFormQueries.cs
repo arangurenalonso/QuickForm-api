@@ -12,4 +12,7 @@ public interface IFormQueries
     Task<List<FormViewModel>> GetFormsByCustomerIdAsync(Guid idCustomer, CancellationToken ct = default);
 
     Task<List<FormSectionDomain>> GetStructureFormAsync(Guid id, bool asNoTracking, CancellationToken cancellationToken = default);
+    Task<List<QuestionForSubmission>> GetQuestionsForSubmissionAsync(
+        Guid idForm,
+        CancellationToken ct = default);
 }

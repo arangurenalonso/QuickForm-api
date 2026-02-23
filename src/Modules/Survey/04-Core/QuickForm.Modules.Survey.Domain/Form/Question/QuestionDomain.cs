@@ -101,7 +101,7 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
                     $"The rule '{ruleKey}' is not defined for the question type '{questionType.KeyName.Value}'.");
             }
 
-            if (!TryConvertScalar(ruleKey, incomingRule.Value, "Rules", out var valueToStore, out var convertError))
+            if (!SurveyDomainMethod.TryConvertScalar(ruleKey, incomingRule.Value, "Rules", out var valueToStore, out var convertError))
             {
                 return convertError!;
             }
@@ -234,7 +234,7 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
             }
 
 
-            if (!TryConvertScalar(prop.Name, prop.Value, "Properties", out var valueToStore, out var convertError))
+            if (!SurveyDomainMethod.TryConvertScalar(prop.Name, prop.Value, "Properties", out var valueToStore, out var convertError))
             {
                 return convertError!;
             }
@@ -295,52 +295,5 @@ public class QuestionDomain : BaseDomainEntity<QuestionId>
 
 
         return Result.Success();
-    }
-
-    private static bool TryConvertScalar(
-        string key,
-        JsonElement value,
-        string payloadName,
-        out string? valueToStore,
-        out Result? error
-)
-    {
-        valueToStore = null;
-        error = null;
-
-        switch (value.ValueKind)
-        {
-            case JsonValueKind.Undefined:
-            case JsonValueKind.Null:
-                valueToStore = null;
-                return true;
-
-            case JsonValueKind.String:
-                valueToStore = value.GetString();
-                return true;
-
-            case JsonValueKind.Number:
-                valueToStore = value.GetRawText();
-                return true;
-
-            case JsonValueKind.True:
-                valueToStore = "true";
-                return true;
-
-            case JsonValueKind.False:
-                valueToStore = "false";
-                return true;
-
-            case JsonValueKind.Array:
-            case JsonValueKind.Object:
-                error = ResultError.InvalidInput(
-                    payloadName,
-                    $"Key '{key}' does not support arrays or objects.");
-                return false;
-
-            default:
-                valueToStore = value.ToString();
-                return true;
-        }
     }
 }
