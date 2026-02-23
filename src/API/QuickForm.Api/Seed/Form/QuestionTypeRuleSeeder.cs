@@ -20,9 +20,9 @@ internal sealed class QuestionTypeRuleSeeder(SurveyDbContext _context, ILogger<D
             },
             [QuestionTypeType.InputTypeDecimal] = new[]
             {
-                (new Guid("F5AB345C-49AC-43DF-A6C8-16549BCE6A5D"), RuleType.Min,false),
-                (new Guid("CBEF1C4F-FA03-46B3-B52E-6542489FD708"), RuleType.Max,false),
-                (new Guid("75C7AE09-96E5-4C1E-A9D2-BDC1A1767ADF"), RuleType.Required,false),
+                (new Guid("DD6EE9B4-68C9-46E4-B68A-5328F7C61D5E"), RuleType.Min,false),
+                (new Guid("2D26E31F-47E0-4F80-BEDA-DE7E88E223B5"), RuleType.Max,false),
+                (new Guid("CB6ABFB3-CD3A-4638-921E-7BB8CDD7B7F8"), RuleType.Required,false),
             },
             [QuestionTypeType.InputTypeInteger] = new[]
             {

@@ -27,14 +27,14 @@ internal sealed class DatabaseSeeder(
             var ruleSeeder = new RuleSeeder(_surveyDbContext, _logger);
             await ruleSeeder.SeedAsync();
 
-            var questionTypeRuleSeeder = new QuestionTypeRuleSeeder(_surveyDbContext, _logger);
-            await questionTypeRuleSeeder.SeedAsync();
-
 
             var questionTypeSeeder = new QuestionTypeSeeder(_surveyDbContext, _logger);
             await questionTypeSeeder.SeedAsync();
+            var questionTypeRuleSeeder = new QuestionTypeRuleSeeder(_surveyDbContext, _logger);
+            await questionTypeRuleSeeder.SeedAsync();
             var questionTypeAttributesSeeder = new QuestionTypeAttributesSeeder(_surveyDbContext, _logger);
             await questionTypeAttributesSeeder.SeedAsync();
+
             var formStatusSeeder = new FormStatusSeeder(_surveyDbContext, _logger);
             await formStatusSeeder.SeedAsync();
             var formActionSeeder = new FormActionSeeder(_surveyDbContext, _logger);
