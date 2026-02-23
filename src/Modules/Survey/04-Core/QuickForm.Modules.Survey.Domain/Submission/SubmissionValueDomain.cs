@@ -18,12 +18,12 @@ public sealed class SubmissionValueDomain : BaseDomainEntity<SubmissionValueId>
         SubmissionValueId id,
         SubmissionId idSubmission,
         QuestionId idQuestion,
-        string valueJson
+        string value
     ) : base(id)
     {
         IdSubmission = idSubmission;
         IdQuestion = idQuestion;
-        ValueJson = valueJson;
+        Value = value;
     }
 
     public static ResultT<SubmissionValueDomain> Create(

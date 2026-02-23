@@ -31,7 +31,21 @@ public class QuestionTypeConfiguration : EntityMapBase<QuestionTypeDomain, Quest
                     keyNameString => QuestionTypeKeyNameVO.Create(keyNameString).Value
                     );
 
+        builder.OwnsOne(e => e.Description, owned =>
+        {
+            owned.Property(v => v.Value)
+                 .HasColumnName("Description")
+                 .HasMaxLength(1000)
+                 .IsRequired(false);
+        });
+
         builder.HasIndex(p => p.KeyName).IsUnique();
 
+
+        builder.HasOne(uat => uat.DataType)
+            .WithMany(u => u.QuestionType)
+            .HasForeignKey(uat => uat.IdDataType)
+            .OnDelete(DeleteBehavior.NoAction)
+            .IsRequired();
     }
 }

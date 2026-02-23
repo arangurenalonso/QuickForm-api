@@ -7,6 +7,9 @@ public class QuestionTypeDomain : BaseDomainEntity<QuestionTypeId>
     public QuestionTypeKeyNameVO KeyName { get; private set; }
     public DescriptionVO Description { get; private set; }
     public DataTypeId IdDataType { get; private set; }
+    #region One to Many
+    public DataTypeDomain DataType { get; private set; }
+    #endregion
 
     #region Many to One
     public ICollection<QuestionDomain> Questions { get; private set; } = [];
