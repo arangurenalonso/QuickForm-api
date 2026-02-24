@@ -1,16 +1,17 @@
-﻿using QuickForm.Common.Domain;
-using QuickForm.Modules.Survey.Domain;
+﻿using System.Globalization;
+using System.Text.Json;
+using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Survey.Domain;
+
 public sealed class SubmissionValueDomain : BaseDomainEntity<SubmissionValueId>
 {
     public SubmissionId IdSubmission { get; private set; }
     public QuestionId IdQuestion { get; private set; }
     public string Value { get; private set; } = default!;
 
-    public SubmissionDomain Submission { get; private set; }
-    public QuestionDomain Question { get; private set; }
-
+    public SubmissionDomain Submission { get; private set; } = default!;
+    public QuestionDomain Question { get; private set; } = default!;
 
     private SubmissionValueDomain() { }
 
@@ -28,21 +29,39 @@ public sealed class SubmissionValueDomain : BaseDomainEntity<SubmissionValueId>
 
     public static ResultT<SubmissionValueDomain> Create(
         SubmissionId idSubmission,
-        QuestionId idQuestion,
-        string valueJson
+        QuestionForSubmission question,
+        string name,
+        JsonElement value
     )
     {
-        if (string.IsNullOrWhiteSpace(valueJson))
+        var errors = new List<ResultError>();
+
+        var attrValidation = SurveyDomainMethod.ValidateAttributes(value, question, name);
+        if (attrValidation.IsFailure)
         {
-            // allow "null" too if you want; this is just a guard example
-            return ResultError.InvalidInput("Value", "ValueJson cannot be empty.");
+            errors.AddRange(attrValidation.Errors.ToList());
+        }
+
+        // Rule-based validations
+        foreach (var rule in question.Rules)
+        {
+            var validationResult = SurveyDomainMethod.ValidateRules(value, rule, question.QuestionId, name);
+            if (validationResult.IsFailure)
+            {
+                errors.AddRange(validationResult.Errors.ToList());
+            }
+        }
+
+        if (errors.Count > 0)
+        {
+            return errors;
         }
 
         return new SubmissionValueDomain(
             SubmissionValueId.Create(),
             idSubmission,
-            idQuestion,
-            valueJson
+            question.QuestionId,
+            value.GetRawText()
         );
     }
 }

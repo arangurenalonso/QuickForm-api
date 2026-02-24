@@ -5,5 +5,4 @@ namespace QuickForm.Modules.Survey.Application;
 public sealed record CreateSubmissionCommand(
         Guid IdForm,
         Dictionary<string, JsonElement> request
-    )
-    : ICommand<ResultResponse>;
+    ): ICommand<ResultResponse>;

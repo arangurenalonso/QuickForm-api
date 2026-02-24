@@ -105,7 +105,7 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
             .AsNoTracking()
             .Where(q => !q.IsDeleted && !q.FormSection.IsDeleted && q.FormSection.IdForm == formId)
             .Select(q => new QuestionForSubmission(
-                q.Id.Value,
+                q.Id,
                 q.IdQuestionType.Value,
                 q.QuestionAttributeValue
                     .Where(av => !av.IsDeleted)

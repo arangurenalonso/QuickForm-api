@@ -15,8 +15,8 @@ internal sealed class RuleSeeder(SurveyDbContext _context, ILogger<DatabaseSeede
 
         var predefinedRules = new Dictionary<RuleType, (DataTypeType DataType, string Description, string DefaultValidationMessage, string? RequiredPlaceholder)>
         {
-            [RuleType.Min] = (DataTypeType.IntType, "Specifies the minimum allowed numeric value.", "Must be at least {min}", "{min}"),
-            [RuleType.Max] = (DataTypeType.IntType, "Specifies the maximum allowed numeric value.", "Cannot exceed {max}","{max}"),
+            [RuleType.Min] = (DataTypeType.DecimalType, "Specifies the minimum allowed numeric value.", "Must be at least {min}", "{min}"),
+            [RuleType.Max] = (DataTypeType.DecimalType, "Specifies the maximum allowed numeric value.", "Cannot exceed {max}","{max}"),
             [RuleType.MinLength] = (DataTypeType.IntType, "Defines the minimum number of characters required.", "Minimum length is {minLength}", "{minLength}"),
             [RuleType.MaxLength] = (DataTypeType.IntType, "Defines the maximum number of characters allowed.", "Maximum length is {maxLength}", "{maxLength}"),
             [RuleType.Required] = (DataTypeType.BooleanType, "Indicates that this field is mandatory and cannot be left empty.", "Field is required",null),

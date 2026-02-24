@@ -1,10 +1,13 @@
 ﻿using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
+using QuickForm.Modules.Survey.Application.Forms.Queries;
 using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Application;
 internal sealed class CreateSubmissionCommandHandler(
+        IDateTimeProvider _dateTimeProvider,
         IFormRepository formRepository, 
+        IFormQueries formQueries,
         IUnitOfWork _unitOfWork
     )
     : ICommandHandler<CreateSubmissionCommand, ResultResponse>
@@ -19,19 +22,23 @@ internal sealed class CreateSubmissionCommandHandler(
             return ResultT<ResultResponse>.FailureT(ResultType.NotFound, error);
         }
 
-        var resultUpdate = form.Close();
+        var now = _dateTimeProvider.UtcNow;
 
-        if (resultUpdate.IsFailure)
+        var questionsSubmission = await formQueries.GetQuestionsForSubmissionAsync(request.IdForm, cancellationToken);
+
+        var newSubmission = SubmissionDomain.Create(form.Id, now, questionsSubmission, request.request);
+        if (newSubmission.IsFailure)
         {
-            return ResultT<ResultResponse>.FailureT(ResultType.DomainValidation, resultUpdate.Errors);
+            return ResultT<ResultResponse>.FailureT(newSubmission.Errors);
         }
+        _unitOfWork.Repository<SubmissionDomain,SubmissionId>().AddEntity(newSubmission.Value);
 
         var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
         if (resultTransaction.IsFailure)
         {
-            return ResultT<ResultResponse>.FailureT(resultTransaction.ResultType, resultTransaction.Errors);
+            return resultTransaction.Errors;
         }
+        return ResultResponse.Success($"Submission was save succesfully.");
 
-        return ResultResponse.Success($"Form id '{request.IdForm}' closed successfully.");
     }
 }

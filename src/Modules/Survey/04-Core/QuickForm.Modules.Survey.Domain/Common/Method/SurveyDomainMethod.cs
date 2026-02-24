@@ -113,5 +113,267 @@ public static class SurveyDomainMethod
         return Result.Success();
     }
 
+    public static ResultT<Dictionary<string, JsonElement>> NormalizeRequest(IReadOnlyDictionary<string, JsonElement> request)
+    {
+        var normalized = new Dictionary<string, JsonElement>(StringComparer.OrdinalIgnoreCase);
 
+        foreach (var (rawKey, value) in request)
+        {
+            if (string.IsNullOrWhiteSpace(rawKey))
+            {
+                var err = ResultError.InvalidInput("Request", "Request contains an empty key.");
+                return ResultT<Dictionary<string, JsonElement>>.FailureT(ResultType.DomainValidation, err);
+            }
+
+            var key = rawKey.Trim();
+
+            if (!normalized.TryAdd(key, value))
+            {
+                var err = ResultError.InvalidInput(
+                    "Request",
+                    $"Duplicate field '{key}' in request (case-insensitive duplicates are not allowed)."
+                );
+                return ResultT<Dictionary<string, JsonElement>>.FailureT(ResultType.DomainValidation, err);
+            }
+        }
+
+        return normalized;
+    }
+
+    public static Result ValidateAttributes(JsonElement value, QuestionForSubmission question, string name)
+    {
+        // AllowNegative
+        var allowNegativeAttr = question.Attributes.FirstOrDefault(a => a.AttributeId == AttributeType.AllowNegative.GetId());
+        if (allowNegativeAttr.Value is not null)
+        {
+            if (!bool.TryParse(allowNegativeAttr.Value, out var allowNegative))
+            {
+                return ResultError.InvalidInput(
+                    "FormDefinition",
+                    $"Field '{name}' has AllowNegative attribute with invalid boolean value '{allowNegativeAttr.Value}'."
+                );
+            }
+
+            if (!allowNegative && TryGetDecimal(value, out var dec) && dec < 0)
+            {
+                return ResultError.InvalidInput(name, "Negative values are not allowed.");
+            }
+        }
+
+        // DecimalScale
+        var decimalScaleAttr = question.Attributes.FirstOrDefault(a => a.AttributeId == AttributeType.DecimalScale.GetId());
+        if (decimalScaleAttr.Value is not null)
+        {
+            if (!int.TryParse(decimalScaleAttr.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var scale) || scale < 0)
+            {
+                return ResultError.InvalidInput(
+                    "FormDefinition",
+                    $"Field '{name}' has DecimalScale attribute with invalid integer value '{decimalScaleAttr.Value}'."
+                );
+            }
+
+            if (TryGetDecimal(value, out var dec))
+            {
+                var decimals = CountDecimals(dec);
+                if (decimals > scale)
+                {
+                    return ResultError.InvalidInput(name, $"Maximum allowed decimal places is {scale}.");
+                }
+            }
+        }
+
+        return Result.Success();
+    }
+
+
+
+    public static Result ValidateRules(
+    JsonElement value,
+    (Guid RuleId, string? Value, string? Message) rule,
+    QuestionId questionId,
+    string name
+)
+    {
+        switch (rule.RuleId)
+        {
+            case var r when r == RuleType.Required.GetId():
+                {
+                    if (string.IsNullOrWhiteSpace(rule.Value))
+                    {
+                        return Result.Success();
+                    }
+
+                    if (!bool.TryParse(rule.Value, out var required))
+                    {
+                        return ResultError.InvalidInput(
+                            "FormDefinition",
+                            $"Question '{questionId.Value}' has Required rule with invalid boolean value '{rule.Value}'."
+                        );
+                    }
+
+                    if (required && IsEmpty(value))
+                    {
+                        return ResultError.InvalidInput(name, rule.Message ?? "This field is required.");
+                    }
+
+                    return Result.Success();
+                }
+
+            case var r when r == RuleType.MaxLength.GetId():
+                {
+                    if (IsNull(value) || string.IsNullOrWhiteSpace(rule.Value))
+                    {
+                        return Result.Success();
+                    }
+
+                    if (!int.TryParse(rule.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var maxLen))
+                    {
+                        return ResultError.InvalidInput(
+                            "FormDefinition",
+                            $"Question '{questionId.Value}' has MaxLength rule with invalid int value '{rule.Value}'."
+                        );
+                    }
+
+                    if (value.ValueKind != JsonValueKind.String)
+                    {
+                        return ResultError.InvalidInput(name, rule.Message ?? "The value must be a string.");
+                    }
+
+                    var s = value.GetString() ?? string.Empty;
+                    if (s.Length > maxLen)
+                    {
+                        return ResultError.InvalidInput(name, rule.Message ?? $"The maximum length allowed is {maxLen} characters.");
+                    }
+
+                    return Result.Success();
+                }
+
+            case var r when r == RuleType.MinLength.GetId():
+                {
+                    if (IsNull(value) || string.IsNullOrWhiteSpace(rule.Value))
+                    {
+                        return Result.Success();
+                    }
+
+                    if (!int.TryParse(rule.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var minLen))
+                    {
+                        return ResultError.InvalidInput(
+                            "FormDefinition",
+                            $"Question '{questionId.Value}' has MinLength rule with invalid int value '{rule.Value}'."
+                        );
+                    }
+
+                    if (value.ValueKind != JsonValueKind.String)
+                    {
+                        return ResultError.InvalidInput(name, rule.Message ?? "The value must be a string.");
+                    }
+
+                    var s = value.GetString() ?? string.Empty;
+                    if (s.Length < minLen)
+                    {
+                        return ResultError.InvalidInput(name, rule.Message ?? $"The minimum length allowed is {minLen} characters.");
+                    }
+
+                    return Result.Success();
+                }
+
+            case var r when r == RuleType.Min.GetId():
+                {
+                    if (IsNull(value) || string.IsNullOrWhiteSpace(rule.Value))
+                    {
+                        return Result.Success();
+                    }
+
+                    if (!decimal.TryParse(rule.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var min))
+                    {
+                        return ResultError.InvalidInput(
+                            "FormDefinition",
+                            $"Question '{questionId.Value}' has Min rule with invalid decimal value '{rule.Value}'."
+                        );
+                    }
+
+                    if (!TryGetDecimal(value, out var dec))
+                    {
+                        return ResultError.InvalidInput(name, rule.Message ?? "The value must be a valid number.");
+                    }
+
+                    if (dec < min)
+                    {
+                        return ResultError.InvalidInput(name, rule.Message ?? $"The minimum value allowed is {min}.");
+                    }
+
+                    return Result.Success();
+                }
+
+            case var r when r == RuleType.Max.GetId():
+                {
+                    if (IsNull(value) || string.IsNullOrWhiteSpace(rule.Value))
+                    {
+                        return Result.Success();
+                    }
+
+
+                    if (!decimal.TryParse(rule.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var max))
+                    {
+                        return ResultError.InvalidInput(
+                            "FormDefinition",
+                            $"Question '{questionId.Value}' has Max rule with invalid decimal value '{rule.Value}'."
+                        );
+                    }
+
+                    if (!TryGetDecimal(value, out var dec))
+                    {
+                        return ResultError.InvalidInput(name, rule.Message ?? "The value must be a valid number.");
+                    }
+
+                    if (dec > max)
+                    {
+                        return ResultError.InvalidInput(name, rule.Message ?? $"The maximum value allowed is {max}.");
+                    }
+
+                    return Result.Success();
+                }
+
+            default:
+                return ResultError.InvalidInput(
+                    "FormDefinition",
+                    $"Validation for rule '{rule.RuleId}' is not implemented."
+                );
+        }
+    }
+
+
+    private static bool TryGetDecimal(JsonElement v, out decimal value)
+    {
+        value = default;
+
+        if (v.ValueKind == JsonValueKind.Number)
+        {
+            return v.TryGetDecimal(out value);
+        }
+
+        if (v.ValueKind == JsonValueKind.String)
+        {
+            return decimal.TryParse(v.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out value);
+        }
+
+        return false;
+    }
+    private static bool IsNull(JsonElement v)
+        => v.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined;
+
+    public static bool IsEmpty(JsonElement v)
+        => v.ValueKind switch
+        {
+            JsonValueKind.Null or JsonValueKind.Undefined => true,
+            JsonValueKind.String => string.IsNullOrWhiteSpace(v.GetString()),
+            JsonValueKind.Array => v.GetArrayLength() == 0,
+            _ => false
+        };
+
+    private static int CountDecimals(decimal d)
+    {
+        var bits = decimal.GetBits(d);
+        return (bits[3] >> 16) & 0xFF;
+    }
 }
