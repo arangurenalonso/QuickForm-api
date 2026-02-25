@@ -2,4 +2,7 @@
 	<ItemGroup>
 		<PackageReference Include="ClosedXML" Version="0.105.0" />
 	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\..\04-Core\QuickForm.Modules.Survey.Application\QuickForm.Modules.Survey.Application.csproj" />
+	</ItemGroup>
 </Project>

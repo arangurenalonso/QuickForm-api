@@ -111,7 +111,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickForm.Modules.Person.Jo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickForm.Modules.Person.Presentation", "src\Modules\Person\02-Presentation\QuickForm.Modules.Person.Presentation\QuickForm.Modules.Person.Presentation.csproj", "{D0A02AC8-0FA3-4241-B5B1-0C5EFB5419F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "src\Modules\Survey\03-Infrastructure\Service\Service.csproj", "{DD19BDD7-F92D-4BC7-8D8F-455EA0F8EB4E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickForm.Modules.Survey.Service", "src\Modules\Survey\03-Infrastructure\Service\QuickForm.Modules.Survey.Service.csproj", "{DD19BDD7-F92D-4BC7-8D8F-455EA0F8EB4E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
