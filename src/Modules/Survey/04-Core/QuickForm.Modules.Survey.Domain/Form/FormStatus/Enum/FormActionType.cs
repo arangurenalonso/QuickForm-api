@@ -26,4 +26,12 @@ public enum FormActionType
     [Id("40D5DD5A-EBCB-48F3-A36E-3822459249C8")]
     [Name("ViewSubmissions")]
     ViewSubmissions = 6,
+
+
+    [Id("BF4D247D-9824-4917-885C-C89A2619316B")]
+    [Name("AllowSubmission")]
+    AllowSubmission = 7,
+
+
+
 }

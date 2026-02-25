@@ -4,9 +4,9 @@ using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Application;
 internal sealed class FormPublishCommandHandler(IFormRepository formRepository, IUnitOfWork _unitOfWork)
-    : ICommandHandler<FormUpdateCommand, ResultResponse>
+    : ICommandHandler<FormPublishCommand, ResultResponse>
 {
-    public async Task<ResultT<ResultResponse>> Handle(FormUpdateCommand request, CancellationToken cancellationToken)
+    public async Task<ResultT<ResultResponse>> Handle(FormPublishCommand request, CancellationToken cancellationToken)
     {
         var form = await formRepository.GetAsync(request.Id, cancellationToken);
 

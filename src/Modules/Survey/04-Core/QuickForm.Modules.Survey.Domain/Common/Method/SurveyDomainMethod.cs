@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Survey.Domain;
@@ -186,14 +187,24 @@ public static class SurveyDomainMethod
     }
 
 
+    private static string GetMessageFromTemplateAndPlaceholder(string messageTemplate, string? placeholder, string valueToReplace)
+    {
+        if (string.IsNullOrEmpty(placeholder))
+        {
+            return messageTemplate;
+        }
+
+        return Regex.Replace(messageTemplate, placeholder, valueToReplace);
+    }
 
     public static Result ValidateRules(
     JsonElement value,
-    (Guid RuleId, string? Value, string? Message) rule,
+    (Guid RuleId, string? Value, string Message, string? Placeholder) rule,
     QuestionId questionId,
     string name
 )
     {
+
         switch (rule.RuleId)
         {
             case var r when r == RuleType.Required.GetId():
@@ -213,7 +224,8 @@ public static class SurveyDomainMethod
 
                     if (required && IsEmpty(value))
                     {
-                        return ResultError.InvalidInput(name, rule.Message ?? "This field is required.");
+                        var msg = GetMessageFromTemplateAndPlaceholder(rule.Message, rule.Placeholder, "");
+                        return ResultError.InvalidInput(name, msg);
                     }
 
                     return Result.Success();
@@ -236,13 +248,14 @@ public static class SurveyDomainMethod
 
                     if (value.ValueKind != JsonValueKind.String)
                     {
-                        return ResultError.InvalidInput(name, rule.Message ?? "The value must be a string.");
+                        return ResultError.InvalidInput(name, "The value must be a string.");
                     }
 
                     var s = value.GetString() ?? string.Empty;
                     if (s.Length > maxLen)
                     {
-                        return ResultError.InvalidInput(name, rule.Message ?? $"The maximum length allowed is {maxLen} characters.");
+                        var msg = GetMessageFromTemplateAndPlaceholder(rule.Message, rule.Placeholder, $"{maxLen}");
+                        return ResultError.InvalidInput(name, msg);
                     }
 
                     return Result.Success();
@@ -265,13 +278,14 @@ public static class SurveyDomainMethod
 
                     if (value.ValueKind != JsonValueKind.String)
                     {
-                        return ResultError.InvalidInput(name, rule.Message ?? "The value must be a string.");
+                        return ResultError.InvalidInput(name, "The value must be a string.");
                     }
 
                     var s = value.GetString() ?? string.Empty;
                     if (s.Length < minLen)
                     {
-                        return ResultError.InvalidInput(name, rule.Message ?? $"The minimum length allowed is {minLen} characters.");
+                        var msg = GetMessageFromTemplateAndPlaceholder(rule.Message, rule.Placeholder, $"{minLen}");
+                        return ResultError.InvalidInput(name, msg);
                     }
 
                     return Result.Success();
@@ -294,12 +308,13 @@ public static class SurveyDomainMethod
 
                     if (!TryGetDecimal(value, out var dec))
                     {
-                        return ResultError.InvalidInput(name, rule.Message ?? "The value must be a valid number.");
+                        return ResultError.InvalidInput(name, "The value must be a valid number.");
                     }
 
                     if (dec < min)
                     {
-                        return ResultError.InvalidInput(name, rule.Message ?? $"The minimum value allowed is {min}.");
+                        var msg = GetMessageFromTemplateAndPlaceholder(rule.Message, rule.Placeholder, $"{min}");
+                        return ResultError.InvalidInput(name, msg);
                     }
 
                     return Result.Success();
@@ -323,12 +338,13 @@ public static class SurveyDomainMethod
 
                     if (!TryGetDecimal(value, out var dec))
                     {
-                        return ResultError.InvalidInput(name, rule.Message ?? "The value must be a valid number.");
+                        return ResultError.InvalidInput(name, "The value must be a valid number.");
                     }
 
                     if (dec > max)
                     {
-                        return ResultError.InvalidInput(name, rule.Message ?? $"The maximum value allowed is {max}.");
+                        var msg = GetMessageFromTemplateAndPlaceholder(rule.Message, rule.Placeholder, $"{max}");
+                        return ResultError.InvalidInput(name, msg);
                     }
 
                     return Result.Success();

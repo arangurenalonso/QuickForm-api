@@ -7,7 +7,6 @@ using QuickForm.Modules.Survey.Application;
 using QuickForm.Modules.Survey.Domain;
 using QuickForm.Common.Infrastructure;
 using QuickForm.Common.Infrastructure.Persistence;
-using QuickForm.Modules.Survey.Application.Forms.Queries;
 
 namespace QuickForm.Modules.Survey.Persistence;
 public static class SurveyPersistenceServiceRegistration
@@ -39,7 +38,7 @@ public static class SurveyPersistenceServiceRegistration
         services.AddScoped<IQuestionTypeRepository, QuestionTypeRepository>();
         services.AddScoped<IQuestionRepository, QuestionRepository>();
         services.AddScoped<IFormQueries, FormQueries>();
-
+        services.AddScoped<ISubmissionQueries, SubmissionQueries>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<SurveyDbContext>());
         services.AddSingleton<IDbConnectionFactory>(sp =>

@@ -21,7 +21,8 @@ internal sealed class FormStatusPermissionSeeder(SurveyDbContext _context, ILogg
             {
                 (new Guid("913C25B9-5081-487C-A520-12802B18A885"), FormActionType.FormPause),
                 (new Guid("A61BA8BA-A5A8-41F8-AB6C-7697A55D9C85"), FormActionType.FormClose),
-                (new Guid("9CB5FD57-BECE-4426-A946-F7FA79553F32"), FormActionType.ViewSubmissions)
+                (new Guid("9CB5FD57-BECE-4426-A946-F7FA79553F32"), FormActionType.ViewSubmissions),
+                (new Guid("F48893FD-7773-47EA-87B1-E8EEA0FBD3C0"), FormActionType.AllowSubmission)
             },
             [FormStatusType.Paused] = new[]
             {

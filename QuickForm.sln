@@ -111,6 +111,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickForm.Modules.Person.Jo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickForm.Modules.Person.Presentation", "src\Modules\Person\02-Presentation\QuickForm.Modules.Person.Presentation\QuickForm.Modules.Person.Presentation.csproj", "{D0A02AC8-0FA3-4241-B5B1-0C5EFB5419F4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "src\Modules\Survey\03-Infrastructure\Service\Service.csproj", "{DD19BDD7-F92D-4BC7-8D8F-455EA0F8EB4E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -229,6 +231,10 @@ Global
 		{D0A02AC8-0FA3-4241-B5B1-0C5EFB5419F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0A02AC8-0FA3-4241-B5B1-0C5EFB5419F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0A02AC8-0FA3-4241-B5B1-0C5EFB5419F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD19BDD7-F92D-4BC7-8D8F-455EA0F8EB4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD19BDD7-F92D-4BC7-8D8F-455EA0F8EB4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD19BDD7-F92D-4BC7-8D8F-455EA0F8EB4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD19BDD7-F92D-4BC7-8D8F-455EA0F8EB4E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -284,6 +290,7 @@ Global
 		{D55CF597-BEB1-488A-9E7A-82D7514A5B10} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{94BD500A-208E-4DBA-BC4F-3B476406506E} = {A71EA68C-55BD-4562-8D0D-4B5D201B1CA5}
 		{D0A02AC8-0FA3-4241-B5B1-0C5EFB5419F4} = {D55CF597-BEB1-488A-9E7A-82D7514A5B10}
+		{DD19BDD7-F92D-4BC7-8D8F-455EA0F8EB4E} = {C6D209A1-D51F-4304-BE9A-18B17B0202B1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11A3F110-4C77-4999-9D28-6CB65362EA8B}

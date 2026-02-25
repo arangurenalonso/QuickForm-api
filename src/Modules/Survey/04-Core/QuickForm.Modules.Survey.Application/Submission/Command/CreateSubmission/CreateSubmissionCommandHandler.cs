@@ -1,6 +1,5 @@
 ﻿using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
-using QuickForm.Modules.Survey.Application.Forms.Queries;
 using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Application;
@@ -14,12 +13,17 @@ internal sealed class CreateSubmissionCommandHandler(
 {
     public async Task<ResultT<ResultResponse>> Handle(CreateSubmissionCommand request, CancellationToken cancellationToken)
     {
-        var form = await formRepository.GetAsync(request.IdForm, cancellationToken);
+        var form = await formRepository.GetFormToCheckActionAsync(request.IdForm, cancellationToken);
 
         if (form == null)
         {
             var error = ResultError.NullValue("FormId", $"Form with id '{request.IdForm}' not found.");
             return ResultT<ResultResponse>.FailureT(ResultType.NotFound, error);
+        }
+        var canSubmitResult = form.EnsureCanPerformAction(FormActionType.AllowSubmission);
+        if (canSubmitResult.IsFailure)
+        {
+            return canSubmitResult.Errors;
         }
 
         var now = _dateTimeProvider.UtcNow;
@@ -42,3 +46,4 @@ internal sealed class CreateSubmissionCommandHandler(
 
     }
 }
+

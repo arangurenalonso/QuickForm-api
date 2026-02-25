@@ -10,11 +10,23 @@ public class FormRepository(
     ) : IFormRepository
 {
 
+    public async Task<FormDomain?> GetFormToCheckActionAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        FormId formId = new FormId(id);
+        return await _context.Set<FormDomain>()
+                                .Include(x => x.Status)
+                                    .ThenInclude(x => x.Permissions.Where(y => !y.IsDeleted))
+                                        .ThenInclude(x => x.FormAction)
+                                .AsSplitQuery()
+                                .FirstOrDefaultAsync(u => u.Id == formId && !u.IsDeleted, cancellationToken);
+    }
     public async Task<FormDomain?> GetAsync(Guid id, CancellationToken cancellationToken = default)
     {
         FormId formId = new FormId(id);
         return await _context.Set<FormDomain>()
                                 .Include(x => x.Status)
+                                    .ThenInclude(x => x.Permissions.Where(y => !y.IsDeleted))
+                                        .ThenInclude(x => x.FormAction)
                                 .Include(x=>x.Sections.Where(y=>!y.IsDeleted))
                                     .ThenInclude(x=>x.Questions.Where(y => !y.IsDeleted))
                                         .ThenInclude(x=>x.QuestionAttributeValue.Where(y => !y.IsDeleted))

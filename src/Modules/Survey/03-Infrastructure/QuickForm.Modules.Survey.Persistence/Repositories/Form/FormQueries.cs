@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using QuickForm.Common.Domain;
 using QuickForm.Modules.Survey.Application;
-using QuickForm.Modules.Survey.Application.Forms.Queries;
 using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Persistence;
@@ -113,7 +112,13 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
                     .ToList(),
                 q.QuestionRuleValue
                     .Where(rv => !rv.IsDeleted)
-                    .Select(rv => new ValueTuple<Guid, string?, string?>(rv.QuestionTypeRule.Rule.Id.Value, rv.Value, rv.Message))
+                    .Select(rv => new ValueTuple<Guid, string?, string, string?>(
+                                                rv.QuestionTypeRule.Rule.Id.Value,
+                                                rv.Value, 
+                                                rv.Message?? rv.QuestionTypeRule.Rule.DefaultValidationMessageTemplate.ValidationMessage, 
+                                                rv.QuestionTypeRule.Rule.DefaultValidationMessageTemplate.PlaceholderKey
+                                            )
+                    )
                     .ToList()
             ))
             .ToListAsync(ct);

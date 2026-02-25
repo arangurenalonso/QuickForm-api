@@ -70,7 +70,7 @@ public class FormDomain : BaseDomainEntity<FormId>
         )
     {
 
-        var guard = EnsureCanUpdate();
+        var guard = EnsureCanPerformAction(FormActionType.FormEdit);
         if (guard.IsFailure)
         {
             return guard;
@@ -105,21 +105,49 @@ public class FormDomain : BaseDomainEntity<FormId>
 
         return Result.Success();
     }
-    private Result EnsureCanUpdate()
+
+    public Result EnsureCanPerformAction(FormActionType requestedAction)
     {
-        var allowed = new[] { FormStatusType.Draft, FormStatusType.Paused };
-        var isAllowed = allowed.Any(s => s.GetId() == IdStatus.Value);
+        if (Status is null)
+        {
+            return ResultError.InvalidOperation(
+                "FormStatus",
+                "Form status is not loaded. Cannot validate allowed actions.");
+        }
+
+        if (Status.Permissions is null)
+        {
+            return ResultError.InvalidOperation(
+                "FormStatusPermissions",
+                "Form status permissions are not loaded. Cannot validate allowed actions.");
+        }
+
+        var requestedActionId = requestedAction.GetId();
+        var requestedActionName = requestedAction.GetName();
+
+        var allowedActions = Status.Permissions
+            .Where(p => !p.IsDeleted)
+            .Select(p => p.FormAction)
+            .Where(a => a is not null)
+            .DistinctBy(a => a.Id.Value)
+            .ToArray();
+
+        var isAllowed = allowedActions.Any(a => a.Id.Value == requestedActionId);
 
         if (isAllowed)
         {
             return Result.Success();
-
         }
 
-        var allowedNames = string.Join(", ", allowed);
+        var allowedActionNames = allowedActions.Length == 0
+            ? "none"
+            : string.Join(", ", allowedActions.Select(a => a.KeyName.Value));
+
         return ResultError.InvalidOperation(
             "FormStatus",
-            $"The form '{Name.Value}' cannot be updated because its current status is '{Status.KeyName}'. Allowed: {allowedNames}."
+            $"The form '{Name.Value}' cannot perform the action '{requestedActionName}' " +
+            $"because its current status is '{Status.KeyName.Value}'. " +
+            $"Allowed actions: {allowedActionNames}."
         );
     }
     private Result ValidateIncomingSectionsAndQuestions(
@@ -314,7 +342,7 @@ public class FormDomain : BaseDomainEntity<FormId>
     public Result Update(string name, string? description)
     {
 
-        var guard = EnsureCanUpdate();
+        var guard = EnsureCanPerformAction(FormActionType.FormEdit);
         if (guard.IsFailure)
         {
             return guard;
@@ -337,10 +365,11 @@ public class FormDomain : BaseDomainEntity<FormId>
     }
     public Result Publish(bool IsPremiun)
     {
-        var isPublished = IdStatus.Value == FormStatusType.Published.GetId();
-        if (isPublished)
+
+        var guard = EnsureCanPerformAction(FormActionType.FormPublish);
+        if (guard.IsFailure)
         {
-            return ResultError.InvalidOperation("IsPublished", "Form is already published.");
+            return guard;
         }
 
         var registerStatusHistory = RegisterStatusHistory();
@@ -367,10 +396,10 @@ public class FormDomain : BaseDomainEntity<FormId>
     }
     public Result Close()
     {
-        var isClosed = IdStatus.Value == FormStatusType.Closed.GetId(); 
-        if (isClosed)
+        var guard = EnsureCanPerformAction(FormActionType.FormClose);
+        if (guard.IsFailure)
         {
-            return ResultError.InvalidOperation("IsClose", "Form is already close.");
+            return guard;
         }
         var registerStatusHistory = RegisterStatusHistory();
         if (registerStatusHistory.IsFailure)

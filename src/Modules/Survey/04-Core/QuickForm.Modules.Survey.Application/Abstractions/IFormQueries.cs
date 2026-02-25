@@ -1,6 +1,6 @@
 ﻿using QuickForm.Modules.Survey.Domain;
 
-namespace QuickForm.Modules.Survey.Application.Forms.Queries;
+namespace QuickForm.Modules.Survey.Application;
 
 public interface IFormQueries
 {
