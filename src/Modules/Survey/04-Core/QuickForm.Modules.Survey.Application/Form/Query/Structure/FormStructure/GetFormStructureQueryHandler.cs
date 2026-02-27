@@ -5,19 +5,20 @@ using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Application;
 internal sealed class GetFormStructureQueryHandler(
-    IQuestionTypeRepository _questionTypeRepository,
-    IFormQueries _formQuery,
-    IUnitOfWork _unitOfWork)
-    : IQueryHandler<GetFormStructureQuery, List<FormStructureSectionReponse>>
+        IQuestionTypeRepository _questionTypeRepository,
+        IFormQueries _formQuery,
+        IUnitOfWork _unitOfWork
+    )
+    : IQueryHandler<GetFormStructureQuery, List<FormStructureSectionViewModel>>
 {
-    public async Task<ResultT<List<FormStructureSectionReponse>>> Handle(GetFormStructureQuery request, CancellationToken cancellationToken)
+    public async Task<ResultT<List<FormStructureSectionViewModel>>> Handle(GetFormStructureQuery request, CancellationToken cancellationToken)
     {
         var formId = new FormId(request.IdForm);
         var existForm=await _unitOfWork.Repository<FormDomain,FormId>().ExistEntity(formId);
         if (!existForm)
         {
             var error = ResultError.NullValue("FormId", $"Form with id '{request.IdForm}' not found.");
-            return ResultT<List<FormStructureSectionReponse>>.FailureT(ResultType.NotFound, error);
+            return ResultT<List<FormStructureSectionViewModel>>.FailureT(ResultType.NotFound, error);
         }
         List<FormSectionDomain> formSections = await _formQuery.GetStructureFormAsync(request.IdForm, true, cancellationToken);
 
@@ -25,7 +26,7 @@ internal sealed class GetFormStructureQueryHandler(
         var questionsTypeResult = await GetQuestionType(questions, cancellationToken);
         if (questionsTypeResult.IsFailure)
         {
-            return ResultT<List<FormStructureSectionReponse>>.FailureT(ResultType.NotFound, questionsTypeResult.Errors);
+            return ResultT<List<FormStructureSectionViewModel>>.FailureT(ResultType.NotFound, questionsTypeResult.Errors);
         }
         List<QuestionTypeDomain> questionsType = questionsTypeResult.Value;
 
@@ -34,14 +35,14 @@ internal sealed class GetFormStructureQueryHandler(
         return result;
 
     }
-    private ResultT<List<FormStructureSectionReponse>> MapSections(
+    private ResultT<List<FormStructureSectionViewModel>> MapSections(
             List<FormSectionDomain> formSections,
             List<QuestionTypeDomain> questionsType
         )
     {
         var qtById = questionsType.ToDictionary(x => x.Id, x => x);
 
-        var sectionsResponse = new List<FormStructureSectionReponse>();
+        var sectionsResponse = new List<FormStructureSectionViewModel>();
 
         foreach (var section in formSections.OrderBy(s => s.SortOrder))
         {
@@ -51,7 +52,7 @@ internal sealed class GetFormStructureQueryHandler(
             {
                 if (!qtById.TryGetValue(question.IdQuestionType, out var questionType))
                 {
-                    return ResultT<List<FormStructureSectionReponse>>.FailureT(
+                    return ResultT<List<FormStructureSectionViewModel>>.FailureT(
                         ResultType.NotFound,
                         ResultError.InvalidInput(
                             "QuestionType",
@@ -63,7 +64,7 @@ internal sealed class GetFormStructureQueryHandler(
                 var propsResult = GetProperty(question.QuestionAttributeValue.ToList(), questionType);
                 if (propsResult.IsFailure)
                 {
-                    return ResultT<List<FormStructureSectionReponse>>.FailureT(
+                    return ResultT<List<FormStructureSectionViewModel>>.FailureT(
                         ResultType.NotFound,
                         propsResult.Errors
                     );
@@ -72,7 +73,7 @@ internal sealed class GetFormStructureQueryHandler(
                 var rulesResult = GetRules(question.QuestionRuleValue.ToList(), questionType);
                 if (rulesResult.IsFailure)
                 {
-                    return ResultT<List<FormStructureSectionReponse>>.FailureT(
+                    return ResultT<List<FormStructureSectionViewModel>>.FailureT(
                         ResultType.NotFound,
                         rulesResult.Errors
                     );
@@ -87,7 +88,7 @@ internal sealed class GetFormStructureQueryHandler(
                 });
             }
 
-            sectionsResponse.Add(new FormStructureSectionReponse
+            sectionsResponse.Add(new FormStructureSectionViewModel
             {
                 Id = section.Id.Value,
                 Title = section.Title.Value,

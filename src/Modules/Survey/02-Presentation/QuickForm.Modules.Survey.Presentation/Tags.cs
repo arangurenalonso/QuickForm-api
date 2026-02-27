@@ -2,4 +2,5 @@
 internal static class Tags
 {
     internal const string Form = "Forms";
+    internal const string Submission = "Submissions";
 }

@@ -5,5 +5,5 @@ namespace QuickForm.Modules.Survey.Application;
 public sealed record GetFormStructureQuery(
         Guid IdForm
     )
-    : IQuery<List<FormStructureSectionReponse>>;
+    : IQuery<List<FormStructureSectionViewModel>>;
 

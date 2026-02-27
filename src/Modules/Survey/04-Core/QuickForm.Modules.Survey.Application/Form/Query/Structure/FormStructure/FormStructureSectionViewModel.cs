@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 
 namespace QuickForm.Modules.Survey.Application;
-public class FormStructureSectionReponse
+public class FormStructureSectionViewModel
 {
         public Guid Id {  get; set; }
         public string Title { get; set; }
