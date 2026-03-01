@@ -7,5 +7,6 @@
     <ProjectReference Include="..\..\03-Infrastructure\QuickForm.Modules.Survey.Jobs\QuickForm.Modules.Survey.Jobs.csproj" />
     <ProjectReference Include="..\..\03-Infrastructure\QuickForm.Modules.Survey.Options\QuickForm.Modules.Survey.Options.csproj" />
     <ProjectReference Include="..\..\03-Infrastructure\QuickForm.Modules.Survey.Persistence\QuickForm.Modules.Survey.Persistence.csproj" />
+    <ProjectReference Include="..\..\03-Infrastructure\Service\QuickForm.Modules.Survey.Service.csproj" />
   </ItemGroup>
 </Project>

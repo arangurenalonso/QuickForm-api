@@ -40,6 +40,7 @@ public static class SurveyPersistenceServiceRegistration
         services.AddScoped<IFormQueries, FormQueries>();
         services.AddScoped<ISubmissionQueries, SubmissionQueries>();
 
+
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<SurveyDbContext>());
         services.AddSingleton<IDbConnectionFactory>(sp =>
                         new DbConnectionFactory(connectionString!));

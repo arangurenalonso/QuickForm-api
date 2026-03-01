@@ -1,12 +1,13 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using MassTransit;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using QuickForm.Common.Presentation;
-using QuickForm.Modules.Survey.Persistence;
-using QuickForm.Modules.Survey.Options;
-using QuickForm.Modules.Survey.Jobs;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QuickForm.Common.Application;
-using MassTransit;
+using QuickForm.Common.Presentation;
+using QuickForm.Modules.Survey.Jobs;
+using QuickForm.Modules.Survey.Options;
+using QuickForm.Modules.Survey.Persistence;
+using QuickForm.Modules.Survey.Service;
 using QuickForm.Modules.Users.IntegrationEvents;
 
 namespace QuickForm.Modules.Survey.Host;
@@ -22,6 +23,7 @@ public static class SurveyModule
         services.AddUserPersistenceServices(configuration);
         services.AddOptionsServices();
         services.AddSurveyJobServices();
+        services.AddSurveyServiceServices();
 
         services.AddEndpoints(Presentation.AssemblyReference.Assembly);
 
