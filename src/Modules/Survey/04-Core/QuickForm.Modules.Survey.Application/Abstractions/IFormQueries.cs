@@ -15,4 +15,11 @@ public interface IFormQueries
     Task<List<QuestionForSubmission>> GetQuestionsForSubmissionAsync(
         Guid idForm,
         CancellationToken ct = default);
+    Task<List<ColumnDto>> GetFormColumnsByIdFormAsync(Guid idForm, CancellationToken ct = default);
+    Task<List<RowDto>> GetFormRowsByIdFormAsync(
+            Guid idForm,
+            int skip = 0,
+            int take = 50,
+            CancellationToken ct = default
+        );
 }

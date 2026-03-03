@@ -29,7 +29,6 @@ internal static class ExcelValueFormatter
         }
         catch
         {
-            // If rawJson is not valid JSON, return as-is
             return rawJson;
         }
     }
@@ -43,14 +42,12 @@ internal static class ExcelValueFormatter
 
         var trimmed = s.Trim();
 
-        // handle "true"/"false"
         if (bool.TryParse(trimmed, out var b))
         {
             return b ? "Yes" : "No";
 
         }
 
-        // handle "1"/"0"
         if (trimmed == "1")
         {
             return "Yes";
@@ -65,13 +62,10 @@ internal static class ExcelValueFormatter
 
     private static string FromNumber(JsonElement el)
     {
-        // handle 0/1 as boolean
         if (el.TryGetInt32(out var i) && (i == 0 || i == 1))
         {
             return i == 1 ? "Yes" : "No";
         }
-
-        // keep number as text
         return el.GetRawText();
     }
 }

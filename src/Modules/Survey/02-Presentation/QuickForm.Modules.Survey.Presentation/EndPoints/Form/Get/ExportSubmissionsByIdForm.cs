@@ -11,7 +11,7 @@ internal sealed class ExportFormSubmissionsExcel : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("me/form/{idForm}/submissions/export-excel",
+        app.MapGet("form/{idForm}/submissions/export-excel",
             async (ISender sender, Guid idForm, CancellationToken ct) =>
             {
                 var result = await sender.Send(new ExportFormSubmissionsExcelCommand(idForm), ct);

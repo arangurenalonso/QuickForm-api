@@ -12,7 +12,7 @@ internal sealed class SubmitForm : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("form/{idForm}/submissions", async (Dictionary<string, JsonElement> request, Guid idForm, ISender sender) =>
+        app.MapPost("form/{idForm}/submit", async (Dictionary<string, JsonElement> request, Guid idForm, ISender sender) =>
         {
             var result = await sender.Send(new CreateSubmissionCommand(
                 idForm,
@@ -20,7 +20,6 @@ internal sealed class SubmitForm : IEndpoint
                 ));
             return result.Match(Results.Ok, ApiResults.Problem);
         })
-        .RequireAuthorization()
         .WithName("Form.Submit")
         .WithTags(Tags.Form);
     }
