@@ -4,13 +4,13 @@ using QuickForm.Common.Application;
 namespace QuickForm.Modules.Survey.Application;
 
 public sealed record GetFormSubmissionsQuery(
-        Guid IdForm
+        Guid FormId
     )
-    : ICommand<FormSubmissionsResult>;
+    : IQuery<FormSubmissionsResult>;
 
 public sealed record FormSubmissionsResult(
     List<ColumnDto> Columns,
-    List<RowDto> Rows
+    IReadOnlyList<Dictionary<string, object?>> Rows
 );
 
 public sealed class ColumnDto
@@ -19,6 +19,7 @@ public sealed class ColumnDto
     public string Label { get; set; } = default!;
     public int Order { get; set; }  
     public string Type { get; set; } = default!;
+    public bool isKey { get; set; }     
 }
 public sealed class RowDto
 {

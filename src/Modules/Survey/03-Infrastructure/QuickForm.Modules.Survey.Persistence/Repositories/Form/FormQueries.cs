@@ -176,6 +176,7 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
         var submissionIds = submissions.Select(x => x.Id).ToList();
 
         var answers = await _context.Set<SubmissionValueDomain>()
+            .AsNoTracking()
             .Where(a => !a.IsDeleted && submissionIds.Contains(a.IdSubmission))
             .Select(a => new
             {
@@ -205,7 +206,7 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
                 foreach (var a in subAnswers)
                 {
                     var key = "q_" + a.QuestionId;
-                    var valueConvertedResult = SurveyCommonMethods.ConvertStoredStringValue(a.TypeKey, a.Value.Trim() );
+                    var valueConvertedResult = SurveyCommonMethods.ConvertStoredStringValue(a.TypeKey, a.Value );
 
                     row.Cells[key] = valueConvertedResult;
                 }

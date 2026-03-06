@@ -11,10 +11,10 @@ internal sealed class SubmissionsByIdForm : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("form/{idForm}/submissions",
-            async (ISender sender, Guid idForm, CancellationToken ct) =>
+        app.MapGet("form/{formId:guid}/submissions",
+            async (ISender sender, Guid formId, CancellationToken ct) =>
             {
-                var result = await sender.Send(new GetFormSubmissionsQuery(idForm), ct);
+                var result = await sender.Send(new GetFormSubmissionsQuery(formId), ct);
 
                 return result.Match(Results.Ok, ApiResults.Problem);
             })
