@@ -19,7 +19,9 @@ public sealed class ColumnDto
     public string Label { get; set; } = default!;
     public int Order { get; set; }  
     public string Type { get; set; } = default!;
-    public bool isKey { get; set; }     
+    public bool IsKey { get; set; }
+    public bool ShowInTable { get; set; } = true;
+    public string? Pinned { get; set; }
 }
 public sealed class RowDto
 {

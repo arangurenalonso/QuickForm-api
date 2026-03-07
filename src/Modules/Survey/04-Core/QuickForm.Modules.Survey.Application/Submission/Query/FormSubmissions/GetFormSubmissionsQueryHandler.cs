@@ -52,15 +52,18 @@ internal sealed class GetFormSubmissionsQueryHandler(
             Label = "Submission Id",
             Order = 0,
             Type = QuestionTypeType.InputTypeText.GetName(),
-            isKey = true
+            IsKey = true,
+            ShowInTable = false
         };
         var columnDate = new ColumnDto()
         {
             Key = "submittedAt",
             Label = "Submitted At",
             Order = 1,
-            Type = QuestionTypeType.InputTypeDatetime.GetName()
+            Type = QuestionTypeType.InputTypeDatetime.GetName(),
+            Pinned = "right",
         };
+
 
         columns.Add(columnId);
         columns.Add(columnDate);
