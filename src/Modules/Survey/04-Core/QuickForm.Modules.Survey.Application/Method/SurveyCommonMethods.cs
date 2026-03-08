@@ -101,7 +101,7 @@ public static class SurveyCommonMethods
 
 
 
-    public static object? ConvertStoredStringValue(string typeKey, string? valuesStored)
+    public static object? ConvertStoredRawValueInObject(string typeKey, string? valuesStored)
     {
         if (string.IsNullOrWhiteSpace(valuesStored))
         {

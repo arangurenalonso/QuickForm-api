@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using QuickForm.Common.Domain;
+using QuickForm.Common.Domain.Method;
 
 namespace QuickForm.Modules.Survey.Domain;
 
@@ -111,7 +112,7 @@ public sealed class SubmissionDomain : BaseDomainEntity<SubmissionId>
                 continue;
             }
 
-            if (!normalizedRequest.TryGetValue(name, out var val) || SurveyDomainMethod.IsEmpty(val))
+            if (!normalizedRequest.TryGetValue(name, out var val) || CommonJsonElementMethods.IsEmpty(val))
             {
                 var error = ResultError.InvalidInput(name, $"The question '{name}' is required.");
                 return Result.Failure(ResultType.DomainValidation, error);
@@ -128,7 +129,7 @@ public sealed class SubmissionDomain : BaseDomainEntity<SubmissionId>
                 return Result.Failure(ResultType.DomainValidation, requiredFlagResult.Errors);
             }
 
-            if (!requiredFlagResult.Value && SurveyDomainMethod.IsEmpty(value))
+            if (!requiredFlagResult.Value && CommonJsonElementMethods.IsEmpty(value))
             {
                 continue;
             }
@@ -139,10 +140,10 @@ public sealed class SubmissionDomain : BaseDomainEntity<SubmissionId>
                 name,
                 value
             );
-
+            
             if (submissionValueResult.IsFailure)
             {
-                return ResultT<SubmissionDomain>.FailureT(submissionValueResult.Errors);
+                return submissionValueResult.Errors;
             }
 
             SubmissionValues.Add(submissionValueResult.Value);

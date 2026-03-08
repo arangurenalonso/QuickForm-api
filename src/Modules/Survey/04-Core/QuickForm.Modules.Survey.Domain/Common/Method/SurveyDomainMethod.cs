@@ -2,10 +2,50 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using QuickForm.Common.Domain;
+using QuickForm.Common.Domain.Method;
 
 namespace QuickForm.Modules.Survey.Domain;
 public static class SurveyDomainMethod
 {
+    public static string FormatDecimalDisplayPreservingScale(string rawValue)
+    {
+        if (string.IsNullOrWhiteSpace(rawValue))
+        {
+            return string.Empty;
+        }
+
+        rawValue = rawValue.Trim();
+
+        if (rawValue.StartsWith('"') && rawValue.EndsWith('"') && rawValue.Length >= 2)
+        {
+            rawValue = rawValue[1..^1];
+        }
+
+        var isNegative = rawValue.StartsWith('-');
+        if (isNegative)
+        {
+            rawValue = rawValue[1..];
+        }
+
+        var parts = rawValue.Split('.', 2);
+        var integerPartRaw = parts[0];
+        var decimalPartRaw = parts.Length > 1 ? parts[1] : null;
+
+        if (!long.TryParse(integerPartRaw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var integerPart))
+        {
+            return isNegative ? $"-{rawValue}" : rawValue;
+        }
+
+        var formattedIntegerPart = integerPart.ToString("#,##0", CultureInfo.GetCultureInfo("en-US"));
+
+        var result = decimalPartRaw is not null
+            ? $"{formattedIntegerPart}.{decimalPartRaw}"
+            : formattedIntegerPart;
+
+        return isNegative ? $"-{result}" : result;
+    }
+
+
     public static bool TryConvertScalar(
             string key,
             JsonElement value,
@@ -141,53 +181,8 @@ public static class SurveyDomainMethod
         return normalized;
     }
 
-    public static Result ValidateAttributes(JsonElement value, QuestionForSubmission question, string name)
-    {
-        // AllowNegative
-        var allowNegativeAttr = question.Attributes.FirstOrDefault(a => a.AttributeId == AttributeType.AllowNegative.GetId());
-        if (allowNegativeAttr.Value is not null)
-        {
-            if (!bool.TryParse(allowNegativeAttr.Value, out var allowNegative))
-            {
-                return ResultError.InvalidInput(
-                    "FormDefinition",
-                    $"Field '{name}' has AllowNegative attribute with invalid boolean value '{allowNegativeAttr.Value}'."
-                );
-            }
-
-            if (!allowNegative && TryGetDecimal(value, out var dec) && dec < 0)
-            {
-                return ResultError.InvalidInput(name, "Negative values are not allowed.");
-            }
-        }
-
-        // DecimalScale
-        var decimalScaleAttr = question.Attributes.FirstOrDefault(a => a.AttributeId == AttributeType.DecimalScale.GetId());
-        if (decimalScaleAttr.Value is not null)
-        {
-            if (!int.TryParse(decimalScaleAttr.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var scale) || scale < 0)
-            {
-                return ResultError.InvalidInput(
-                    "FormDefinition",
-                    $"Field '{name}' has DecimalScale attribute with invalid integer value '{decimalScaleAttr.Value}'."
-                );
-            }
-
-            if (TryGetDecimal(value, out var dec))
-            {
-                var decimals = CountDecimals(dec);
-                if (decimals > scale)
-                {
-                    return ResultError.InvalidInput(name, $"Maximum allowed decimal places is {scale}.");
-                }
-            }
-        }
-
-        return Result.Success();
-    }
-
-
-    private static string GetMessageFromTemplateAndPlaceholder(string messageTemplate, string? placeholder, string valueToReplace)
+    
+    public static string GetMessageFromTemplateAndPlaceholder(string messageTemplate, string? placeholder, string valueToReplace)
     {
         if (string.IsNullOrEmpty(placeholder))
         {
@@ -196,198 +191,8 @@ public static class SurveyDomainMethod
 
         return Regex.Replace(messageTemplate, placeholder, valueToReplace);
     }
-
-    public static Result ValidateRules(
-    JsonElement value,
-    (Guid RuleId, string? Value, string Message, string? Placeholder) rule,
-    QuestionId questionId,
-    string name
-)
-    {
-
-        switch (rule.RuleId)
-        {
-            case var r when r == RuleType.Required.GetId():
-                {
-                    if (string.IsNullOrWhiteSpace(rule.Value))
-                    {
-                        return Result.Success();
-                    }
-
-                    if (!bool.TryParse(rule.Value, out var required))
-                    {
-                        return ResultError.InvalidInput(
-                            "FormDefinition",
-                            $"Question '{questionId.Value}' has Required rule with invalid boolean value '{rule.Value}'."
-                        );
-                    }
-
-                    if (required && IsEmpty(value))
-                    {
-                        var msg = GetMessageFromTemplateAndPlaceholder(rule.Message, rule.Placeholder, "");
-                        return ResultError.InvalidInput(name, msg);
-                    }
-
-                    return Result.Success();
-                }
-
-            case var r when r == RuleType.MaxLength.GetId():
-                {
-                    if (IsNull(value) || string.IsNullOrWhiteSpace(rule.Value))
-                    {
-                        return Result.Success();
-                    }
-
-                    if (!int.TryParse(rule.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var maxLen))
-                    {
-                        return ResultError.InvalidInput(
-                            "FormDefinition",
-                            $"Question '{questionId.Value}' has MaxLength rule with invalid int value '{rule.Value}'."
-                        );
-                    }
-
-                    if (value.ValueKind != JsonValueKind.String)
-                    {
-                        return ResultError.InvalidInput(name, "The value must be a string.");
-                    }
-
-                    var s = value.GetString() ?? string.Empty;
-                    if (s.Length > maxLen)
-                    {
-                        var msg = GetMessageFromTemplateAndPlaceholder(rule.Message, rule.Placeholder, $"{maxLen}");
-                        return ResultError.InvalidInput(name, msg);
-                    }
-
-                    return Result.Success();
-                }
-
-            case var r when r == RuleType.MinLength.GetId():
-                {
-                    if (IsNull(value) || string.IsNullOrWhiteSpace(rule.Value))
-                    {
-                        return Result.Success();
-                    }
-
-                    if (!int.TryParse(rule.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var minLen))
-                    {
-                        return ResultError.InvalidInput(
-                            "FormDefinition",
-                            $"Question '{questionId.Value}' has MinLength rule with invalid int value '{rule.Value}'."
-                        );
-                    }
-
-                    if (value.ValueKind != JsonValueKind.String)
-                    {
-                        return ResultError.InvalidInput(name, "The value must be a string.");
-                    }
-
-                    var s = value.GetString() ?? string.Empty;
-                    if (s.Length < minLen)
-                    {
-                        var msg = GetMessageFromTemplateAndPlaceholder(rule.Message, rule.Placeholder, $"{minLen}");
-                        return ResultError.InvalidInput(name, msg);
-                    }
-
-                    return Result.Success();
-                }
-
-            case var r when r == RuleType.Min.GetId():
-                {
-                    if (IsNull(value) || string.IsNullOrWhiteSpace(rule.Value))
-                    {
-                        return Result.Success();
-                    }
-
-                    if (!decimal.TryParse(rule.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var min))
-                    {
-                        return ResultError.InvalidInput(
-                            "FormDefinition",
-                            $"Question '{questionId.Value}' has Min rule with invalid decimal value '{rule.Value}'."
-                        );
-                    }
-
-                    if (!TryGetDecimal(value, out var dec))
-                    {
-                        return ResultError.InvalidInput(name, "The value must be a valid number.");
-                    }
-
-                    if (dec < min)
-                    {
-                        var msg = GetMessageFromTemplateAndPlaceholder(rule.Message, rule.Placeholder, $"{min}");
-                        return ResultError.InvalidInput(name, msg);
-                    }
-
-                    return Result.Success();
-                }
-
-            case var r when r == RuleType.Max.GetId():
-                {
-                    if (IsNull(value) || string.IsNullOrWhiteSpace(rule.Value))
-                    {
-                        return Result.Success();
-                    }
-
-
-                    if (!decimal.TryParse(rule.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var max))
-                    {
-                        return ResultError.InvalidInput(
-                            "FormDefinition",
-                            $"Question '{questionId.Value}' has Max rule with invalid decimal value '{rule.Value}'."
-                        );
-                    }
-
-                    if (!TryGetDecimal(value, out var dec))
-                    {
-                        return ResultError.InvalidInput(name, "The value must be a valid number.");
-                    }
-
-                    if (dec > max)
-                    {
-                        var msg = GetMessageFromTemplateAndPlaceholder(rule.Message, rule.Placeholder, $"{max}");
-                        return ResultError.InvalidInput(name, msg);
-                    }
-
-                    return Result.Success();
-                }
-
-            default:
-                return ResultError.InvalidInput(
-                    "FormDefinition",
-                    $"Validation for rule '{rule.RuleId}' is not implemented."
-                );
-        }
-    }
-
-
-    private static bool TryGetDecimal(JsonElement v, out decimal value)
-    {
-        value = default;
-
-        if (v.ValueKind == JsonValueKind.Number)
-        {
-            return v.TryGetDecimal(out value);
-        }
-
-        if (v.ValueKind == JsonValueKind.String)
-        {
-            return decimal.TryParse(v.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out value);
-        }
-
-        return false;
-    }
-    private static bool IsNull(JsonElement v)
-        => v.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined;
-
-    public static bool IsEmpty(JsonElement v)
-        => v.ValueKind switch
-        {
-            JsonValueKind.Null or JsonValueKind.Undefined => true,
-            JsonValueKind.String => string.IsNullOrWhiteSpace(v.GetString()),
-            JsonValueKind.Array => v.GetArrayLength() == 0,
-            _ => false
-        };
-
-    private static int CountDecimals(decimal d)
+    
+    public static int CountDecimals(decimal d)
     {
         var bits = decimal.GetBits(d);
         return (bits[3] >> 16) & 0xFF;

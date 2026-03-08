@@ -23,7 +23,7 @@ public sealed class SubmissionQueries(SurveyDbContext _context) : ISubmissionQue
                     .Where(v => !v.IsDeleted) 
                     .Select(v => new SubmissionValueExport(
                         v.IdQuestion.Value,
-                        v.Value
+                        v.ValueRaw
                     ))
                     .ToList()
             ))

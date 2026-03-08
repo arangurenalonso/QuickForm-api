@@ -182,7 +182,7 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
             {
                 SubmissionId = a.IdSubmission.Value,
                 QuestionId = a.IdQuestion.Value,
-                a.Value, 
+                a.ValueRaw, 
                 TypeKey = a.Question.QuestionType.KeyName.Value
             })
             .ToListAsync(ct);
@@ -206,7 +206,7 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
                 foreach (var a in subAnswers)
                 {
                     var key = "q_" + a.QuestionId;
-                    var valueConvertedResult = SurveyCommonMethods.ConvertStoredStringValue(a.TypeKey, a.Value );
+                    var valueConvertedResult = SurveyCommonMethods.ConvertStoredRawValueInObject(a.TypeKey, a.ValueRaw );
 
                     row.Cells[key] = valueConvertedResult;
                 }
