@@ -11,8 +11,6 @@ public sealed class SubmissionValueDomain : BaseDomainEntity<SubmissionValueId>
     public QuestionId IdQuestion { get; private set; }
     public string ValueRaw { get; private set; } = default!;
     public string DisplayValue { get; private set; } = string.Empty;
-
-    // Typed searchable values
     public decimal? ValueDecimal { get; private set; }
     public long? ValueInteger { get; private set; }
     public DateTime? ValueDateTime { get; private set; }
