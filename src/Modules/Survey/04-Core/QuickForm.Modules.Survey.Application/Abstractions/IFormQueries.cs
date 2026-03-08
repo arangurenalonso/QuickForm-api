@@ -16,7 +16,7 @@ public interface IFormQueries
         Guid idForm,
         CancellationToken ct = default);
     Task<List<ColumnDto>> GetFormColumnsByIdFormAsync(Guid idForm, CancellationToken ct = default);
-    Task<List<RowDto>> GetFormRowsByIdFormAsync(
+    Task<PaginationResult<RowDto>> GetFormRowsByIdFormAsync(
             Guid idForm,
             int skip = 0,
             int take = 50,

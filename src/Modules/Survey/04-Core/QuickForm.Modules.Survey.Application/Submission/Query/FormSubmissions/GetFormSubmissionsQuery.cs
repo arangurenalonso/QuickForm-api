@@ -4,17 +4,20 @@ using QuickForm.Common.Application;
 namespace QuickForm.Modules.Survey.Application;
 
 public sealed record GetFormSubmissionsQuery(
-        Guid FormId
+        Guid FormId,
+        int Page = 1,
+        int PageSize = 10
     )
     : IQuery<FormSubmissionsResult>;
 
 public sealed record FormSubmissionsResult(
     List<ColumnDto> Columns,
-    IReadOnlyList<Dictionary<string, object?>> Rows
+    PaginationResult<Dictionary<string, object?>> Data
 );
 
 public sealed class ColumnDto
 {
+    public Guid Id { get; set; }
     public string Key { get; set; } = default!;
     public string Label { get; set; } = default!;
     public int Order { get; set; }  

@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text.Json;
 using QuickForm.Common.Domain;
+using QuickForm.Common.Domain.Method;
 using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Application;
@@ -121,26 +122,29 @@ public static class SurveyCommonMethods
         {
             throw new ArgumentException($"Unknown question type '{typeKey}'.", nameof(typeKey));
         }
-        var jsonElement = TryParseJson(valuesStored);
+        if (!CommonJsonElementMethods.TryParseRawValueToJsonElement(valuesStored, out var jsonElement))
+        {
+            return null;
+        }
 
         switch (qt)
         {
             case QuestionTypeType.InputTypeText:
                 if (jsonElement is { ValueKind: JsonValueKind.String })
                 {
-                    return jsonElement.Value.GetString();
+                    return jsonElement.GetString();
                 }
                 return StripQuotes(valuesStored);
 
             case QuestionTypeType.InputTypeInteger:
                 if (jsonElement is { ValueKind: JsonValueKind.Number } )
                 {
-                    if(jsonElement.Value.TryGetInt32(out var i32))
+                    if(jsonElement.TryGetInt32(out var i32))
                     {
                         return i32;
 
                     }
-                    if (jsonElement.Value.TryGetInt64(out var i64))
+                    if (jsonElement.TryGetInt64(out var i64))
                     {
                         return i64;
 
@@ -161,7 +165,7 @@ public static class SurveyCommonMethods
                 return null;
 
             case QuestionTypeType.InputTypeDecimal:
-                if (jsonElement is { ValueKind: JsonValueKind.Number } && jsonElement.Value.TryGetDecimal(out var dec))
+                if (jsonElement is { ValueKind: JsonValueKind.Number } && jsonElement.TryGetDecimal(out var dec))
                 {
                     return dec;
                 }
@@ -176,7 +180,7 @@ public static class SurveyCommonMethods
             case QuestionTypeType.InputTypeBoolean:
                 if (jsonElement is { ValueKind: JsonValueKind.True or JsonValueKind.False })
                 {
-                    return jsonElement.Value.GetBoolean();
+                    return jsonElement.GetBoolean();
                 }
 
                 var rawBool = StripQuotes(valuesStored);
@@ -189,7 +193,7 @@ public static class SurveyCommonMethods
             case QuestionTypeType.InputTypeDatetime:
                 {
                     var s = (jsonElement is { ValueKind: JsonValueKind.String })
-                        ? jsonElement.Value.GetString()
+                        ? jsonElement.GetString()
                         : StripQuotes(valuesStored);
 
                     if (string.IsNullOrWhiteSpace(s))
@@ -207,7 +211,7 @@ public static class SurveyCommonMethods
             case QuestionTypeType.InputTypeDate:
                 {
                     var s = (jsonElement is { ValueKind: JsonValueKind.String })
-                        ? jsonElement.Value.GetString()
+                        ? jsonElement.GetString()
                         : StripQuotes(valuesStored);
 
                     if (DateOnly.TryParseExact(s, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var da))
@@ -221,7 +225,7 @@ public static class SurveyCommonMethods
             case QuestionTypeType.InputTypeTime:
                 {
                     var s = (jsonElement is { ValueKind: JsonValueKind.String })
-                        ? jsonElement.Value.GetString()
+                        ? jsonElement.GetString()
                         : StripQuotes(valuesStored);
 
                     if (TimeOnly.TryParse(s, CultureInfo.InvariantCulture, DateTimeStyles.None, out var t))
@@ -233,37 +237,6 @@ public static class SurveyCommonMethods
                 }
             default:
                 throw new ArgumentException($"Unknown question type '{typeKey}'.", nameof(typeKey));
-        }
-    }
-    private static JsonElement? TryParseJson(string raw)
-    {
-        try
-        {
-            if (raw.Length == 0)
-            {
-                return null;
-            }
-
-            var c = raw[0];
-
-            var looksJson =
-                c == '{' || c == '[' || c == '"' ||
-                c == '-' || char.IsDigit(c) ||
-                raw.Equals("true", StringComparison.OrdinalIgnoreCase) ||
-                raw.Equals("false", StringComparison.OrdinalIgnoreCase) ||
-                raw.Equals("null", StringComparison.OrdinalIgnoreCase);
-
-            if (!looksJson)
-            {
-                return null;
-            }
-
-            using var doc = JsonDocument.Parse(raw);
-            return doc.RootElement.Clone();
-        }
-        catch
-        {
-            return null;
         }
     }
 

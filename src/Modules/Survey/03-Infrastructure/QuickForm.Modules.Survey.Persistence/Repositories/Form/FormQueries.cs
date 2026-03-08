@@ -137,6 +137,7 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
             .ThenBy(q => q.SortOrder)
             .Select(q => new ColumnDto
             {
+                Id = q.Id.Value,
                 Key = "q_" + q.Id.Value.ToString(),
                 Label = q.QuestionAttributeValue
                     .Where(av => !av.IsDeleted && av.QuestionTypeAttribute.Attribute.Id == idLabelAttribute)
@@ -147,20 +148,42 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
             })
             .ToListAsync(ct);
     }
-    public async Task<List<RowDto>> GetFormRowsByIdFormAsync(
-        Guid idForm,
-        int skip = 0,
-        int take = 50,
-        CancellationToken ct = default)
+    public async Task<PaginationResult<RowDto>> GetFormRowsByIdFormAsync(
+    Guid idForm,
+    int skip = 0,
+    int take = 50,
+    CancellationToken ct = default)
     {
         var formId = new FormId(idForm);
 
-        var submissions = await _context.Set<SubmissionDomain>()
+        var baseQuery = _context.Set<SubmissionDomain>()
             .AsNoTracking()
-            .Where(s => !s.IsDeleted && s.IdForm == formId)
+            .Where(s => !s.IsDeleted && s.IdForm == formId);
+
+        var totalCount = await baseQuery.CountAsync(ct);
+
+        var currentPage = take <= 0 ? 1 : skip / take + 1;
+        var pageSize = take <= 0 ? 10 : take;
+        var totalPages = totalCount == 0
+            ? 0
+            : (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        if (totalCount == 0)
+        {
+            return new PaginationResult<RowDto>
+            {
+                Items = [],
+                TotalCount = 0,
+                PageSize = pageSize,
+                CurrentPage = currentPage,
+                TotalPages = 0,
+            };
+        }
+
+        var submissions = await baseQuery
             .OrderByDescending(s => s.CreatedDate)
             .Skip(skip)
-            .Take(take)
+            .Take(pageSize)
             .Select(s => new
             {
                 s.Id,
@@ -170,7 +193,14 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
 
         if (submissions.Count == 0)
         {
-            return [];
+            return new PaginationResult<RowDto>
+            {
+                Items = [],
+                TotalCount = totalCount,
+                PageSize = pageSize,
+                CurrentPage = currentPage,
+                TotalPages = totalPages
+            };
         }
 
         var submissionIds = submissions.Select(x => x.Id).ToList();
@@ -182,8 +212,7 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
             {
                 SubmissionId = a.IdSubmission.Value,
                 QuestionId = a.IdQuestion.Value,
-                a.ValueRaw, 
-                TypeKey = a.Question.QuestionType.KeyName.Value
+                a.DisplayValue
             })
             .ToListAsync(ct);
 
@@ -193,29 +222,33 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
 
         var rows = new List<RowDto>(submissions.Count);
 
-        foreach (var s in submissions)
+        foreach (var submission in submissions)
         {
             var row = new RowDto
             {
-                Id = s.Id.Value,
-                SubmittedAt = s.SubmittedAt
+                Id = submission.Id.Value,
+                SubmittedAt = submission.SubmittedAt
             };
 
-            if (answersBySubmission.TryGetValue(s.Id.Value, out var subAnswers))
+            if (answersBySubmission.TryGetValue(submission.Id.Value, out var submissionAnswers))
             {
-                foreach (var a in subAnswers)
+                foreach (var answer in submissionAnswers)
                 {
-                    var key = "q_" + a.QuestionId;
-                    var valueConvertedResult = SurveyCommonMethods.ConvertStoredRawValueInObject(a.TypeKey, a.ValueRaw );
-
-                    row.Cells[key] = valueConvertedResult;
+                    var key = "q_" + answer.QuestionId;
+                    row.Cells[key] = answer.DisplayValue;
                 }
             }
 
             rows.Add(row);
         }
 
-        return rows;
+        return new PaginationResult<RowDto>
+        {
+            Items = rows,
+            TotalCount = totalCount,
+            PageSize = pageSize,
+            CurrentPage = currentPage,
+            TotalPages = totalPages
+        };
     }
-
 }

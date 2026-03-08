@@ -4,6 +4,44 @@ using System.Text.Json;
 namespace QuickForm.Common.Domain.Method;
 public sealed class CommonJsonElementMethods
 {
+    public static bool TryParseRawValueToJsonElement(string rawElement, out JsonElement jsonElement)
+    {
+        jsonElement = default;
+
+        if (string.IsNullOrWhiteSpace(rawElement))
+        {
+            return false;
+        }
+
+        rawElement = rawElement.Trim();
+
+        try
+        {
+            var c = rawElement[0];
+
+            var looksJson =
+                c == '{' || c == '[' || c == '"' ||
+                c == '-' || char.IsDigit(c) ||
+                rawElement.Equals("true", StringComparison.OrdinalIgnoreCase) ||
+                rawElement.Equals("false", StringComparison.OrdinalIgnoreCase) ||
+                rawElement.Equals("null", StringComparison.OrdinalIgnoreCase);
+
+            if (!looksJson)
+            {
+                return false;
+            }
+
+            using var doc = JsonDocument.Parse(rawElement);
+            jsonElement = doc.RootElement.Clone();
+            return true;
+        }
+        catch
+        {
+            jsonElement = default;
+            return false;
+        }
+    }
+
     public static bool TryGetInt64(JsonElement jsonElement, out long value)
     {
         value = default;

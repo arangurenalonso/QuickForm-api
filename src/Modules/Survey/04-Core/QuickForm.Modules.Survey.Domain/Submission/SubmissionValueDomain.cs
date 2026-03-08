@@ -59,7 +59,6 @@ public sealed class SubmissionValueDomain : BaseDomainEntity<SubmissionValueId>
             errors.AddRange(attrValidation.Errors.ToList());
         }
 
-        // Rule-based validations
         foreach (var rule in question.Rules)
         {
             var validationResult = ValidateRules(value, rule, question.QuestionId, name);
