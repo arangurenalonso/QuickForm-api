@@ -19,14 +19,14 @@ public class QuestionTypeFilterDomain : BaseDomainEntity<QuestionTypeFilterId>
 
     private QuestionTypeFilterDomain(
         QuestionTypeFilterId id,
-        MasterId conditionalOperatorId,
-        MasterId uiControlTypeId,
-        QuestionTypeId questionTypeId
+        MasterId idConditionalOperator,
+        MasterId idUiControlType,
+        QuestionTypeId idQuestionType
         ) : base(id)
     {
-        IdConditionalOperator = conditionalOperatorId;
-        IdUiControlType = uiControlTypeId;
-        IdQuestionType = questionTypeId;
+        IdConditionalOperator = idConditionalOperator;
+        IdUiControlType = idUiControlType;
+        IdQuestionType = idQuestionType;
     }
 
     public static ResultT<QuestionTypeFilterDomain> Create(

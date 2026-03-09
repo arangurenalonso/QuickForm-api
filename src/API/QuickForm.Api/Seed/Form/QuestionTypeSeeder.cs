@@ -17,6 +17,11 @@ internal sealed class QuestionTypeSeeder(SurveyDbContext _context, ILogger<Datab
             [QuestionTypeType.InputTypeText] = (DataTypeType.StringType, "Single-line text input (letters, numbers, symbols)."),
             [QuestionTypeType.InputTypeInteger] = (DataTypeType.IntType, "Whole number input (no decimals). Example: 28."),
             [QuestionTypeType.InputTypeDecimal] = (DataTypeType.DecimalType, "Decimal number input (allows fractional values). Example: 28.50."),
+            [QuestionTypeType.InputTypeBoolean] = (DataTypeType.BooleanType, "True/False input (checkbox or toggle)."),
+            [QuestionTypeType.InputTypeDate] = (DataTypeType.DatetimeType, "Date input (year, month, day). Example: 2024-12-31."),
+            [QuestionTypeType.InputTypeDatetime] = (DataTypeType.DatetimeType, "Date and time input (year, month, day, hour, minute). Example: 2024-12-31T23:59."),
+            [QuestionTypeType.InputTypeTime] = (DataTypeType.DatetimeType, "Time input (hour, minute). Example: 23:59.")
+
         };
 
 

@@ -51,6 +51,34 @@ internal sealed class QuestionTypeFilterSeeder(SurveyDbContext _context, ILogger
                 (Guid.Parse("410A7139-E710-4150-A935-58B9EEC9BDEE"), ConditionalOperatorType.IsEmpty, UiControlTypeType.None),
                 (Guid.Parse("1A26D99D-3FF5-4B71-9573-A1E9A8B6069E"), ConditionalOperatorType.IsNotEmpty, UiControlTypeType.None),
             },
+            [QuestionTypeType.InputTypeBoolean] = new[]
+            {
+                (Guid.Parse("46E1C63D-970E-43F2-99A4-4BBE304F937B"), ConditionalOperatorType.IsTrue, UiControlTypeType.None),
+                (Guid.Parse("13BE027A-028E-4C64-A5D9-0A9F8F0C3CEE"), ConditionalOperatorType.IsFalse, UiControlTypeType.None),
+                (Guid.Parse("98513024-2C27-4F35-A730-CD830B871C89"), ConditionalOperatorType.IsEmpty, UiControlTypeType.None),
+                (Guid.Parse("00481D78-C5E8-49AF-9E5E-C901306FE5CD"), ConditionalOperatorType.IsNotEmpty, UiControlTypeType.None),
+            },
+
+            [QuestionTypeType.InputTypeDate] = new[]
+            {
+                (Guid.Parse("4A09DBEB-6F25-42F2-AA7B-60F3727B4068"), ConditionalOperatorType.On, UiControlTypeType.Date),
+                (Guid.Parse("2E5BD42D-81A4-4DB8-88A8-C69F8875AF9B"), ConditionalOperatorType.Before, UiControlTypeType.Date),
+                (Guid.Parse("407D7D0B-1813-4DA6-8ED9-6870088BA97D"), ConditionalOperatorType.After, UiControlTypeType.Date),
+                (Guid.Parse("E8A70964-A6AB-46AE-8C8E-221E96044647"), ConditionalOperatorType.OnOrBefore, UiControlTypeType.Date),
+                (Guid.Parse("855F6DF1-20EC-4BDD-B4F1-2D59181831B3"), ConditionalOperatorType.OnOrAfter, UiControlTypeType.Date),
+                (Guid.Parse("64339710-0ABA-44B9-8E0D-B5092418246D"), ConditionalOperatorType.Between, UiControlTypeType.RangeDate),
+                (Guid.Parse("7996F2E8-B454-4260-B461-950C39BAA9D4"), ConditionalOperatorType.IsEmpty, UiControlTypeType.None),
+                (Guid.Parse("E85C2299-67B1-46D2-B97F-A656A3A7C348"), ConditionalOperatorType.IsNotEmpty, UiControlTypeType.None),
+            },
+            [QuestionTypeType.InputTypeTime] = new[]
+            {
+                (Guid.Parse("45F6C644-0F21-49FF-A0A2-A9712712221B"), ConditionalOperatorType.Equals, UiControlTypeType.Time),
+                (Guid.Parse("ECFD1E4E-F014-4F80-8244-F07AE0D0F300"), ConditionalOperatorType.Before, UiControlTypeType.Time),
+                (Guid.Parse("BC6954CA-B1DE-466F-984E-4701A98D5DE9"), ConditionalOperatorType.After, UiControlTypeType.Time),
+                (Guid.Parse("5DCE0554-78CD-4654-A640-3BD5C066B89F"), ConditionalOperatorType.Between, UiControlTypeType.RangeTime),
+                (Guid.Parse("A3D4DF62-6742-4262-BEA5-9396079B41A8"), ConditionalOperatorType.IsEmpty, UiControlTypeType.None),
+                (Guid.Parse("1AFA1C08-EF09-4DAD-AA49-789E761E6820"), ConditionalOperatorType.IsNotEmpty, UiControlTypeType.None),
+            },
             [QuestionTypeType.InputTypeDatetime] = new[]
             {
                 (Guid.Parse("DA9703AA-7AC3-41E8-BB65-54DB2964307A"), ConditionalOperatorType.On, UiControlTypeType.Datetime),
@@ -62,34 +90,6 @@ internal sealed class QuestionTypeFilterSeeder(SurveyDbContext _context, ILogger
                 (Guid.Parse("FA33B860-EBBD-4363-BE32-D74B5471B95E"), ConditionalOperatorType.IsEmpty, UiControlTypeType.None),
                 (Guid.Parse("35B582EF-73C6-4C91-AE36-3869A30FC5B9"), ConditionalOperatorType.IsNotEmpty, UiControlTypeType.None),
             },
-            [QuestionTypeType.InputTypeDate] = new[]
-            {
-                (Guid.Parse("6A53A509-1BD7-4C37-A0DA-4E67EF1F66B6"), ConditionalOperatorType.On, UiControlTypeType.Date),
-                (Guid.Parse("606C40CE-EFC3-4291-A70C-62C580E69C78"), ConditionalOperatorType.Before, UiControlTypeType.Date),
-                (Guid.Parse("156DAB39-8056-4D19-A140-BCFEF1A8E802"), ConditionalOperatorType.After, UiControlTypeType.Date),
-                (Guid.Parse("9314F23A-7F1F-440F-B264-2995CBCD995D"), ConditionalOperatorType.OnOrBefore, UiControlTypeType.Date),
-                (Guid.Parse("61F13839-91EB-481D-A862-4591DB58EB5A"), ConditionalOperatorType.OnOrAfter, UiControlTypeType.Date),
-                (Guid.Parse("5B3ADE10-571A-4EDA-B8CF-B3555B692DD9"), ConditionalOperatorType.Between, UiControlTypeType.RangeDate),
-                (Guid.Parse("566B4BA2-D0D3-4F6C-8E3A-FEDAA31EF57C"), ConditionalOperatorType.IsEmpty, UiControlTypeType.None),
-                (Guid.Parse("35C10CA4-775C-4575-9E7E-6491DB401449"), ConditionalOperatorType.IsNotEmpty, UiControlTypeType.None),
-            },
-            [QuestionTypeType.InputTypeBoolean] = new[]
-            {
-                (Guid.Parse("46E1C63D-970E-43F2-99A4-4BBE304F937B"), ConditionalOperatorType.IsTrue, UiControlTypeType.None),
-                (Guid.Parse("13BE027A-028E-4C64-A5D9-0A9F8F0C3CEE"), ConditionalOperatorType.IsFalse, UiControlTypeType.None),
-                (Guid.Parse("98513024-2C27-4F35-A730-CD830B871C89"), ConditionalOperatorType.IsEmpty, UiControlTypeType.None),
-                (Guid.Parse("00481D78-C5E8-49AF-9E5E-C901306FE5CD"), ConditionalOperatorType.IsNotEmpty, UiControlTypeType.None),
-            },
-            [QuestionTypeType.InputTypeTime] = new[]
-            {
-                (Guid.Parse("45F6C644-0F21-49FF-A0A2-A9712712221B"), ConditionalOperatorType.Equals, UiControlTypeType.Time),
-                (Guid.Parse("ECFD1E4E-F014-4F80-8244-F07AE0D0F300"), ConditionalOperatorType.Before, UiControlTypeType.Time),
-                (Guid.Parse("BC6954CA-B1DE-466F-984E-4701A98D5DE9"), ConditionalOperatorType.After, UiControlTypeType.Time),
-                (Guid.Parse("5DCE0554-78CD-4654-A640-3BD5C066B89F"), ConditionalOperatorType.Between, UiControlTypeType.RangeTime),
-                (Guid.Parse("A3D4DF62-6742-4262-BEA5-9396079B41A8"), ConditionalOperatorType.IsEmpty, UiControlTypeType.None),
-                (Guid.Parse("1AFA1C08-EF09-4DAD-AA49-789E761E6820"), ConditionalOperatorType.IsNotEmpty, UiControlTypeType.None),
-            },
-
         };
 
 

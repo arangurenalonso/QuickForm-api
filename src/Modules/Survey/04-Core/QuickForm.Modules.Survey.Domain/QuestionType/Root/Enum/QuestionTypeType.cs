@@ -17,19 +17,19 @@ public enum QuestionTypeType
     InputTypeDecimal = 3,
 
     [Name("InputTypeBoolean")]
-    [Id("D4E5F6A7-8B9C-4D1E-8F2A-3B4C5D6E7F8G")]
+    [Id("DE69DD93-979A-4D45-9928-3DB5B39E81B2")]
     InputTypeBoolean = 4,
 
     [Name("InputTypeDate")]
-    [Id("A3F5E2C4-7B9D-4E6F-8C1A-2D3B4E5F6A7B")]
+    [Id("439AB327-A519-4823-8086-2A20335A3260")]
     InputTypeDate = 5,
 
     [Name("InputTypeDatetime")]
-    [Id("E5F6A7B8-9C0D-4E1F-8G2A-4C5D6E7F8G9H")]
+    [Id("59923D41-CDBF-4AB8-B509-CE15639E2055")]
     InputTypeDatetime = 6,
 
     [Name("InputTypeTime")]
-    [Id("F6A7B8C9-0D1E-4F2A-8H3B-5D6E7F8G9H0I")]
+    [Id("EDC7F74F-15BF-464D-880B-A177C65560C4")]
     InputTypeTime = 7,
 
 
