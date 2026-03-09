@@ -27,7 +27,7 @@ public class QuestionTypeFilterConfiguration : EntityMapBase<QuestionTypeFilterD
             .IsRequired();
 
 
-        builder.HasOne(uat => uat.ConditionOperator)
+        builder.HasOne(uat => uat.ConditionalOperator)
             .WithMany(u => u.QuestionTypeFilter)
             .HasForeignKey(uat => uat.IdConditionalOperator)
             .OnDelete(DeleteBehavior.NoAction)

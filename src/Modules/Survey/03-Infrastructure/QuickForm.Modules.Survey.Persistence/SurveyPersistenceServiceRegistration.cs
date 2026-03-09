@@ -39,6 +39,7 @@ public static class SurveyPersistenceServiceRegistration
         services.AddScoped<IQuestionRepository, QuestionRepository>();
         services.AddScoped<IFormQueries, FormQueries>();
         services.AddScoped<ISubmissionQueries, SubmissionQueries>();
+        services.AddScoped<IQuestionQueries, QuestionQueries>();
 
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<SurveyDbContext>());

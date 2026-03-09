@@ -42,15 +42,10 @@ internal sealed class DatabaseSeeder(
 
             var formStatusPermissionSeeder = new FormStatusPermissionSeeder(_surveyDbContext, _logger);
             await formStatusPermissionSeeder.SeedAsync();
-
-
-
             var uiControlTypeSeeder = new UiControlTypeSeeder(_surveyDbContext, _logger);
             await uiControlTypeSeeder.SeedAsync();
-
             var conditionalOperatorSeeder = new ConditionalOperatorSeeder(_surveyDbContext, _logger);
             await conditionalOperatorSeeder.SeedAsync();
-
             var questionTypeFilterSeeder = new QuestionTypeFilterSeeder(_surveyDbContext, _logger); 
             await questionTypeFilterSeeder.SeedAsync();
 

@@ -10,7 +10,7 @@ public class QuestionTypeFilterDomain : BaseDomainEntity<QuestionTypeFilterId>
 
     #region One To Many
     public QuestionTypeDomain QuestionType { get; private set; }
-    public ConditionalOperatorDomain ConditionOperator { get; private set; }
+    public ConditionalOperatorDomain ConditionalOperator { get; private set; }
     public UiControlTypeDomain UiControlType { get; private set; }
     #endregion
 
