@@ -4,6 +4,19 @@ using System.Reflection;
 namespace QuickForm.Common.Domain;
 public static class EnumExtensions
 {
+    public static string GetDescription(this Enum value)
+    {
+        var fieldInfo = value.GetType().GetField(value.ToString());
+        if (fieldInfo != null)
+        {
+            var attributes = (DescriptionAttribute[])fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
+            if (attributes is { Length: > 0 } && attributes[0] != null)
+            {
+                return attributes[0].Description;
+            }
+        }
+        return value.ToString();
+    }
     public static Guid GetId(this Enum value)
     {
         var type = value.GetType();

@@ -15,6 +15,7 @@ public class QuestionTypeDomain : BaseDomainEntity<QuestionTypeId>
     public ICollection<QuestionDomain> Questions { get; private set; } = [];
     public ICollection<QuestionTypeAttributeDomain> QuestionTypeAttributes { get; private set; } = [];
     public ICollection<QuestionTypeRuleDomain> QuestionTypeRules { get; private set; } = [];
+    public ICollection<QuestionTypeFilterDomain> QuestionTypeFilter { get; private set; } = [];
     #endregion
     private QuestionTypeDomain() { }
 

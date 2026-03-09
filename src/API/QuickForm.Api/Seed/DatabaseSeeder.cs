@@ -44,6 +44,17 @@ internal sealed class DatabaseSeeder(
             await formStatusPermissionSeeder.SeedAsync();
 
 
+
+            var uiControlTypeSeeder = new UiControlTypeSeeder(_surveyDbContext, _logger);
+            await uiControlTypeSeeder.SeedAsync();
+
+            var conditionalOperatorSeeder = new ConditionalOperatorSeeder(_surveyDbContext, _logger);
+            await conditionalOperatorSeeder.SeedAsync();
+
+            var questionTypeFilterSeeder = new QuestionTypeFilterSeeder(_surveyDbContext, _logger); 
+            await questionTypeFilterSeeder.SeedAsync();
+
+
             _logger.LogInformation("Database seeding completed successfully.");
         }
         catch (Exception ex)
