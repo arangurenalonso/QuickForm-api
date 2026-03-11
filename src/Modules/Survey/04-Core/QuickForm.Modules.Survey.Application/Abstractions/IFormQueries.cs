@@ -1,4 +1,5 @@
-﻿using QuickForm.Modules.Survey.Domain;
+﻿using QuickForm.Common.Domain;
+using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Application;
 
@@ -16,10 +17,12 @@ public interface IFormQueries
         Guid idForm,
         CancellationToken ct = default);
     Task<List<ColumnDto>> GetFormColumnsByIdFormAsync(Guid idForm, CancellationToken ct = default);
-    Task<PaginationResult<RowDto>> GetFormRowsByIdFormAsync(
-            Guid idForm,
-            int skip = 0,
-            int take = 50,
-            CancellationToken ct = default
+
+    Task<ResultT<PaginationResult<RowDto>>> GetFormRowsByIdFormAsync(
+           Guid idForm,
+           List<FiltersForm>? filters,
+           int skip = 0,
+           int take = 50,
+           CancellationToken ct = default
         );
 }

@@ -5,13 +5,13 @@ using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Application;
 
-internal sealed class GetFormSubmissionsQueryHandler(
+internal sealed class GetFormSubmissionRowsQueryHandler(
     IFormRepository _formRepository,
     IFormQueries _formQueries
-) : IQueryHandler<GetFormSubmissionsQuery, FormSubmissionsResult>
+) : IQueryHandler<GetFormSubmissionRowsQuery, PaginationResult<Dictionary<string, object?>>>
 {
-    public async Task<ResultT<FormSubmissionsResult>> Handle(
-        GetFormSubmissionsQuery request,
+    public async Task<ResultT<PaginationResult<Dictionary<string, object?>>>> Handle(
+        GetFormSubmissionRowsQuery request,
         CancellationToken cancellationToken)
     {
         var form = await _formRepository.GetFormToCheckActionAsync(
@@ -38,19 +38,19 @@ internal sealed class GetFormSubmissionsQueryHandler(
 
         var skip = (page - 1) * pageSize;
 
-        var columns = await _formQueries.GetFormColumnsByIdFormAsync(
+        var pagedRowsResult = await _formQueries.GetFormRowsByIdFormAsync(
             request.FormId,
-            cancellationToken
-        );
-
-        columns = AddSystemColumns(columns);
-
-        var pagedRows = await _formQueries.GetFormRowsByIdFormAsync(
-            request.FormId,
+            request.Filters,
             skip,
             pageSize,
             cancellationToken
         );
+
+        if (pagedRowsResult.IsFailure)
+        {
+            return pagedRowsResult.Errors;
+        }
+        var pagedRows = pagedRowsResult.Value;
 
         var flatRows = new List<Dictionary<string, object?>>();
 
@@ -72,7 +72,7 @@ internal sealed class GetFormSubmissionsQueryHandler(
             flatRows.Add(rowDictionary);
         }
 
-        var resultRows = new PaginationResult<Dictionary<string, object?>>
+        var result = new PaginationResult<Dictionary<string, object?>>
         {
             Items = flatRows,
             TotalCount = pagedRows.TotalCount,
@@ -81,36 +81,6 @@ internal sealed class GetFormSubmissionsQueryHandler(
             TotalPages = pagedRows.TotalPages,
         };
 
-        var result = new FormSubmissionsResult(columns, resultRows);
         return result;
-    }
-
-    private List<ColumnDto> AddSystemColumns(List<ColumnDto> columns)
-    {
-        var columnId = new ColumnDto
-        {
-            Key = "submissionId",
-            Label = "Submission Id",
-            Order = 0,
-            Type = QuestionTypeType.InputTypeText.GetName(),
-            IsKey = true,
-            ShowInTable = false
-        };
-
-        var columnDate = new ColumnDto
-        {
-            Key = "submittedAt",
-            Label = "Submitted At",
-            Order = 1,
-            Type = QuestionTypeType.InputTypeDatetime.GetName(),
-            Pinned = "right"
-        };
-
-        columns.Add(columnId);
-        columns.Add(columnDate);
-
-        return columns
-            .OrderBy(c => c.Order)
-            .ToList();
     }
 }
