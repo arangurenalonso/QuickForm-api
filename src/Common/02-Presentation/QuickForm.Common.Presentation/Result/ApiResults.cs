@@ -61,7 +61,7 @@ public class ResultResponse
     public string? Message =>
        (Errors != null && Errors.Count > 0)
            ? string.Join("; ",
-                Errors.Select(e => e.Message)
+                Errors.Select(e => e.Description)
                )
            : Title;
     public List<ResultError> Errors { get; set; } = new List<ResultError>();

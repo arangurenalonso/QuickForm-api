@@ -396,7 +396,7 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
                     ResultType.BadRequest,
                     ResultError.InvalidInput(
                         "Filter.SecondValue",
-                        "SecondValue must be greater than or equal to Value."));
+                        $"SecondValue {from} must be greater than or equal to Value {to}."));
             }
 
             query = query.Where(s => s.SubmittedAtUtc >= from && s.SubmittedAtUtc <= to);
@@ -723,7 +723,7 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
                     ResultType.BadRequest,
                     ResultError.InvalidInput(
                         "Filter.SecondValue",
-                        "SecondValue must be greater than or equal to Value."));
+                        $"SecondValue {from} must be greater than or equal to Value {to}."));
             }
 
             query = query.Where(s => s.SubmissionValues.Any(a =>
@@ -820,7 +820,7 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
                     ResultType.BadRequest,
                     ResultError.InvalidInput(
                         "Filter.SecondValue",
-                        "SecondValue must be greater than or equal to Value."));
+                        $"SecondValue {from} must be greater than or equal to Value {to}."));
             }
 
             query = query.Where(s => s.SubmissionValues.Any(a =>
@@ -917,7 +917,7 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
                     ResultType.BadRequest,
                     ResultError.InvalidInput(
                         "Filter.SecondValue",
-                        "SecondValue must be greater than or equal to Value."));
+                        $"SecondValue {from} must be greater than or equal to Value {to}."));
             }
 
             query = query.Where(s => s.SubmissionValues.Any(a =>

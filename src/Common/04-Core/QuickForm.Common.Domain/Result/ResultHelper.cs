@@ -30,7 +30,7 @@ public static class ResultHelper
             return (TResponse)(object)Result.Failure(errors);
         }
 
-        var errorMessage = string.Join(", ", errors.Select(e => e.Message));
+        var errorMessage = string.Join("| ", errors.Select(e => $"{e.PropertyName}: {e.Description}"));
         throw new InvalidOperationException(
             $"Unsupported response type: {responseType.FullName} | error: {errorMessage}");
     }

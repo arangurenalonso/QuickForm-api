@@ -6,11 +6,6 @@ public record ResultError
     public string Description { get; }
     public string? RedirectUrl { get; private set; }
 
-    public string Message =>
-        string.IsNullOrWhiteSpace(PropertyName)
-            ? $"{Description}"
-            : $"{PropertyName}: {Description}";
-
     private ResultError(string field, string description, ErrorType type)
     {
         PropertyName = field;
