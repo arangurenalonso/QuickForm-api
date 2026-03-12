@@ -39,10 +39,11 @@ public abstract class BaseMasterEntity: BaseDomainEntity<MasterId>
     }
     public virtual Result Update(
         string keyName,
-        string? description = null
+        string? description = null,
+        int? order = null
     )
     {
-        var masterUpdateBase = new MasterUpdateBase(keyName, description);
+        var masterUpdateBase = new MasterUpdateBase(keyName, description, order);
         return SetBaseProperties(masterUpdateBase);
     }
 

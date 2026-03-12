@@ -17,6 +17,19 @@ public static class EnumExtensions
         }
         return value.ToString();
     }
+    public static int GetOrder(this Enum value)
+    {
+        var fieldInfo = value.GetType().GetField(value.ToString());
+        if (fieldInfo != null)
+        {
+            var attributes = (OrderAttribute[])fieldInfo.GetCustomAttributes(typeof(OrderAttribute), false);
+            if (attributes is { Length: > 0 } && attributes[0] != null)
+            {
+                return attributes[0].Description;
+            }
+        }
+        return 0;
+    }
     public static Guid GetId(this Enum value)
     {
         var type = value.GetType();

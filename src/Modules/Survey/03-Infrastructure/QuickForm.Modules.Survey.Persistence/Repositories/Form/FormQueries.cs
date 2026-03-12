@@ -140,14 +140,14 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
             .ThenBy(q => q.SortOrder)
             .Select(q => new ColumnDto
             {
-                Id = q.Id.Value,
                 Key = "q_" + q.Id.Value.ToString(),
                 Label = q.QuestionAttributeValue
                     .Where(av => !av.IsDeleted && av.QuestionTypeAttribute.Attribute.Id == idLabelAttribute)
                     .Select(av => av.Value)
                     .FirstOrDefault() ?? "Not specify",
                 Order = q.FormSection.SortOrder * 1000 + q.SortOrder,
-                Type = q.QuestionType.KeyName.Value
+                QuestionTypeKey = q.QuestionType.KeyName.Value,
+                QuestionTypeId = q.QuestionType.Id.Value
             })
             .ToListAsync(ct);
     }

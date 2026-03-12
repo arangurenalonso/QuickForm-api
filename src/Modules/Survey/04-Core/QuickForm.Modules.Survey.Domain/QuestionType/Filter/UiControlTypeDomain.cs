@@ -38,11 +38,12 @@ public class UiControlTypeDomain : BaseMasterEntity
 
     public override Result Update(
            string keyName,
-           string? description = null
+           string? description = null,
+           int? order = null
        )
     {
 
-        var resultUpdated = base.Update(keyName, description);
+        var resultUpdated = base.Update(keyName, description, order);
         if (resultUpdated.IsFailure)
         {
             return resultUpdated.Errors;

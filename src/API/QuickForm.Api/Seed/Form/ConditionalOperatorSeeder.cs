@@ -16,7 +16,8 @@ internal sealed class ConditionalOperatorSeeder(SurveyDbContext _context, ILogge
                                     {
                                         Id = new MasterId(enumType.GetId()),
                                         KeyName = enumType.GetName(),
-                                        Description = enumType.GetDescription()
+                                        Description = enumType.GetDescription(),
+                                        Order = enumType.GetOrder()
                                     })
                                     .ToList();
 
@@ -40,12 +41,15 @@ internal sealed class ConditionalOperatorSeeder(SurveyDbContext _context, ILogge
                 newDomain.ClassOrigin = GetType().Name;
                 _context.Set<ConditionalOperatorDomain>().Add(newDomain);
             }
-            else if (existingDomain.KeyName.Value != enumType.KeyName || existingDomain.Description?.Value != enumType.Description)
+            else if (existingDomain.KeyName.Value != enumType.KeyName || 
+                    existingDomain.Description?.Value != enumType.Description||
+                    existingDomain.SortOrder != enumType.Order)
             {
                 existingDomain.ClassOrigin = GetType().Name;
                 existingDomain.Update(
                     enumType.KeyName,
-                    enumType.Description
+                    enumType.Description,
+                    enumType.Order
                     );
             }
         }

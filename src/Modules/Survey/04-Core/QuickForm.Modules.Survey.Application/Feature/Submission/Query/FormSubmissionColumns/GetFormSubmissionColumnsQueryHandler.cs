@@ -44,7 +44,8 @@ internal sealed class GetFormSubmissionColumnsQueryHandler(
             Key = "submissionId",
             Label = "Submission Id",
             Order = 0,
-            Type = QuestionTypeType.InputTypeText.GetName(),
+            QuestionTypeKey = QuestionTypeType.InputTypeText.GetName(),
+            QuestionTypeId = QuestionTypeType.InputTypeText.GetId(),
             IsKey = true,
             ShowInTable = false
         };
@@ -54,7 +55,8 @@ internal sealed class GetFormSubmissionColumnsQueryHandler(
             Key = "submittedAt",
             Label = "Submitted At",
             Order = 1,
-            Type = QuestionTypeType.InputTypeDatetime.GetName(),
+            QuestionTypeKey = QuestionTypeType.InputTypeDatetime.GetName(),
+            QuestionTypeId = QuestionTypeType.InputTypeDatetime.GetId(),
             Pinned = "right"
         };
 
