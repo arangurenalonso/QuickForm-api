@@ -207,5 +207,9 @@ public sealed class CommonJsonElementMethods
             _ => false
         };
 
-
+    public static bool IsNullOrUndefined(JsonElement? value)
+    {
+        return !value.HasValue ||
+               value.Value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined;
+    }
 }

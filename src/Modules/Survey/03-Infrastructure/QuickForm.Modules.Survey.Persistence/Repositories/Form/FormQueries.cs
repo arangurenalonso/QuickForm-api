@@ -146,8 +146,8 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
                     .Select(av => av.Value)
                     .FirstOrDefault() ?? "Not specify",
                 Order = q.FormSection.SortOrder * 1000 + q.SortOrder,
-                QuestionTypeKey = q.QuestionType.KeyName.Value,
-                QuestionTypeId = q.QuestionType.Id.Value
+                QuestionTypeId = q.IdQuestionType.Value,
+                QuestionTypeKey = q.QuestionType.KeyName.Value
             })
             .ToListAsync(ct);
     }
@@ -327,7 +327,7 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
                     $"Question type id '{filter.QuestionTypeId}' is invalid."));
         }
 
-        if (IsNullOrUndefined(filter.Value))
+        if (CommonJsonElementMethods.IsNullOrUndefined(filter.Value))
         {
             return ApplyNullValueOperator(query, questionIdResult.Value, questionType.Value, operatorType.Value);
         }
@@ -362,7 +362,48 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
         FiltersForm filter,
         ConditionalOperatorType operatorType)
     {
-        if (IsNullOrUndefined(filter.Value))
+        if (operatorType == ConditionalOperatorType.Between)
+        {
+            var betweenResult = GetBetweenValues(filter);
+            if (betweenResult.IsFailure)
+            {
+                return ResultT<IQueryable<SubmissionDomain>>.FailureT(ResultType.BadRequest, betweenResult.Errors);
+            }
+
+            var (fromElement, toElement) = betweenResult.Value;
+
+            if (!CommonJsonElementMethods.TryGetDateTime(fromElement, out var from))
+            {
+                return ResultT<IQueryable<SubmissionDomain>>.FailureT(
+                    ResultType.BadRequest,
+                    ResultError.InvalidInput(
+                        "Filter.Value",
+                        $"The value '{fromElement.GetRawText()}' is not a valid datetime."));
+            }
+
+            if (!CommonJsonElementMethods.TryGetDateTime(toElement, out var to))
+            {
+                return ResultT<IQueryable<SubmissionDomain>>.FailureT(
+                    ResultType.BadRequest,
+                    ResultError.InvalidInput(
+                        "Filter.SecondValue",
+                        $"The value '{toElement.GetRawText()}' is not a valid datetime."));
+            }
+
+            if (from > to)
+            {
+                return ResultT<IQueryable<SubmissionDomain>>.FailureT(
+                    ResultType.BadRequest,
+                    ResultError.InvalidInput(
+                        "Filter.SecondValue",
+                        "SecondValue must be greater than or equal to Value."));
+            }
+
+            query = query.Where(s => s.SubmittedAtUtc >= from && s.SubmittedAtUtc <= to);
+
+            return ResultT<IQueryable<SubmissionDomain>>.Success(query);
+        }
+        if (CommonJsonElementMethods.IsNullOrUndefined(filter.Value))
         {
             return ResultT<IQueryable<SubmissionDomain>>.FailureT(
                 ResultType.BadRequest,
@@ -640,11 +681,60 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
     }
 
     private ResultT<IQueryable<SubmissionDomain>> ApplyIntegerFilter(
-        IQueryable<SubmissionDomain> query,
-        FiltersForm filter,
-        Guid questionIdGuid,
-        ConditionalOperatorType operatorType)
+         IQueryable<SubmissionDomain> query,
+         FiltersForm filter,
+         Guid questionIdGuid,
+         ConditionalOperatorType operatorType
+        )
     {
+        var questionId = new QuestionId(questionIdGuid);
+
+        if (operatorType == ConditionalOperatorType.Between)
+        {
+            var betweenResult = GetBetweenValues(filter);
+            if (betweenResult.IsFailure)
+            {
+                return ResultT<IQueryable<SubmissionDomain>>.FailureT(ResultType.BadRequest, betweenResult.Errors);
+            }
+
+            var (fromElement, toElement) = betweenResult.Value;
+
+            if (!CommonJsonElementMethods.TryGetInt64(fromElement, out var from))
+            {
+                return ResultT<IQueryable<SubmissionDomain>>.FailureT(
+                    ResultType.BadRequest,
+                    ResultError.InvalidInput(
+                        "Filter.Value",
+                        $"The value '{fromElement.GetRawText()}' is not a valid integer."));
+            }
+
+            if (!CommonJsonElementMethods.TryGetInt64(toElement, out var to))
+            {
+                return ResultT<IQueryable<SubmissionDomain>>.FailureT(
+                    ResultType.BadRequest,
+                    ResultError.InvalidInput(
+                        "Filter.SecondValue",
+                        $"The value '{toElement.GetRawText()}' is not a valid integer."));
+            }
+
+            if (from > to)
+            {
+                return ResultT<IQueryable<SubmissionDomain>>.FailureT(
+                    ResultType.BadRequest,
+                    ResultError.InvalidInput(
+                        "Filter.SecondValue",
+                        "SecondValue must be greater than or equal to Value."));
+            }
+
+            query = query.Where(s => s.SubmissionValues.Any(a =>
+                !a.IsDeleted &&
+                a.IdQuestion == questionId &&
+                a.ValueInteger >= from &&
+                a.ValueInteger <= to));
+
+            return ResultT<IQueryable<SubmissionDomain>>.Success(query);
+        }
+
         if (!CommonJsonElementMethods.TryGetInt64(filter.Value!.Value, out var intValue))
         {
             return ResultT<IQueryable<SubmissionDomain>>.FailureT(
@@ -653,8 +743,6 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
                     "Filter.Value",
                     $"The value '{filter.Value.Value.GetRawText()}' is not a valid integer."));
         }
-
-        var questionId = new QuestionId(questionIdGuid);
 
         query = operatorType switch
         {
@@ -697,6 +785,52 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
         Guid questionIdGuid,
         ConditionalOperatorType operatorType)
     {
+        var questionId = new QuestionId(questionIdGuid);
+        if (operatorType == ConditionalOperatorType.Between)
+        {
+            var betweenResult = GetBetweenValues(filter);
+            if (betweenResult.IsFailure)
+            {
+                return ResultT<IQueryable<SubmissionDomain>>.FailureT(ResultType.BadRequest, betweenResult.Errors);
+            }
+
+            var (fromElement, toElement) = betweenResult.Value;
+
+            if (!CommonJsonElementMethods.TryGetDecimal(fromElement, out var from))
+            {
+                return ResultT<IQueryable<SubmissionDomain>>.FailureT(
+                    ResultType.BadRequest,
+                    ResultError.InvalidInput(
+                        "Filter.Value",
+                        $"The value '{fromElement.GetRawText()}' is not a valid decimal."));
+            }
+
+            if (!CommonJsonElementMethods.TryGetDecimal(toElement, out var to))
+            {
+                return ResultT<IQueryable<SubmissionDomain>>.FailureT(
+                    ResultType.BadRequest,
+                    ResultError.InvalidInput(
+                        "Filter.SecondValue",
+                        $"The value '{toElement.GetRawText()}' is not a valid decimal."));
+            }
+
+            if (from > to)
+            {
+                return ResultT<IQueryable<SubmissionDomain>>.FailureT(
+                    ResultType.BadRequest,
+                    ResultError.InvalidInput(
+                        "Filter.SecondValue",
+                        "SecondValue must be greater than or equal to Value."));
+            }
+
+            query = query.Where(s => s.SubmissionValues.Any(a =>
+                !a.IsDeleted &&
+                a.IdQuestion == questionId &&
+                a.ValueDecimal >= from &&
+                a.ValueDecimal <= to));
+
+            return ResultT<IQueryable<SubmissionDomain>>.Success(query);
+        }
         if (!CommonJsonElementMethods.TryGetDecimal(filter.Value!.Value, out var decimalValue))
         {
             return ResultT<IQueryable<SubmissionDomain>>.FailureT(
@@ -706,7 +840,6 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
                     $"The value '{filter.Value.Value.GetRawText()}' is not a valid decimal number."));
         }
 
-        var questionId = new QuestionId(questionIdGuid);
 
         query = operatorType switch
         {
@@ -749,6 +882,52 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
         Guid questionIdGuid,
         ConditionalOperatorType operatorType)
     {
+        var questionId = new QuestionId(questionIdGuid);
+        if (operatorType == ConditionalOperatorType.Between)
+        {
+            var betweenResult = GetBetweenValues(filter);
+            if (betweenResult.IsFailure)
+            {
+                return ResultT<IQueryable<SubmissionDomain>>.FailureT(ResultType.BadRequest, betweenResult.Errors);
+            }
+
+            var (fromElement, toElement) = betweenResult.Value;
+
+            if (!CommonJsonElementMethods.TryGetDateTime(fromElement, out var from))
+            {
+                return ResultT<IQueryable<SubmissionDomain>>.FailureT(
+                    ResultType.BadRequest,
+                    ResultError.InvalidInput(
+                        "Filter.Value",
+                        $"The value '{fromElement.GetRawText()}' is not a valid datetime."));
+            }
+
+            if (!CommonJsonElementMethods.TryGetDateTime(toElement, out var to))
+            {
+                return ResultT<IQueryable<SubmissionDomain>>.FailureT(
+                    ResultType.BadRequest,
+                    ResultError.InvalidInput(
+                        "Filter.SecondValue",
+                        $"The value '{toElement.GetRawText()}' is not a valid datetime."));
+            }
+
+            if (from > to)
+            {
+                return ResultT<IQueryable<SubmissionDomain>>.FailureT(
+                    ResultType.BadRequest,
+                    ResultError.InvalidInput(
+                        "Filter.SecondValue",
+                        "SecondValue must be greater than or equal to Value."));
+            }
+
+            query = query.Where(s => s.SubmissionValues.Any(a =>
+                !a.IsDeleted &&
+                a.IdQuestion == questionId &&
+                a.ValueDateTime >= from &&
+                a.ValueDateTime <= to));
+
+            return ResultT<IQueryable<SubmissionDomain>>.Success(query);
+        }
         if (!CommonJsonElementMethods.TryGetDateTime(filter.Value!.Value, out var dateTimeValue))
         {
             return ResultT<IQueryable<SubmissionDomain>>.FailureT(
@@ -758,7 +937,6 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
                     $"The value '{filter.Value.Value.GetRawText()}' is not a valid datetime."));
         }
 
-        var questionId = new QuestionId(questionIdGuid);
 
         query = operatorType switch
         {
@@ -797,11 +975,6 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
         return key.Equals("submittedAt", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static bool IsNullOrUndefined(JsonElement? value)
-    {
-        return !value.HasValue ||
-               value.Value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined;
-    }
 
     private static ResultT<Guid> TryGetQuestionId(string key)
     {
@@ -835,5 +1008,27 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
             .Replace("%", "[%]")
             .Replace("_", "[_]");
     }
+    private static ResultT<(JsonElement From, JsonElement To)> GetBetweenValues(FiltersForm filter)
+    {
+        if (CommonJsonElementMethods.IsNullOrUndefined(filter.Value))
+        {
+            return ResultT<(JsonElement From, JsonElement To)>.FailureT(
+                ResultType.BadRequest,
+                ResultError.InvalidInput(
+                    "Filter.Value",
+                    "Value is required for operator 'Between'."));
+        }
 
+        if (CommonJsonElementMethods.IsNullOrUndefined(filter.SecondValue))
+        {
+            return ResultT<(JsonElement From, JsonElement To)>.FailureT(
+                ResultType.BadRequest,
+                ResultError.InvalidInput(
+                    "Filter.SecondValue",
+                    "SecondValue is required for operator 'Between'."));
+        }
+
+        return ResultT<(JsonElement From, JsonElement To)>.Success(
+            (filter.Value!.Value, filter.SecondValue!.Value));
+    }
 }
