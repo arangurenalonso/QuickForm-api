@@ -1,13 +1,13 @@
-﻿using Microsoft.Extensions.Options;
+﻿using System.Security.Cryptography;
+using System.Text;
+using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
 using QuickForm.Modules.Users.Domain;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace QuickForm.Modules.Users.Service;
 
 public sealed class AuthActionTokenHashingService(
-    IOptions<AuthActionTokenHashingOptions> _options
+    ICommonOptionsProvider _commonOptionsProvider
 ) : IAuthActionTokenHashingService
 {
     public ResultT<string> Hash(string token)
@@ -19,7 +19,7 @@ public sealed class AuthActionTokenHashingService(
                 return ResultError.EmptyValue("Token", "Token cannot be null or empty.");
             }
 
-            var secret = _options.Value.SecretKey;
+            var secret = _commonOptionsProvider.GetSecretKey();
 
             if (string.IsNullOrWhiteSpace(secret))
             {

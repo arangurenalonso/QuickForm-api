@@ -22,4 +22,8 @@ public class CommonOptionsProvider : ICommonOptionsProvider
     {
         return new Uri(_applicationUrlsOptions.WebUrl);
     }
+    public string GetSecretKey()
+    {
+        return _applicationUrlsOptions.SecretKey;
+    }
 }

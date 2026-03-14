@@ -5,9 +5,6 @@ namespace QuickForm.Modules.Users.Domain;
 
 public sealed record TokenVO
 {
-    private static readonly Regex OtpRegex = new(@"^\d{6}$", RegexOptions.Compiled);
-    private static readonly Regex AlphaNumericRegex = new(@"^[A-Z0-9]{32}$", RegexOptions.Compiled);
-
     public string Value { get; }
 
     private TokenVO(string value)
