@@ -108,7 +108,7 @@ await app.RunAsync();
 // Seleccionar el Api
 // Seleccionar la carpeta Persistencia de cada contexto
 
-// Add-Migration DefaultValidationTemplate -Context UsersDbContext -OutputDir Migrations
+// Add-Migration ImproveSecurityOfToken -Context UsersDbContext -OutputDir Migrations
 // Add-Migration FilterSchema -Context SurveyDbContext -OutputDir Migrations
 // Add-Migration AuditConfiguration -Context PersonDbContext -OutputDir Migrations
 

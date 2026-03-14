@@ -7,6 +7,7 @@ public class RegisterCommandHandler(
         IUnitOfWork _unitOfWork,
         IUserRepository _userRepository,
         IPasswordHashingService _passwordHashingService,
+        IAuthActionTokenHashingService _tokenHashingService,
         IDateTimeProvider _dateTimeProvider,
         IRoleRepository _roleRepository
     ) : ICommandHandler<RegisterCommand, ResultResponse>
@@ -72,6 +73,7 @@ public class RegisterCommandHandler(
             email,
             password,
             _passwordHashingService,
+            _tokenHashingService,
             _dateTimeProvider.UtcNow,
             roleDomain
             );
