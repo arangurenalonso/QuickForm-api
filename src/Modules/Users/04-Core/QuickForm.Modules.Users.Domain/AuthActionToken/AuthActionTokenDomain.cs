@@ -1,38 +1,50 @@
-﻿using QuickForm.Common.Domain;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using QuickForm.Common.Domain;
 
 namespace QuickForm.Modules.Users.Domain;
+
 public class AuthActionTokenDomain : BaseDomainEntity<AuthActionTokenId>
 {
     public UserId IdUser { get; private set; }
     public MasterId IdUserAction { get; private set; }
-    public TokenVO Token { get; private set; }
+    public string TokenHash { get; private set; } = string.Empty;
     public bool Used { get; private set; }
     public ExpirationDate ExpiresAt { get; private set; }
 
+    [NotMapped]
+    public string? PlainTextToken { get; private set; }
 
     #region One to Many
-    public UserDomain User { get; private set; }
-    public AuthActionDomain Action { get; private set; }
+    public UserDomain User { get; private set; } = null!;
+    public AuthActionDomain Action { get; private set; } = null!;
     #endregion
-
 
     private AuthActionTokenDomain() { }
 
     private AuthActionTokenDomain(
-        AuthActionTokenId id, UserId idUser, MasterId idUserAction, TokenVO token, bool used, ExpirationDate expiresAt
-        ) : base(id)
+        AuthActionTokenId id,
+        UserId idUser,
+        MasterId idUserAction,
+        string tokenHash,
+        bool used,
+        ExpirationDate expiresAt,
+        string? plainTextToken
+    ) : base(id)
     {
         IdUser = idUser;
         IdUserAction = idUserAction;
-        Token = token;
+        TokenHash = tokenHash;
         Used = used;
         ExpiresAt = expiresAt;
+        PlainTextToken = plainTextToken;
     }
 
-    public static ResultT<AuthActionTokenDomain> Create(UserId idUser, MasterId idUserAction,
-        DateTime expiredDate)
+    public static ResultT<AuthActionTokenDomain> Create(
+        UserId idUser,
+        MasterId idUserAction,
+        DateTime expiredDate,
+        IAuthActionTokenHashingService tokenHashingService)
     {
-
         TokenVO token = idUserAction.Value switch
         {
             var action when action == AuthActionType.RecoveryPassword.GetId() ||
@@ -43,19 +55,28 @@ public class AuthActionTokenDomain : BaseDomainEntity<AuthActionTokenId>
         };
 
         var expiredDateResult = ExpirationDate.Create(expiredDate);
-
-        if ( expiredDateResult.IsFailure)
+        if (expiredDateResult.IsFailure)
         {
             return expiredDateResult.Errors;
         }
-        return new AuthActionTokenDomain(AuthActionTokenId.Create(),
+
+        var tokenHashResult = tokenHashingService.Hash(token.Value);
+        if (tokenHashResult.IsFailure)
+        {
+            return tokenHashResult.Errors;
+        }
+
+        return new AuthActionTokenDomain(
+            AuthActionTokenId.Create(),
             idUser,
             idUserAction,
-            token,
+            tokenHashResult.Value,
             false,
-            expiredDateResult.Value
-            );
+            expiredDateResult.Value,
+            token.Value
+        );
     }
+
     public Result UseToken(DateTime currentDateTime)
     {
         if (Used)
@@ -72,4 +93,13 @@ public class AuthActionTokenDomain : BaseDomainEntity<AuthActionTokenId>
         return Result.Success();
     }
 
+    public void Revoke()
+    {
+        Used = true;
+    }
+
+    public void ClearPlainTextToken()
+    {
+        PlainTextToken = null;
+    }
 }

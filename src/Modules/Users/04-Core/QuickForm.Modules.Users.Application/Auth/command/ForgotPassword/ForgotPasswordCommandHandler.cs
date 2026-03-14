@@ -3,11 +3,14 @@ using QuickForm.Common.Domain;
 using QuickForm.Modules.Users.Domain;
 
 namespace QuickForm.Modules.Users.Application;
+
 public class ForgotPasswordCommandHandler(
     IUnitOfWork _unitOfWork,
     IDateTimeProvider _dateTimeProvider,
-    IUserRepository userRepository
-    ) : ICommandHandler<ForgotPasswordCommand, ResultResponse>
+    IUserRepository userRepository,
+    IAuthActionTokenHashingService _authActionTokenHashingService,
+    IAuthActionEmailService _authActionEmailService
+) : ICommandHandler<ForgotPasswordCommand, ResultResponse>
 {
     public async Task<ResultT<ResultResponse>> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
     {
@@ -16,14 +19,28 @@ public class ForgotPasswordCommandHandler(
         {
             return ResultT<ResultResponse>.FailureT(resultUser.ResultType, resultUser.Errors);
         }
+
         var user = resultUser.Value;
 
-        var idAuthActionPasswordRecovery = AuthActionType.RecoveryPassword.GetId();
-        var idAuthAction = new MasterId(idAuthActionPasswordRecovery);
-        var addActionResult = user.AddAction(idAuthAction, _dateTimeProvider.UtcNow);
+        var idAuthAction = new MasterId(AuthActionType.RecoveryPassword.GetId());
+
+        var addActionResult = user.AddAction(
+            idAuthAction,
+            _dateTimeProvider.UtcNow,
+            _authActionTokenHashingService);
+
         if (addActionResult.IsFailure)
         {
             return ResultT<ResultResponse>.FailureT(addActionResult.ResultType, addActionResult.Errors);
+        }
+
+        var createdToken = addActionResult.Value;
+        var plainToken = createdToken.PlainTextToken;
+
+        if (string.IsNullOrWhiteSpace(plainToken))
+        {
+            var error = ResultError.InvalidOperation("Token", "Plain text token was not generated.");
+            return ResultT<ResultResponse>.FailureT(ResultType.DomainValidation, error);
         }
 
         _unitOfWork.Repository<UserDomain, UserId>().UpdateEntity(user);
@@ -34,24 +51,27 @@ public class ForgotPasswordCommandHandler(
             return ResultT<ResultResponse>.FailureT(confirmTransactionResult.ResultType, confirmTransactionResult.Errors);
         }
 
+        await _authActionEmailService.SendPasswordResetAsync(user.Email.Value, plainToken, cancellationToken);
+        createdToken.ClearPlainTextToken();
+
         return ResultResponse.Success("Password recovery email sent successfully.");
     }
+
     private async Task<ResultT<UserDomain>> GetUser(string email)
     {
-        var emailVO=EmailVO.Create(email);
+        var emailVO = EmailVO.Create(email);
         if (emailVO.IsFailure)
         {
             return ResultT<UserDomain>.FailureT(ResultType.DomainValidation, emailVO.Errors);
         }
+
         var user = await userRepository.GetByEmailWithActiveAuthActionsLoadedAsync(emailVO.Value, _dateTimeProvider.UtcNow);
         if (user is null)
         {
             var error = ResultError.InvalidInput("Email", $"User with email '{email}' not found");
             return ResultT<UserDomain>.FailureT(ResultType.NotFound, error);
         }
+
         return user;
     }
-
-
-
 }

@@ -4,8 +4,8 @@ namespace QuickForm.Modules.Users.Domain;
 
 public interface IAuthActionTokenRepository
 {
-    Task<AuthActionTokenDomain?> GetAuthActionTokenByAuthActionIdEmailAndTokenAsync(
+    Task<AuthActionTokenDomain?> GetAuthActionTokenByAuthActionIdEmailAndTokenHashAsync(
         MasterId authActionId,
         EmailVO email,
-        TokenVO userActionToken);
+        string tokenHash);
 }

@@ -15,39 +15,6 @@ public sealed record TokenVO
         Value = value;
     }
 
-    public static ResultT<TokenVO> CreateOtp(string? token)
-    {
-        if (string.IsNullOrWhiteSpace(token))
-        {
-            return ResultError.EmptyValue("Token", "Token cannot be null or empty.");
-        }
-
-        var normalized = token.Trim();
-
-        if (!OtpRegex.IsMatch(normalized))
-        {
-            return ResultError.InvalidFormat("Token", "OTP token must contain exactly 6 digits.");
-        }
-
-        return new TokenVO(normalized);
-    }
-
-    public static ResultT<TokenVO> CreateLongToken(string? token)
-    {
-        if (string.IsNullOrWhiteSpace(token))
-        {
-            return ResultError.EmptyValue("Token", "Token cannot be null or empty.");
-        }
-
-        var normalized = token.Trim().ToUpperInvariant();
-
-        if (!AlphaNumericRegex.IsMatch(normalized))
-        {
-            return ResultError.InvalidFormat("Token", "Token must contain exactly 32 uppercase letters and digits.");
-        }
-
-        return new TokenVO(normalized);
-    }
     public static TokenVO Restore(string value) => new TokenVO(value);
     public static TokenVO GenerateOtp()
     {

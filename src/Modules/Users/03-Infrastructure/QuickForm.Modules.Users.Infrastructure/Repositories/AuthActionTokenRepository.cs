@@ -6,22 +6,20 @@ namespace QuickForm.Modules.Users.Persistence.Repositories;
 
 public class AuthActionTokenRepository(
     UsersDbContext _context
-    ) : IAuthActionTokenRepository
+) : IAuthActionTokenRepository
 {
-
-
-    public async Task<AuthActionTokenDomain?> GetAuthActionTokenByAuthActionIdEmailAndTokenAsync(
+    public async Task<AuthActionTokenDomain?> GetAuthActionTokenByAuthActionIdEmailAndTokenHashAsync(
         MasterId authActionId,
         EmailVO email,
-        TokenVO userActionToken)
+        string tokenHash)
     {
         var authActionToken = await _context.Set<AuthActionTokenDomain>()
-                                                .FirstOrDefaultAsync(authActionToken => 
-                                                                            authActionToken.Token == userActionToken &&
-                                                                            authActionToken.IdUserAction == authActionId &&
-                                                                            authActionToken.User.Email == email &&
-                                                                            !authActionToken.IsDeleted
-                                                                            );
+            .FirstOrDefaultAsync(authActionToken =>
+                authActionToken.TokenHash == tokenHash &&
+                authActionToken.IdUserAction == authActionId &&
+                authActionToken.User.Email == email &&
+                !authActionToken.IsDeleted);
+
         return authActionToken;
     }
 }
