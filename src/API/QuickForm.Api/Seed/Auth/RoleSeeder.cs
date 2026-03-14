@@ -22,7 +22,7 @@ internal sealed class RoleSeeder(UsersDbContext _context, ILogger<DatabaseSeeder
 
         var ids = enumTypesArray.Select(x => x.Id).ToList();
 
-        List<RoleDomain> existingDomains = await _context.Role
+        List<RoleDomain> existingDomains = await _context.Set<RoleDomain>() 
                                             .Where(x => ids.Contains(x.Id))
                                             .ToListAsync();
         foreach (var enumType in enumTypesArray)
@@ -34,7 +34,7 @@ internal sealed class RoleSeeder(UsersDbContext _context, ILogger<DatabaseSeeder
             {
                 RoleDomain newDomain = RoleDomain.Create(idRole,enumType.KeyName).Value;
                 newDomain.ClassOrigin = GetType().Name;
-                _context.Role.Add(newDomain);
+                _context.Set<RoleDomain>().Add(newDomain);
             }
             else if (existingDomain.KeyName.Value != enumType.KeyName)
             {

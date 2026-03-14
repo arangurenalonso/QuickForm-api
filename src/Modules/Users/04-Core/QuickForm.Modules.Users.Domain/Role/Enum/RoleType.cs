@@ -8,7 +8,7 @@ public enum RoleType
     [Id("7C764050-2978-40E9-8D52-7B900FA6ABAC")]
     Administrator,
 
-    [Name("Menber")]
+    [Name("Member")]
     [Id("11CA0682-EB42-44E9-861B-A1D19F62072B")]
-    Menber,
+    Member,
 }

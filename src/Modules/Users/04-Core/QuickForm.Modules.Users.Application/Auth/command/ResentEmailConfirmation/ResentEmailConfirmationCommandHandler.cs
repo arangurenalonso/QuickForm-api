@@ -20,8 +20,12 @@ public class ResentEmailConfirmationCommandHandler(
 
         var idAuthActionPasswordRecovery = AuthActionType.EmailConfirmation.GetId();
         var idAuthAction = new MasterId(idAuthActionPasswordRecovery);
-        user.AddAction(idAuthAction, _dateTimeProvider.UtcNow);
 
+        var addActionResult = user.AddAction(idAuthAction, _dateTimeProvider.UtcNow);
+        if (addActionResult.IsFailure)
+        {
+            return ResultT<ResultResponse>.FailureT(addActionResult.ResultType, addActionResult.Errors);
+        }
 
         _unitOfWork.Repository<UserDomain, UserId>().UpdateEntity(user);
 
@@ -40,7 +44,7 @@ public class ResentEmailConfirmationCommandHandler(
         {
             return ResultT<UserDomain>.FailureT(ResultType.DomainValidation, emailVO.Errors);
         }
-        var user = await userRepository.GetByEmailWithActiveAuthActionsAsync(emailVO.Value, _dateTimeProvider.UtcNow);
+        var user = await userRepository.GetByEmailWithActiveAuthActionsLoadedAsync(emailVO.Value, _dateTimeProvider.UtcNow);
         if (user is null)
         {
             var error = ResultError.InvalidInput("Email", $"User with email '{email}' not found");

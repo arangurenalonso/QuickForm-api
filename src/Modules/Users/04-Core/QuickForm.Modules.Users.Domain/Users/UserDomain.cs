@@ -32,7 +32,7 @@ public sealed class UserDomain : BaseDomainEntity<UserId>
         )
     {
         var emailResult = EmailVO.Create(email);
-        var passwordResult = PasswordVO.Create(password, passwordHashingService);
+        var passwordResult = PasswordVO.CreateFromPlainText(password, passwordHashingService);
 
         if (emailResult.IsFailure || passwordResult.IsFailure)
         {
@@ -42,11 +42,18 @@ public sealed class UserDomain : BaseDomainEntity<UserId>
             return errorList;
         }
         var newUser = new UserDomain(UserId.Create(), emailResult.Value, passwordResult.Value);
-        newUser.AddRole(roleDomain);
+        var addRoleResult = newUser.AddRole(roleDomain);
+        if (addRoleResult.IsFailure)
+        {
+            return addRoleResult.Errors;
+        }
         var idAuthActionEmailVerificacion = AuthActionType.EmailConfirmation.GetId();
         var idAuthAction = new MasterId(idAuthActionEmailVerificacion);
-
-        newUser.AddAction(idAuthAction, currentDateTime);
+        var addActionResult = newUser.AddAction(idAuthAction, currentDateTime);
+        if (addActionResult.IsFailure)
+        {
+            return addActionResult.Errors;
+        }
         newUser.RaiseDomainEvents(new UserRegisteredDomainEvent(newUser.Id));
 
         return newUser;
@@ -54,14 +61,15 @@ public sealed class UserDomain : BaseDomainEntity<UserId>
 
     public Result ChangePassword(
         string newPassword, 
-        IPasswordHashingService? passwordHashingService=null)
+        IPasswordHashingService passwordHashingService)
     {
-        var passwordResult = PasswordVO.Create(newPassword, passwordHashingService);
+        var passwordResult = PasswordVO.CreateFromPlainText(newPassword, passwordHashingService);
         if (passwordResult.IsFailure)
         {
             return passwordResult.Errors;
         }
         PasswordHash = passwordResult.Value;
+        IsPasswordChanged = true;
         return Result.Success();
 
 
@@ -70,12 +78,12 @@ public sealed class UserDomain : BaseDomainEntity<UserId>
         MasterId idAuthAction,
         DateTime currentDateTime)
     {
-        var existCurrentActionInProgress = AuthActionTokens.Where(x =>
-                                                        x.IdUserAction == idAuthAction &&
-                                                        x.ExpiresAt.Value >= currentDateTime
-                                                        ).ToList();
+        var hasActiveToken = AuthActionTokens.Any(x =>
+                                                    x.IdUserAction == idAuthAction &&
+                                                    !x.Used &&
+                                                    x.ExpiresAt.Value >= currentDateTime);
 
-        if (existCurrentActionInProgress.Count == 0)
+        if (!hasActiveToken)
         {
             var expiredDate = currentDateTime.AddMinutes(30);
             var userActionTokenDomainResult = AuthActionTokenDomain.Create(Id, idAuthAction, expiredDate);

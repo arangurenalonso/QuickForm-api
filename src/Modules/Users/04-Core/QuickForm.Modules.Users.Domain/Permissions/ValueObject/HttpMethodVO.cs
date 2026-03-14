@@ -4,7 +4,7 @@ namespace QuickForm.Modules.Users.Domain;
 public sealed record HttpMethodVO
 {
     private static readonly HashSet<string> Allowed =
-        new(StringComparer.Ordinal) { "GET", "POST", "PUT", "DELETE" };
+        new(StringComparer.Ordinal) { "GET", "POST", "PUT", "PATCH", "DELETE" };
 
     public string Value { get; }
 
@@ -22,9 +22,10 @@ public sealed record HttpMethodVO
 
         if (!Allowed.Contains(s))
         {
+            var msg = $"Invalid HTTP method: '{method}'. Allowed methods are: {string.Join(", ", Allowed)}.";
             return ResultError.InvalidFormat(
                 "HttpMethod",
-                "Only GET, POST, PUT, and DELETE are allowed."
+                msg
             );
         }
 
@@ -34,7 +35,8 @@ public sealed record HttpMethodVO
     public static readonly HttpMethodVO GET = new("GET");
     public static readonly HttpMethodVO POST = new("POST");
     public static readonly HttpMethodVO PUT = new("PUT");
-    public static readonly HttpMethodVO DELETE = new("DELETE");
+    public static readonly HttpMethodVO DELETE = new("DELETE"); 
+    public static readonly HttpMethodVO PATCH = new("PATCH");
 
     public static implicit operator string(HttpMethodVO vo) => vo.Value;
     public override string ToString() => Value;

@@ -33,34 +33,43 @@ public class AuthActionTokenDomain : BaseDomainEntity<AuthActionTokenId>
         DateTime expiredDate)
     {
 
-        int length = idUserAction.Value switch
+        TokenVO token = idUserAction.Value switch
         {
-            var v when v == AuthActionType.RecoveryPassword.GetId() => 6,
-            var v when v == AuthActionType.EmailConfirmation.GetId() => 6,
-            _ => 32
+            var action when action == AuthActionType.RecoveryPassword.GetId() ||
+                            action == AuthActionType.EmailConfirmation.GetId()
+                => TokenVO.GenerateOtp(),
+
+            _ => TokenVO.GenerateLongToken(32)
         };
-        var tokenResult = TokenVO.GenerateNewToken(length);
+
         var expiredDateResult = ExpirationDate.Create(expiredDate);
 
         if ( expiredDateResult.IsFailure)
         {
-            var errorList = new ResultErrorList(
-                new List<ResultErrorList>() { expiredDateResult.Errors }
-                );
-            return errorList;
+            return expiredDateResult.Errors;
         }
         return new AuthActionTokenDomain(AuthActionTokenId.Create(),
             idUser,
             idUserAction,
-            tokenResult,
+            token,
             false,
             expiredDateResult.Value
             );
     }
-    public void UseToken()
+    public Result UseToken(DateTime currentDateTime)
     {
-        Used = true;
-    }
+        if (Used)
+        {
+            return ResultError.InvalidOperation("AuthActionToken", "Token has already been used.");
+        }
 
+        if (ExpiresAt.IsExpired(currentDateTime))
+        {
+            return ResultError.InvalidOperation("AuthActionToken", "Token has already expired.");
+        }
+
+        Used = true;
+        return Result.Success();
+    }
 
 }

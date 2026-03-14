@@ -22,7 +22,12 @@ internal sealed class AuthActionDomainEventHandler(
             throw new Exception($"User with ID '{notification.UserId.Value}' not found. Please ensure the user exists in the system.");
         }
 
-        var authActionToken = user.AuthActionTokens.FirstOrDefault(x => x.IdUserAction == notification.IdAuthAction);
+        var authActionToken = user.AuthActionTokens
+                                        .Where(x => x.IdUserAction == notification.IdAuthAction &&
+                                                    !x.Used &&
+                                                    x.ExpiresAt.Value > _dateTimeProvider.UtcNow)
+                                        .OrderByDescending(x => x.ExpiresAt.Value)
+                                        .FirstOrDefault();
         if (authActionToken == null)
         {
             throw new Exception($"No AuthActionToken was generated for the AuthAction with ID '{notification.IdAuthAction.Value}'. Ensure the action is correctly initiated.");

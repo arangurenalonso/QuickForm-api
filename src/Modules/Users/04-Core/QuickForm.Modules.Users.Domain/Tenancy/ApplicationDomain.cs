@@ -17,7 +17,11 @@ public sealed class ApplicationDomain : BaseMasterEntity
     {
         var newDomain = new ApplicationDomain();
         var masterUpdateBase = new MasterUpdateBase(keyName, description);
-        newDomain.SetBaseProperties(masterUpdateBase);
+        var result = newDomain.SetBaseProperties(masterUpdateBase);
+        if (result.IsFailure)
+        {
+            return result.Errors;
+        }
 
         return newDomain;
     }
@@ -25,7 +29,11 @@ public sealed class ApplicationDomain : BaseMasterEntity
     {
         var newDomain = new ApplicationDomain(id);
         var masterUpdateBase = new MasterUpdateBase(keyName, description);
-        newDomain.SetBaseProperties(masterUpdateBase);
+        var result = newDomain.SetBaseProperties(masterUpdateBase);
+        if (result.IsFailure)
+        {
+            return result.Errors;
+        }
 
         return newDomain;
     }

@@ -46,7 +46,7 @@ public class AuthActionTokenConfiguration : EntityMapBase<AuthActionTokenDomain,
                 .IsRequired()
                 .HasConversion(
                     tokenVO => tokenVO.Value,
-                    tokenStirng => TokenVO.Create(tokenStirng).Value
+                    tokenStirng => TokenVO.Restore(tokenStirng)
                     );
 
         builder.Property(p => p.ExpiresAt)
@@ -71,5 +71,8 @@ public class AuthActionTokenConfiguration : EntityMapBase<AuthActionTokenDomain,
             .WithMany(ua => ua.UserActionTokens)
             .HasForeignKey(uat => uat.IdUserAction)
             .IsRequired();
+        builder.HasIndex(x => new { x.IdUser, x.IdUserAction, x.Used, x.ExpiresAt });
+
+        builder.HasIndex(x => new { x.IdUserAction, x.Used, x.ExpiresAt });
     }
 }

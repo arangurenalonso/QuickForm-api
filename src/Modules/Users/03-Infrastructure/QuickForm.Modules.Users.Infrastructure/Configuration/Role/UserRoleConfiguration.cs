@@ -48,7 +48,9 @@ public class UserRoleConfiguration : EntityMapBase<UserRoleDomain, UserRoleId>
             .WithMany(uat => uat.UserRole)
             .HasForeignKey(uat => uat.IdRole)
             .IsRequired();
-
+        builder.HasIndex(x => new { x.IdUser, x.IdRole })
+                .IsUnique()
+                .HasFilter("[IsDeleted] = 0");
     }
 
 }

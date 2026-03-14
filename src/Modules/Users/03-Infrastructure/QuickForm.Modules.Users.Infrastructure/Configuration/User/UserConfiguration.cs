@@ -31,12 +31,24 @@ public class UserConfiguration : EntityMapBase<UserDomain, UserId>
                     emailString => EmailVO.Create(emailString).Value
                     );
 
+        builder.HasIndex(p => p.Email)
+                .IsUnique()
+                .HasFilter("[IsDeleted] = 0");
+
+        builder.Property(p => p.IsEmailVerify)
+                .HasColumnName("IsEmailVerify")
+                .IsRequired();
+
+        builder.Property(p => p.IsPasswordChanged)
+                .HasColumnName("IsPasswordChanged")
+                .IsRequired();
+
         builder.Property(p => p.PasswordHash)
                 .HasColumnName("PasswordHash")
                 .IsRequired()
                 .HasConversion(
                     passwordVO => passwordVO.Value,
-                    passwordString => PasswordVO.Create(passwordString,null).Value
+                    passwordString => PasswordVO.Restore(passwordString)
                     );
 
 

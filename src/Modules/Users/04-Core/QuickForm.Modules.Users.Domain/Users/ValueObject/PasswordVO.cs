@@ -21,28 +21,34 @@ public sealed record PasswordVO
     {
     }
 
-    public static ResultT<PasswordVO> Create(string? password,
-        IPasswordHashingService? passwordHashingService = null)
+
+    public static ResultT<PasswordVO> CreateFromPlainText(
+        string? password,
+        IPasswordHashingService passwordHashingService)
     {
         if (string.IsNullOrWhiteSpace(password))
         {
             return ResultError.EmptyValue("Password", "Password cannot be null or empty.");
-        }
-        if (passwordHashingService is null)
-        {
-            return new PasswordVO(password);
         }
 
         var reasons = ValidatePassword(password);
 
         if (reasons.Count > 0)
         {
-            var errorList = reasons.Select(reason => ResultError.InvalidFormat("Password", reason)).ToList();
-            return new ResultErrorList(errorList);
+            var errorList = reasons
+                .Select(reason => ResultError.InvalidFormat("Password", reason))
+                .ToList();
 
+            return new ResultErrorList(errorList);
         }
-        var passwordHash = passwordHashingService.HashPassword(password);
-        return new PasswordVO(passwordHash);
+
+        var hash = passwordHashingService.HashPassword(password);
+        return new PasswordVO(hash);
+    }
+
+    public static PasswordVO Restore(string hashedPassword)
+    {
+        return new PasswordVO(hashedPassword);
     }
 
     private static List<string> ValidatePassword(string value)

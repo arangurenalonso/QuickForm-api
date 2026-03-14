@@ -13,7 +13,6 @@ public sealed record EmailVO
     {
         Value = value;
     }
-
     public static ResultT<EmailVO> Create(string? email)
     {
         if (string.IsNullOrWhiteSpace(email))
@@ -21,15 +20,15 @@ public sealed record EmailVO
             return ResultError.EmptyValue("Email", "The email field cannot be empty. Please provide a value.");
         }
 
-        if (!IsValidEmail(email))
+        var normalized = email.Trim().ToLowerInvariant();
+
+        if (!IsValidEmail(normalized))
         {
             return ResultError.InvalidFormat("Email", "The email format is invalid. Ensure it follows a valid format (e.g., name@domain.com).");
         }
 
-
-        return new EmailVO(email);
+        return new EmailVO(normalized);
     }
-
     private static bool IsValidEmail(string email)
     {
         try

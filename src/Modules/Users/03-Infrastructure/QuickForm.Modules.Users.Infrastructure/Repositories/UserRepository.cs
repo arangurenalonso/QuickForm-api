@@ -28,7 +28,7 @@ public class UserRepository(
                                 !usuario.IsDeleted);
     }
 
-    public async Task<UserDomain?> GetByEmailWithActiveAuthActionsAsync(EmailVO email, DateTime currentDatetime)
+    public async Task<UserDomain?> GetByEmailWithActiveAuthActionsLoadedAsync(EmailVO email, DateTime currentDatetime)
     {
         var currentDateTimeVO = ExpirationDate.Restore(currentDatetime);
         var usuario = await _context.Set<UserDomain>()
@@ -39,7 +39,10 @@ public class UserRepository(
                                                                                             )
                                                 )
                                     .ThenInclude(userActionToken => userActionToken.Action)
-                                    .FirstOrDefaultAsync(usuario => usuario.Email == email && !usuario.IsDeleted);
+                                    .FirstOrDefaultAsync(usuario => 
+                                                            usuario.Email == email && 
+                                                            !usuario.IsDeleted 
+                                                            );
         return usuario;
     }
     public async Task<UserDomain?> GetByIdWithActiveAuthActionsAsync(UserId userId, DateTime currentDatetime)

@@ -48,7 +48,9 @@ public class RolePermissionsConfiguration : EntityMapBase<RolePermissionsDomain,
             .WithMany(uat => uat.RolePermissions)
             .HasForeignKey(uat => uat.IdRole)
             .IsRequired();
-
+        builder.HasIndex(x => new { x.IdPermission, x.IdRole })
+            .IsUnique()
+            .HasFilter("[IsDeleted] = 0");
     }
 
 }

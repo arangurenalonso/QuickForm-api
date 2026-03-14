@@ -14,9 +14,6 @@ public sealed class UsersDbContext(
         IServiceProvider serviceProvider
     ) : DbContext(options), IUnitOfWork
 {
-    public required DbSet<RoleDomain> Role { get; set; }
-    public required DbSet<AuthActionDomain> AuthAction { get; set; }
-    public required DbSet<AuthActionTokenDomain> AuthActionToken { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schemas.Auth);

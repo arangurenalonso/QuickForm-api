@@ -13,42 +13,52 @@ namespace QuickForm.Common.Infrastructure;
 public class TokenService(
     IOptions<JwtOptions> _options,
     IDateTimeProvider _dateTimeProvider
-    ) : ITokenService
+) : ITokenService
 {
-
-    #region GenerateToken 
-
-    public ResultT<string> GenerateToken(
-            Guid userId,
-            string? email
-        )
+    public ResultT<string> GenerateToken(Guid userId, string? email)
     {
-        var claims = CreateClaims(userId, email);
-
-        var signingCredentials = CreateSigningCredentials();
-        var tokenDescriptor = CreateJwtSecurityToken(claims, signingCredentials);
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-
-        return tokenHandler.WriteToken(tokenDescriptor);
-    }
-    private List<Claim> CreateClaims(
-        Guid userId,
-        string? email)
-    {
-        
-        var claims = new List<Claim>
-            {
-                new(JwtRegisteredClaimNames.Sub, _options.Value.Subject),
-                new(JwtRegisteredClaimNames.Iss, _options.Value.Issuer),
-                new(JwtRegisteredClaimNames.Aud, _options.Value.Audience),
-                new("userId", userId.ToString())
-            };
-
-
-        if (!string.IsNullOrEmpty(email))
+        try
         {
-            claims.Add(new Claim("email", email));
+            if (userId == Guid.Empty)
+            {
+                return ResultError.InvalidInput("UserId", "UserId cannot be empty.");
+            }
+
+            var now = _dateTimeProvider.UtcNow;
+            var claims = CreateClaims(userId, email);
+            var signingCredentials = CreateSigningCredentials();
+
+            var token = new JwtSecurityToken(
+                issuer: _options.Value.Issuer,
+                audience: _options.Value.Audience,
+                claims: claims,
+                notBefore: now,
+                expires: now.AddHours(_options.Value.ExpirationTimeInHours),
+                signingCredentials: signingCredentials
+            );
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            return tokenHandler.WriteToken(token);
+        }
+        catch (Exception e)
+        {
+            return CommonMethods.ConvertExceptionToResult(e, "Token");
+        }
+    }
+
+    private List<Claim> CreateClaims(Guid userId, string? email)
+    {
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(ClaimTypes.NameIdentifier, userId.ToString()),
+            new("userId", userId.ToString())
+        };
+
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            claims.Add(new Claim(JwtRegisteredClaimNames.Email, email));
         }
 
         return claims;
@@ -56,90 +66,78 @@ public class TokenService(
 
     private SigningCredentials CreateSigningCredentials()
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Value.SecretKey));
+        var secret = _options.Value.SecretKey;
+
+        if (string.IsNullOrWhiteSpace(secret))
+        {
+            throw new InvalidOperationException("JWT SecretKey is not configured.");
+        }
+
+        var keyBytes = Encoding.UTF8.GetBytes(secret);
+
+        if (keyBytes.Length < 32)
+        {
+            throw new InvalidOperationException("JWT SecretKey must be at least 32 bytes long.");
+        }
+
+        var key = new SymmetricSecurityKey(keyBytes);
         return new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
     }
-    private JwtSecurityToken CreateJwtSecurityToken(IEnumerable<Claim> claims, SigningCredentials signingCredentials)
-    {
-        var expires = _dateTimeProvider.UtcNow.AddHours(_options.Value.ExpirationTimeInHours);
-        var token = new JwtSecurityToken(
-            issuer: _options.Value.Issuer,
-            audience: _options.Value.Audience,
-            claims: claims,
-            expires: expires,
-            notBefore: _dateTimeProvider.UtcNow,
-            signingCredentials: signingCredentials
-        );
 
-        return token;
-    }
-    #endregion
-
-    #region Validate Token
     public Result ValidateToken(string token)
     {
-        var validateSecretKeyAudienceAndIssuerResult = ValidateSecretKeyAudienceAndIssuer(token);
-        if (validateSecretKeyAudienceAndIssuerResult.IsFailure)
+        if (string.IsNullOrWhiteSpace(token))
         {
-            return validateSecretKeyAudienceAndIssuerResult.Errors;
+            return ResultError.EmptyValue("Token", "Token cannot be null or empty.");
         }
-
-        var validateExpirationResult = ValidateExpiration(token);
-        if (validateExpirationResult.IsFailure)
-        {
-            return validateExpirationResult.Errors;
-        }
-
-        return Result.Success();
-    }
-    private Result ValidateSecretKeyAudienceAndIssuer(string token)
-    {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(_options.Value.SecretKey);
-
-        var parameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateIssuerSigningKey = true,
-            ValidateLifetime = true,
-            ValidIssuer = _options.Value.Issuer,
-            ValidAudience = _options.Value.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(key),
-            ClockSkew = TimeSpan.Zero,
-        };
 
         try
         {
-            tokenHandler.ValidateToken(token, parameters, out _);
+            var secret = _options.Value.SecretKey;
+
+            if (string.IsNullOrWhiteSpace(secret))
+            {
+                return ResultError.InvalidOperation("Token", "JWT SecretKey is not configured.");
+            }
+
+            var keyBytes = Encoding.UTF8.GetBytes(secret);
+
+            if (keyBytes.Length < 32)
+            {
+                return ResultError.InvalidOperation("Token", "JWT SecretKey must be at least 32 bytes long.");
+            }
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var parameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateIssuerSigningKey = true,
+                ValidateLifetime = true,
+                ValidIssuer = _options.Value.Issuer,
+                ValidAudience = _options.Value.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
+                ClockSkew = TimeSpan.Zero
+            };
+
+            tokenHandler.ValidateToken(token, parameters, out var validatedToken);
+
+            if (validatedToken is not JwtSecurityToken jwtToken)
+            {
+                return ResultError.InvalidInput("Token", "Invalid JWT token.");
+            }
+
+            if (!string.Equals(jwtToken.Header.Alg, SecurityAlgorithms.HmacSha256, StringComparison.Ordinal))
+            {
+                return ResultError.InvalidInput("Token", "Invalid token algorithm.");
+            }
+
             return Result.Success();
         }
         catch (Exception e)
         {
             return CommonMethods.ConvertExceptionToResult(e, "Token");
-
         }
     }
-
-
-    private Result ValidateExpiration(string token)
-    {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var tokenData = tokenHandler.ReadJwtToken(token);
-
-        var now = _dateTimeProvider.UtcNow;
-        var desde = tokenData.ValidFrom;
-        var hasta = tokenData.ValidTo;
-
-        var expirationTime = desde.AddHours(_options.Value.ExpirationTimeInHours);
-        var firstValid = now < hasta;
-        var secondValid = expirationTime == hasta;
-        if (!(firstValid && secondValid))
-        {
-            return ResultError.InvalidInput("Token", "token Expirado");
-        }
-        return Result.Success();
-    }
-    #endregion
-
 }

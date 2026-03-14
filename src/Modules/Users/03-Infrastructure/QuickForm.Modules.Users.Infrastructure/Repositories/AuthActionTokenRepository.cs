@@ -15,7 +15,7 @@ public class AuthActionTokenRepository(
         EmailVO email,
         TokenVO userActionToken)
     {
-        var authActionToken = await _context.AuthActionToken
+        var authActionToken = await _context.Set<AuthActionTokenDomain>()
                                                 .FirstOrDefaultAsync(authActionToken => 
                                                                             authActionToken.Token == userActionToken &&
                                                                             authActionToken.IdUserAction == authActionId &&

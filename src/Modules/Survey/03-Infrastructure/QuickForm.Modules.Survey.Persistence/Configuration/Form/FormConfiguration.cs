@@ -35,7 +35,7 @@ public class FormConfiguration : EntityMapBase<FormDomain, FormId>
             owned.Property(v => v.Value)
                  .HasColumnName("Description")
                  .HasMaxLength(255)
-                 .IsRequired();
+                 .IsRequired(false);
         });
 
 

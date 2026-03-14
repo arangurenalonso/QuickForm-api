@@ -31,13 +31,13 @@ public class EmailConfirmationCommandHandler(
         }
 
         var authActionToken = authActionTokenResult.Value;
-        if (userDomainResult.IsFailure)
-        {
-            return ResultT<string>.FailureT(userDomainResult.ResultType,userDomainResult.Errors);
-        }
 
         user.ConfirmEmail();
-        authActionToken.UseToken();
+        var useTokenResult = authActionToken.UseToken(_dateTimeProvider.UtcNow);
+        if (useTokenResult.IsFailure)
+        {
+            return ResultT<string>.FailureT(useTokenResult.ResultType, useTokenResult.Errors);
+        }
 
         _unitOfWork.Repository<UserDomain,UserId>().UpdateEntity(user);
         _unitOfWork.Repository<AuthActionTokenDomain, AuthActionTokenId>().UpdateEntity(authActionToken);
@@ -56,7 +56,7 @@ public class EmailConfirmationCommandHandler(
     {
         var idAuthActionEmailVerificacion = AuthActionType.EmailConfirmation.GetId();
         var idAuthAction = new MasterId(idAuthActionEmailVerificacion);
-        var tokenResult = TokenVO.Create(token);
+        var tokenResult = TokenVO.CreateOtp(token);
         if (tokenResult.IsFailure)
         {
             return ResultT<AuthActionTokenDomain>.FailureT(ResultType.DomainValidation, tokenResult.Errors);

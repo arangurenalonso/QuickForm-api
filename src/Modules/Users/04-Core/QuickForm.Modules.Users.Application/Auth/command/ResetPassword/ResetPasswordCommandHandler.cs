@@ -29,8 +29,12 @@ public class ResetPasswordCommandHandler(
         }
         var authActionToken = authActionTokenResult.Value;
 
-        user.ChangePassword(request.Password, _passwordHashingService);
-        authActionToken.UseToken();
+        var resultChangePassword = user.ChangePassword(request.Password, _passwordHashingService);
+        if (resultChangePassword.IsFailure)
+        {
+            return ResultT<ResultResponse>.FailureT(resultChangePassword.ResultType, resultChangePassword.Errors);
+        }
+        authActionToken.UseToken(_dateTimeProvider.UtcNow);
 
         _unitOfWork.Repository<UserDomain, UserId>().UpdateEntity(user);
         _unitOfWork.Repository<AuthActionTokenDomain, AuthActionTokenId>().UpdateEntity(authActionToken);
@@ -51,7 +55,7 @@ public class ResetPasswordCommandHandler(
         var idAuthActionRecoveryPassword = AuthActionType.RecoveryPassword.GetId();
         var idAuthAction = new MasterId(idAuthActionRecoveryPassword);
 
-        var tokenResult = TokenVO.Create(token);
+        var tokenResult = TokenVO.CreateOtp(token);
         if (tokenResult.IsFailure)
         {
             return ResultT<AuthActionTokenDomain>.FailureT(ResultType.DomainValidation, tokenResult.Errors);

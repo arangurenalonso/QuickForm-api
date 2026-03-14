@@ -15,6 +15,7 @@ public sealed class UserDapperRepository(IDbConnectionFactory dbConnectionFactor
                  Email AS {nameof(UserResponse.Email)}
              FROM {Schemas.Auth}.Users
              WHERE Id = @UserId
+             AND IsDeleted = 0
         
              """
         ;
@@ -24,33 +25,41 @@ public sealed class UserDapperRepository(IDbConnectionFactory dbConnectionFactor
         UserResponse? user = await connection.QuerySingleOrDefaultAsync<UserResponse>(sql, parameters);
         return user;
     }
-    public async Task<bool> HasPermissionAsync(Guid userId, string resourceDescription, string actionDescription)
+    public async Task<bool> HasPermissionAsync(Guid userId, string resourceKeyName, string actionKeyName)
     {
         await using DbConnection connection = await dbConnectionFactory.OpenConnectionAsync();
-        var sql =
-           $"""
-            SELECT 
-                1 
-            FROM 
-            {Schemas.Auth}.UserRole ur
-                JOIN {Schemas.Auth}.Role r 
-                    ON ur.IdRole = r.Id AND ur.IsDeleted = 0 AND r.IsDeleted = 0
-                JOIN {Schemas.Auth}.RolePermissions rp 
-                    ON rp.IdRole = r.Id AND rp.IsDeleted = 0 
-                JOIN {Schemas.Auth}.Permissions p 
-                    ON rp.IdPermission = p.Id AND p.IsDeleted = 0
-                JOIN {Schemas.Auth}.Resources res 
-                    ON p.IdResources = res.Id AND res.IsDeleted = 0
-                JOIN {Schemas.Auth}.PermissionsActions pa 
-                    ON p.IdAction = pa.Id AND pa.IsDeleted = 0
-            WHERE 
-                ur.idUser = @UserId 
-                AND ur.IsDeleted = 0
-                AND res.description = @ResourceDescription 
-                AND pa.description = @ActionDescription
-            """;
+        var sql = $"""
+                SELECT 1
+                FROM {Schemas.Auth}.UserRole ur
+                JOIN {Schemas.Auth}.Role r
+                    ON ur.IdRole = r.Id
+                   AND ur.IsDeleted = 0
+                   AND r.IsDeleted = 0
+                JOIN {Schemas.Auth}.RolePermissions rp
+                    ON rp.IdRole = r.Id
+                   AND rp.IsDeleted = 0
+                JOIN {Schemas.Auth}.Permissions p
+                    ON rp.IdPermission = p.Id
+                   AND p.IsDeleted = 0
+                JOIN {Schemas.Auth}.Resources res
+                    ON p.IdResources = res.Id
+                   AND res.IsDeleted = 0
+                JOIN {Schemas.Auth}.PermissionsActions pa
+                    ON p.IdAction = pa.Id
+                   AND pa.IsDeleted = 0
+                WHERE ur.IdUser = @UserId
+                  AND res.KeyName = @ResourceKeyName
+                  AND pa.KeyName = @ActionKeyName
+                """;
 
-        var result = await connection.QueryFirstOrDefaultAsync<int?>(sql, new { UserId = userId, ResourceDescription = resourceDescription, ActionDescription = actionDescription });
+        var result = await connection.QueryFirstOrDefaultAsync<int?>(
+            sql,
+            new
+            {
+                UserId = userId,
+                ResourceKeyName = resourceKeyName,
+                ActionKeyName = actionKeyName
+            });
 
         return result.HasValue;
     }
