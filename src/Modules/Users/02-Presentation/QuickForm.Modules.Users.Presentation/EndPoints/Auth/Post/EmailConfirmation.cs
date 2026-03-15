@@ -11,7 +11,7 @@ internal sealed class EmailConfirmation : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("auth/email-confirmation", async (RequestEmailConfirmation request, ISender sender) =>
+        app.MapPost("auth/confirm-email", async (RequestEmailConfirmation request, ISender sender) =>
         {
             var result = await sender.Send(new EmailConfirmationCommand(
                 request.Email,
@@ -22,7 +22,9 @@ internal sealed class EmailConfirmation : IEndpoint
         .AllowAnonymous()
         .RequireRateLimiting(Tags.Auth)
         .WithName("Auth.EmailConfirmation")
-        .WithTags(Tags.Auth);
+        .WithTags(Tags.Auth)
+        .Produces<AuthSessionResponse>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status400BadRequest);
     }
 
     internal sealed class RequestEmailConfirmation

@@ -1,11 +1,9 @@
 ﻿
 namespace QuickForm.Common.Infrastructure;
-public class JwtOptions
+public sealed class JwtOptions
 {
-    public string Issuer { get; init; }
-    public string Audience { get; init; }
-    public string SecretKey { get; init; }
-    public string Subject { get; init; }
-    public int ExpirationTimeInHours { get; init; }
-
+    public string Audience { get; set; } = string.Empty;
+    public string Issuer { get; set; } = string.Empty;
+    public string SecretKey { get; set; } = string.Empty;
+    public int ExpirationTimeInMinutes { get; set; } = 15;
 }

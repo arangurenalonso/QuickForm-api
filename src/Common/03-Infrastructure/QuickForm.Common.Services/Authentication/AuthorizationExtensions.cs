@@ -13,9 +13,9 @@ internal static class AuthenticationExtensions
     internal static IServiceCollection AddAuthenticationInternal(this IServiceCollection services, IConfiguration configuration, string environment)
     {
         services.ConfigureOptions<JwtOptionsSetup>();
+        services.ConfigureOptions<RefreshTokenOptionsSetup>();
 
         JwtOptions jwtOptions = configuration.GetSection("Common:Jwt").Get<JwtOptions>() ?? new JwtOptions();
-
         services.AddAuthorization();
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

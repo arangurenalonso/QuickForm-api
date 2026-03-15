@@ -11,15 +11,16 @@ public class EmailConfirmationCommandHandler(
     IUserRepository _userRepository,
     ITokenService _tokenService,
     IUnitOfWork _unitOfWork,
+    IRefreshTokenService _refreshTokenService,
     IAuthActionTokenHashingService _authActionTokenHashingService
-) : ICommandHandler<EmailConfirmationCommand, string>
+) : ICommandHandler<EmailConfirmationCommand, AuthSessionResponse>
 {
-    public async Task<ResultT<string>> Handle(EmailConfirmationCommand request, CancellationToken cancellationToken)
+    public async Task<ResultT<AuthSessionResponse>> Handle(EmailConfirmationCommand request, CancellationToken cancellationToken)
     {
         var userDomainResult = await GetUserByEmail(request.Email);
         if (userDomainResult.IsFailure)
         {
-            return ResultT<string>.FailureT(userDomainResult.ResultType, userDomainResult.Errors);
+            return ResultT<AuthSessionResponse>.FailureT(userDomainResult.ResultType, userDomainResult.Errors);
         }
 
         var user = userDomainResult.Value;
@@ -27,7 +28,7 @@ public class EmailConfirmationCommandHandler(
         var authActionTokenResult = await GetAuthActionTokenByToken(user.Email, request.Token);
         if (authActionTokenResult.IsFailure)
         {
-            return ResultT<string>.FailureT(authActionTokenResult.ResultType, authActionTokenResult.Errors);
+            return ResultT<AuthSessionResponse>.FailureT(authActionTokenResult.ResultType, authActionTokenResult.Errors);
         }
 
         var authActionToken = authActionTokenResult.Value;
@@ -37,19 +38,19 @@ public class EmailConfirmationCommandHandler(
         var useTokenResult = authActionToken.UseToken(_dateTimeProvider.UtcNow);
         if (useTokenResult.IsFailure)
         {
-            return ResultT<string>.FailureT(useTokenResult.ResultType, useTokenResult.Errors);
+            return ResultT<AuthSessionResponse>.FailureT(useTokenResult.ResultType, useTokenResult.Errors);
         }
 
         _unitOfWork.Repository<UserDomain, UserId>().UpdateEntity(user);
         _unitOfWork.Repository<AuthActionTokenDomain, AuthActionTokenId>().UpdateEntity(authActionToken);
 
-        var confirmTransactionResult = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
-        if (confirmTransactionResult.IsFailure)
+        var sessionResult = await CreateSessionAsync(user, cancellationToken);
+        if (sessionResult.IsFailure)
         {
-            return ResultT<string>.FailureT(confirmTransactionResult.ResultType, confirmTransactionResult.Errors);
+            return ResultT<AuthSessionResponse>.FailureT(sessionResult.ResultType, sessionResult.Errors);
         }
 
-        return CreateAuthenticationResult(user);
+        return sessionResult.Value;
     }
 
     private async Task<ResultT<AuthActionTokenDomain>> GetAuthActionTokenByToken(EmailVO email, string token)
@@ -71,8 +72,27 @@ public class EmailConfirmationCommandHandler(
         {
             var error = ResultError.NullValue(
                 "AuthActionToken",
-                "The email confirmation token could not be found. Please ensure that you have entered a valid token.");
+                "The email confirmation token could not be found. Please ensure that you have entered a valid token."
+            );
             return ResultT<AuthActionTokenDomain>.FailureT(ResultType.NotFound, error);
+        }
+
+        if (authActionToken.Used)
+        {
+            var error = ResultError.InvalidOperation(
+                "AuthActionToken",
+                "The email confirmation token has already been used. Please request a new token if needed."
+            );
+            return ResultT<AuthActionTokenDomain>.FailureT(ResultType.DomainValidation, error);
+        }
+
+        if (authActionToken.ExpiresAt.Value <= _dateTimeProvider.UtcNow)
+        {
+            var error = ResultError.InvalidOperation(
+                "AuthActionToken",
+                "The email confirmation token has expired. Please request a new token to proceed with the confirmation."
+            );
+            return ResultT<AuthActionTokenDomain>.FailureT(ResultType.MismatchValidation, error);
         }
 
         return authActionToken;
@@ -102,22 +122,52 @@ public class EmailConfirmationCommandHandler(
         return user;
     }
 
-    private ResultT<string> CreateAuthenticationResult(UserDomain user)
+    private async Task<ResultT<AuthSessionResponse>> CreateSessionAsync(
+        UserDomain user,
+        CancellationToken cancellationToken)
     {
         try
         {
-            var resultTokenGenerate = _tokenService.GenerateToken(user.Id.Value, user.Email.Value);
+            var accessTokenResult = _tokenService.GenerateToken(user.Id.Value, user.Email.Value);
 
-            if (resultTokenGenerate.IsFailure)
+            if (accessTokenResult.IsFailure)
             {
-                return ResultT<string>.FailureT(resultTokenGenerate.ResultType, resultTokenGenerate.Errors);
+                return ResultT<AuthSessionResponse>.FailureT(accessTokenResult.ResultType, accessTokenResult.Errors);
             }
 
-            return resultTokenGenerate.Value;
+            var refreshTokenResult = RefreshTokenDomain.Create(
+                user.Id,
+                _dateTimeProvider.UtcNow,
+                _refreshTokenService);
+
+            if (refreshTokenResult.IsFailure)
+            {
+                return ResultT<AuthSessionResponse>.FailureT(refreshTokenResult.ResultType, refreshTokenResult.Errors);
+            }
+
+            var refreshToken = refreshTokenResult.Value;
+
+            _unitOfWork.Repository<RefreshTokenDomain, RefreshTokenId>().AddEntity(refreshToken);
+
+            var saveResult = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
+            if (saveResult.IsFailure)
+            {
+                return ResultT<AuthSessionResponse>.FailureT(saveResult.ResultType, saveResult.Errors);
+            }
+
+            var response = new AuthSessionResponse(
+                accessTokenResult.Value,
+                refreshToken.PlainTextToken!,
+                new UserResponse(user.Id.Value, user.Email.Value)
+            );
+
+            refreshToken.ClearPlainTextToken();
+
+            return response;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return CommonMethods.ConvertExceptionToResult(e, "Token");
+            return CommonMethods.ConvertExceptionToResult(ex, "AuthSession");
         }
     }
 }

@@ -8,10 +8,11 @@ public sealed class UserDomain : BaseDomainEntity<UserId>
     public PasswordVO PasswordHash { get; private set; }
     public bool IsPasswordChanged { get; private set; }
     public bool IsEmailVerify { get; private set; }
-
+    #region Many-to-many / One-to-many relationships    
     public ICollection<AuthActionTokenDomain> AuthActionTokens { get; private set; } = [];
     public ICollection<UserRoleDomain> UserRole { get; private set; } = [];
-
+    public ICollection<RefreshTokenDomain> RefreshTokens { get; private set; } = [];
+    #endregion
     public UserDomain() { }
 
     private UserDomain(

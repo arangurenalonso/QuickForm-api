@@ -17,7 +17,7 @@ builder.Services.AddRateLimiter(options =>
     // Better than the default 503 for rate limiting
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-    options.AddPolicy("auth", httpContext =>
+    options.AddPolicy(QuickForm.Modules.Users.Presentation.Tags.Auth, httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             factory: _ => new FixedWindowRateLimiterOptions
@@ -88,13 +88,15 @@ builder.Services.AddCors(options =>
         policyBuilder =>
         {
             policyBuilder
-                   .SetIsOriginAllowed(_ => true)
+                   .WithOrigins(
+                       "http://localhost:3000"
+                   // add your real frontend domains here
+                   )
                    .AllowAnyHeader()
                    .AllowAnyMethod()
                    .AllowCredentials();
         });
 });
-
 var app = builder.Build();
 
 

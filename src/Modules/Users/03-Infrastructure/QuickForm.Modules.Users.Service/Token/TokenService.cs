@@ -1,12 +1,16 @@
-﻿using Microsoft.Extensions.Options;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
 using QuickForm.Common.Domain.Method;
+using QuickForm.Common.Infrastructure.Persistence;
 using QuickForm.Modules.Users.Application;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using QuickForm.Modules.Users.Domain;
 
 namespace QuickForm.Common.Infrastructure;
 
@@ -33,7 +37,7 @@ public class TokenService(
                 audience: _options.Value.Audience,
                 claims: claims,
                 notBefore: now,
-                expires: now.AddHours(_options.Value.ExpirationTimeInHours),
+                expires: now.AddMinutes(_options.Value.ExpirationTimeInMinutes),
                 signingCredentials: signingCredentials
             );
 

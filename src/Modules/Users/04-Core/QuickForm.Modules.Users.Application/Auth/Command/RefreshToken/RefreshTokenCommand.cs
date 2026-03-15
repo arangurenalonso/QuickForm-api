@@ -2,7 +2,6 @@
 
 namespace QuickForm.Modules.Users.Application;
 
-public sealed record EmailConfirmationCommand(
-    string Email,
-    string Token
+public sealed record RefreshTokenCommand(
+    string RefreshToken
 ) : ICommand<AuthSessionResponse>;

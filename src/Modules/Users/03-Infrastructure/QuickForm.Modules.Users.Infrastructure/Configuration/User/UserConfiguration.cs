@@ -51,10 +51,14 @@ public class UserConfiguration : EntityMapBase<UserDomain, UserId>
                     passwordString => PasswordVO.Restore(passwordString)
                     );
 
-
         builder.HasMany(ua => ua.AuthActionTokens)
             .WithOne(uat => uat.User)
             .HasForeignKey(uat => uat.IdUser)
+            .IsRequired();
+
+        builder.HasMany(u => u.RefreshTokens)
+            .WithOne(rt => rt.User)
+            .HasForeignKey(rt => rt.IdUser)
             .IsRequired();
     }
 }

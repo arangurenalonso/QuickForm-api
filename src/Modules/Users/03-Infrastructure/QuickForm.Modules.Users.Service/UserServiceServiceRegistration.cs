@@ -14,6 +14,8 @@ public static class UserServiceServiceRegistration
         services.AddScoped<IAuthActionTokenHashingService, AuthActionTokenHashingService>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IAuthActionEmailService, AuthActionEmailService>();
+        services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+        
         return services;
     }
     

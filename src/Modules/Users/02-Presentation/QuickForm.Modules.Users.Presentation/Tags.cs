@@ -1,8 +1,8 @@
 ﻿namespace QuickForm.Modules.Users.Presentation;
 
-internal static class Tags
+public static class Tags
 {
-    internal const string Users = "Users";
-    internal const string Auth = "Auth";
-    internal const string System = "System";
+    public const string Users = "Users";
+    public const string Auth = "Auth";
+    public const string System = "System";
 }

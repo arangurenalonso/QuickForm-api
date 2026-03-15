@@ -39,9 +39,10 @@ public static class UserPersistenceServiceRegistration
         services.AddScoped<IUserDapperRepository, UserDapperRepository>();
         services.AddScoped<IPermissionService, UserDapperRepository>();
         services.AddScoped<IAuthActionTokenRepository, AuthActionTokenRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
 
-
+        
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<UsersDbContext>());
         services.AddSingleton<IDbConnectionFactory>(sp =>
