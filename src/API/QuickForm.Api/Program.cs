@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Reflection;
+using System.Threading.RateLimiting;
 using QuickForm.Api;
 using QuickForm.Api.Seed;
 using QuickForm.Common.Application;
@@ -9,6 +11,36 @@ using QuickForm.Modules.Survey.Application;
 using QuickForm.Modules.Survey.Host;
 using QuickForm.Modules.Users.Host;
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddRateLimiter(options =>
+{
+    // Better than the default 503 for rate limiting
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.AddPolicy("auth", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5, // 5 requests
+                Window = TimeSpan.FromMinutes(1), // per 1 minute
+                QueueLimit = 0, // reject immediately when limit is hit
+                AutoReplenishment = true
+            }));
+
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+        {
+            context.HttpContext.Response.Headers.RetryAfter =
+                        ((int)retryAfter.TotalSeconds).ToString(CultureInfo.InvariantCulture);
+        }
+
+        await context.HttpContext.Response.WriteAsync(
+            "Too many requests. Please try again later.",
+            cancellationToken);
+    };
+});
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
@@ -77,6 +109,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseRateLimiter();
 app.UseCors("AllowSpecificOrigins");
 
 app.UseExceptionHandler();

@@ -21,13 +21,14 @@ internal sealed class ChangePassword : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .RequireAuthorization()
+        .RequireRateLimiting(Tags.Auth)
         .WithName("Auth.ChangePassword")
         .WithTags(Tags.Auth);
     }
 
     internal sealed class RequestChangePassword
     {
-        public string CurrentPassword { get; init; }
-        public string NewPassword { get; init; }
+        public required string CurrentPassword { get; init; }
+        public required string NewPassword { get; init; }
     }
 }

@@ -19,13 +19,14 @@ internal sealed class ForgotPassword : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .AllowAnonymous()
+        .RequireRateLimiting(Tags.Auth)
         .WithName("Auth.ForgotPassword")
         .WithTags(Tags.Auth);
     }
 
     internal sealed class RequestForgotPassword
     {
-        public string Email { get; init; }
+        public required string Email { get; init; }
     }
 }
 

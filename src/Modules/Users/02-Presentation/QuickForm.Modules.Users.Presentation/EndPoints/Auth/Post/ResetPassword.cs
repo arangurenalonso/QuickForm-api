@@ -23,15 +23,16 @@ internal sealed class ResetPassword : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .AllowAnonymous()
+        .RequireRateLimiting(Tags.Auth)
         .WithName("Auth.ResetPassword")
         .WithTags(Tags.Auth);
     }
 
     internal sealed class RequestResetPassword
     {
-        public string Email { get; init; }
-        public string VerificationCode { get; init; }
-        public string Password { get; init; }
-        public string ConfirmPassword { get; init; }
+        public required string Email { get; init; }
+        public required string VerificationCode { get; init; }
+        public required string Password { get; init; }
+        public required string ConfirmPassword { get; init; }
     }
 }

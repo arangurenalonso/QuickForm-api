@@ -20,12 +20,13 @@ internal sealed class TokenValidation : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .AllowAnonymous()
+        .RequireRateLimiting(Tags.Auth)
         .WithName("Auth.TokenValidation")
         .WithTags(Tags.Auth);
     }
 
     internal sealed class RequestTokenValidation
     {
-        public string Token { get; init; }
+        public required string Token { get; init; }
     }
 }

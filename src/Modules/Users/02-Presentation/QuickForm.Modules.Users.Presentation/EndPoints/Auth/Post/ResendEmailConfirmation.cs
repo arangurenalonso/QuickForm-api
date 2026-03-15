@@ -7,25 +7,26 @@ using QuickForm.Modules.Users.Application;
 
 namespace QuickForm.Modules.Users.Presentation;
 
-internal sealed class ResentEmailConfirmation : IEndpoint
+internal sealed class ResendEmailConfirmation : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("auth/resent-email-confirmation", async (RequestResentEmailConfirmation request, ISender sender) =>
+        app.MapPost("auth/resend-email-confirmation", async (RequestResendEmailConfirmation request, ISender sender) =>
         {
-            var result = await sender.Send(new ResentEmailConfirmationCommand(
+            var result = await sender.Send(new ResendEmailConfirmationCommand(
                 request.Email
                 ));
 
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .AllowAnonymous()
-        .WithName("Auth.ResentEmailConfirmation")
+        .RequireRateLimiting(Tags.Auth)
+        .WithName("Auth.ResendEmailConfirmation")
         .WithTags(Tags.Auth);
     }
 
-    internal sealed class RequestResentEmailConfirmation
+    internal sealed class RequestResendEmailConfirmation
     {
-        public string Email { get; init; }
+        public required string Email { get; init; }
     }
 }

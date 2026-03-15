@@ -2,6 +2,6 @@
 
 namespace QuickForm.Modules.Users.Application;
 
-public sealed record ResentEmailConfirmationCommand(
+public sealed record ResendEmailConfirmationCommand(
     string Email
     ) : ICommand<ResultResponse>;

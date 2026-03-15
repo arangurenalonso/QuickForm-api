@@ -4,15 +4,15 @@ using QuickForm.Modules.Users.Domain;
 
 namespace QuickForm.Modules.Users.Application;
 
-public class ResentEmailConfirmationCommandHandler(
+public class ResendEmailConfirmationCommandHandler(
     IUnitOfWork _unitOfWork,
     IDateTimeProvider _dateTimeProvider,
     IUserRepository userRepository,
     IAuthActionTokenHashingService _authActionTokenHashingService,
     IAuthActionEmailService _authActionEmailService
-) : ICommandHandler<ResentEmailConfirmationCommand, ResultResponse>
+) : ICommandHandler<ResendEmailConfirmationCommand, ResultResponse>
 {
-    public async Task<ResultT<ResultResponse>> Handle(ResentEmailConfirmationCommand request, CancellationToken cancellationToken)
+    public async Task<ResultT<ResultResponse>> Handle(ResendEmailConfirmationCommand request, CancellationToken cancellationToken)
     {
         var resultUser = await GetUser(request.Email);
         if (resultUser.IsFailure)
