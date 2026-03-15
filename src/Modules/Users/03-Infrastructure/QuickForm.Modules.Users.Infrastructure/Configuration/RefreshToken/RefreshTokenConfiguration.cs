@@ -33,9 +33,6 @@ public class RefreshTokenConfiguration : EntityMapBase<RefreshTokenDomain, Refre
             .HasMaxLength(200)
             .IsRequired();
 
-        builder.Property(x => x.CreatedAt)
-            .IsRequired();
-
         builder.Property(x => x.ExpiresAt)
             .IsRequired();
 
