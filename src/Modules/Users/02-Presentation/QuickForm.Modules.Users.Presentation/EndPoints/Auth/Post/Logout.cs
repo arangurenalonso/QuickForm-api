@@ -17,7 +17,7 @@ internal sealed class Logout : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .AllowAnonymous()
-        .RequireRateLimiting("auth")
+        .RequireRateLimiting(Tags.Auth)
         .WithName("Auth.Logout")
         .WithTags(Tags.Auth)
         .Produces<ResultResponse>(StatusCodes.Status200OK)

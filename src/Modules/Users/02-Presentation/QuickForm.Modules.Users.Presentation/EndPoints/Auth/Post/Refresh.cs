@@ -17,7 +17,7 @@ internal sealed class Refresh : IEndpoint
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .AllowAnonymous()
-        .RequireRateLimiting("auth")
+        .RequireRateLimiting(Tags.Auth)
         .WithName("Auth.Refresh")
         .WithTags(Tags.Auth)
         .Produces<AuthSessionResponse>(StatusCodes.Status200OK)
