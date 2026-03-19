@@ -12,6 +12,28 @@ namespace QuickForm.Modules.Survey.Persistence;
 
 public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
 {
+
+    public async Task<FormSectionQuestionStatusResponse> GetSectionQuestionStatusAsync(
+        Guid idForm,
+        CancellationToken cancellationToken = default)
+    {
+        FormId formId = new(idForm);
+
+        var sections = await _context.Set<FormSectionDomain>()
+            .Where(section => section.IdForm == formId && !section.IsDeleted)
+            .Select(section => new SectionQuestionStatusResponse
+            {
+                SectionId = section.Id.Value,
+                SectionName = section.Title.Value,
+                HasQuestions = section.Questions.Any(question => !question.IsDeleted)
+            })
+            .ToListAsync(cancellationToken);
+
+        return new FormSectionQuestionStatusResponse
+        {
+            Sections = sections
+        };
+    }
     public async Task<bool> FormBelongsToCustomerAsync(
     Guid idForm,
     Guid idCustomer,

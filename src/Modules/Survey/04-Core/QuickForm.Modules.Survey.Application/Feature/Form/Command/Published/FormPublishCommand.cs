@@ -2,6 +2,7 @@
 
 namespace QuickForm.Modules.Survey.Application;
 public sealed record FormPublishCommand(
-        Guid Id
+        Guid IdForm,
+        List<SectionDto> Sections
     )
     : ICommand<ResultResponse>;

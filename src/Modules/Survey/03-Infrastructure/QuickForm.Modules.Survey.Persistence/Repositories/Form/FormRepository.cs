@@ -20,6 +20,7 @@ public class FormRepository(
                                 .AsSplitQuery()
                                 .FirstOrDefaultAsync(u => u.Id == formId && !u.IsDeleted, cancellationToken);
     }
+
     public async Task<FormDomain?> GetAsync(Guid id, CancellationToken cancellationToken = default)
     {
         FormId formId = new FormId(id);

@@ -25,4 +25,7 @@ public interface IFormQueries
            int take = 50,
            CancellationToken ct = default
         );
+    Task<FormSectionQuestionStatusResponse> GetSectionQuestionStatusAsync(
+        Guid idForm,
+        CancellationToken cancellationToken = default);
 }
