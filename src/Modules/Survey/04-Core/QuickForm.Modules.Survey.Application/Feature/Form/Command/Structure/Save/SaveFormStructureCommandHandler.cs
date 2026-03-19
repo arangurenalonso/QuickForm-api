@@ -148,7 +148,7 @@ internal sealed class SaveFormStructureCommandHandler(
             );
             return ResultT<FormDomain>.FailureT(ResultType.Forbidden, errorForm);
         }
-        var resultCanPerformAction = form.EnsureCanPerformAction(FormActionType.FormPublish);
+        var resultCanPerformAction = form.EnsureCanPerformAction(FormActionType.FormEdit);
 
         if (resultCanPerformAction.IsFailure)
         {
