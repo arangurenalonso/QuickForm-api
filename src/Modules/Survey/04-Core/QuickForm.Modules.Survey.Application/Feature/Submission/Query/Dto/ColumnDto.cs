@@ -11,4 +11,5 @@ public sealed class ColumnDto
     public bool IsKey { get; set; }
     public bool ShowInTable { get; set; } = true;
     public string? Pinned { get; set; }
+    public List<OptionsViewModel> options { get; set; } = new List<OptionsViewModel>();
 }

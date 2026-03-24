@@ -8,7 +8,7 @@ using QuickForm.Modules.Survey.Application;
 
 namespace QuickForm.Modules.Survey.Presentation;
 
-internal sealed class SubmissionRowsByFormId : IEndpoint
+internal sealed class GetSubmissionsByFormId : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {

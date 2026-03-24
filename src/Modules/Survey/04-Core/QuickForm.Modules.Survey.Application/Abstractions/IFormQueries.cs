@@ -17,7 +17,7 @@ public interface IFormQueries
         Guid idForm,
         CancellationToken ct = default);
     Task<List<ColumnDto>> GetFormColumnsByIdFormAsync(Guid idForm, CancellationToken ct = default);
-
+    Task<List<OptionsViewModel>> GetFormStatusAsOptionsViewModel(CancellationToken cancellationToken = default);
     Task<ResultT<PaginationResult<RowDto>>> GetFormRowsByIdFormAsync(
            Guid idForm,
            List<FiltersForm>? filters,

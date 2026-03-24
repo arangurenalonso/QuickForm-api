@@ -32,5 +32,20 @@ public enum QuestionTypeType
     [Id("EDC7F74F-15BF-464D-880B-A177C65560C4")]
     InputTypeTime = 7,
 
+    [Name("InputTypeSelect")]
+    [Id("CC35C6D9-A1E7-4DAB-8EB1-07CBBE288F55")]
+    InputTypeSelect = 8,
+
+
+    [Name("Status")]
+    [Id("D856CD38-3788-48EE-8199-9135C204D62B")]
+    Status = 98,
+
+    [Name("Action")]
+    [Id("E43B13DB-CEA5-48C6-B4ED-CF935113A858")]
+    Action = 99,
+
+
+
 
 }

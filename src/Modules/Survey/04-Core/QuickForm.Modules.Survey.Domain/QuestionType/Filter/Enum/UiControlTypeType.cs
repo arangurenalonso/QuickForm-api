@@ -60,5 +60,17 @@ public enum UiControlTypeType
     [Name("range-time")]
     [Description("Range Time")]
     [Id("C2B2D3E4-F5A6-4789-92B3-C4D5E6F7A811")]
-    RangeTime = 11
+    RangeTime = 11,
+
+    [Name("select")]
+    [Description("Select")]
+    [Id("6E63A147-FECF-4182-BFB3-5A93592A171F")]
+    Select = 12,
+
+    [Name("multi-select")]
+    [Description("Multi Select")]
+    [Id("B18D8E87-9D72-48EB-84EB-DFB3100370CA")]
+    MultiSelect = 13,
+
+
 }

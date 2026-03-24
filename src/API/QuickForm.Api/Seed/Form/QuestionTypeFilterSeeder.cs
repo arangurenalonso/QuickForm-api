@@ -90,6 +90,16 @@ internal sealed class QuestionTypeFilterSeeder(SurveyDbContext _context, ILogger
                 (Guid.Parse("FA33B860-EBBD-4363-BE32-D74B5471B95E"), ConditionalOperatorType.IsEmpty, UiControlTypeType.None),
                 (Guid.Parse("35B582EF-73C6-4C91-AE36-3869A30FC5B9"), ConditionalOperatorType.IsNotEmpty, UiControlTypeType.None),
             },
+            [QuestionTypeType.InputTypeSelect] = new[]
+            {
+                (Guid.Parse("8E95D382-1FEA-47D6-AD91-ADB617CD7848"), ConditionalOperatorType.Equals, UiControlTypeType.Select),
+                (Guid.Parse("AAA5BC29-9882-4676-BF24-76A97FE54AD0"), ConditionalOperatorType.NotEquals, UiControlTypeType.Select),
+                (Guid.Parse("FE83298C-8C45-4FE9-8318-006910A00287"), ConditionalOperatorType.Contains, UiControlTypeType.MultiSelect),
+                (Guid.Parse("612101C8-C648-4B5C-974D-55892F0A815A"), ConditionalOperatorType.NotContains, UiControlTypeType.MultiSelect),
+                (Guid.Parse("996E3DCF-2C86-4971-99F5-429C59D8830E"), ConditionalOperatorType.IsEmpty, UiControlTypeType.None),
+                (Guid.Parse("B84C7131-BA64-4FBC-9B83-5A8A789D68EE"), ConditionalOperatorType.IsNotEmpty, UiControlTypeType.None),
+            },
+
         };
 
 

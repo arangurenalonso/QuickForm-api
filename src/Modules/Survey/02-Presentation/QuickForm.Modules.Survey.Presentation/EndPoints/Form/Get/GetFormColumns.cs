@@ -7,22 +7,22 @@ using QuickForm.Modules.Survey.Application;
 
 namespace QuickForm.Modules.Survey.Presentation;
 
-internal sealed class SubmissionColumnsByFormId : IEndpoint
+internal sealed class GetFormColumns : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("form/{formId:guid}/submissions/columns",
-            async (ISender sender, Guid formId, CancellationToken ct = default) =>
+        app.MapGet("form/columns",
+            async (ISender sender, CancellationToken ct = default) =>
             {
                 var result = await sender.Send(
-                    new GetFormSubmissionColumnsQuery(formId),
+                    new GetFormColumnsQuery(),
                     ct
                 );
 
                 return result.Match(Results.Ok, ApiResults.Problem);
             })
             //.RequireAuthorization()
-            .WithName("Form.SubmissionColumns")
+            .WithName("Form.FormColumns")
             .WithTags(Tags.Form);
     }
 }

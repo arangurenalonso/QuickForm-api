@@ -150,6 +150,17 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
             .ToListAsync(ct);
     }
 
+    public async Task<List<OptionsViewModel>> GetFormStatusAsOptionsViewModel(CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<FormStatusDomain>()
+            .AsNoTracking()
+                .Select(av => new OptionsViewModel
+                {
+                    Key = av.Id.Value.ToString(),
+                    Value = av.KeyName.Value
+                })
+            .ToListAsync(cancellationToken);
+    }
     public async Task<List<ColumnDto>> GetFormColumnsByIdFormAsync(Guid idForm, CancellationToken ct = default)
     {
         var formId = new FormId(idForm);

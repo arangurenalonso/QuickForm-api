@@ -20,7 +20,9 @@ internal sealed class QuestionTypeSeeder(SurveyDbContext _context, ILogger<Datab
             [QuestionTypeType.InputTypeBoolean] = (DataTypeType.BooleanType, "True/False input (checkbox or toggle)."),
             [QuestionTypeType.InputTypeDate] = (DataTypeType.DatetimeType, "Date input (year, month, day). Example: 2024-12-31."),
             [QuestionTypeType.InputTypeDatetime] = (DataTypeType.DatetimeType, "Date and time input (year, month, day, hour, minute). Example: 2024-12-31T23:59."),
-            [QuestionTypeType.InputTypeTime] = (DataTypeType.DatetimeType, "Time input (hour, minute). Example: 23:59.")
+            [QuestionTypeType.InputTypeTime] = (DataTypeType.DatetimeType, "Time input (hour, minute). Example: 23:59."),
+            [QuestionTypeType.InputTypeSelect] = (DataTypeType.StringType, "Dropdown selection input (predefined options)."),
+
 
         };
 
