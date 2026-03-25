@@ -18,14 +18,17 @@ public interface IFormQueries
         CancellationToken ct = default);
     Task<List<ColumnDto>> GetFormColumnsByIdFormAsync(Guid idForm, CancellationToken ct = default);
     Task<List<OptionsViewModel>> GetFormStatusAsOptionsViewModel(CancellationToken cancellationToken = default);
-    Task<ResultT<PaginationResult<RowDto>>> GetFormRowsByIdFormAsync(
-           Guid idForm,
+
+    Task<FormSectionQuestionStatusResponse> GetSectionQuestionStatusAsync(
+        Guid idForm,
+        CancellationToken cancellationToken = default);
+    Task<ResultT<PaginationResult<FormViewModel>>> SearchFormAsync(
+           Guid idCustomer,
            List<FiltersForm>? filters,
            int skip = 0,
            int take = 50,
            CancellationToken ct = default
         );
-    Task<FormSectionQuestionStatusResponse> GetSectionQuestionStatusAsync(
-        Guid idForm,
-        CancellationToken cancellationToken = default);
+
+
 }

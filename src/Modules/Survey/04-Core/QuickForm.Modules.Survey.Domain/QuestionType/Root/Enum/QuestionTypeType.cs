@@ -37,9 +37,6 @@ public enum QuestionTypeType
     InputTypeSelect = 8,
 
 
-    [Name("Status")]
-    [Id("D856CD38-3788-48EE-8199-9135C204D62B")]
-    Status = 98,
 
     [Name("Action")]
     [Id("E43B13DB-CEA5-48C6-B4ED-CF935113A858")]

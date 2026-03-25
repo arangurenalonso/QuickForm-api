@@ -7,7 +7,7 @@ namespace QuickForm.Modules.Survey.Application;
 
 internal sealed class GetFormSubmissionRowsQueryHandler(
     IFormRepository _formRepository,
-    IFormQueries _formQueries
+    ISubmissionQueries _submissionQueries
 ) : IQueryHandler<GetFormSubmissionRowsQuery, PaginationResult<Dictionary<string, object?>>>
 {
     public async Task<ResultT<PaginationResult<Dictionary<string, object?>>>> Handle(
@@ -38,7 +38,7 @@ internal sealed class GetFormSubmissionRowsQueryHandler(
 
         var skip = (page - 1) * pageSize;
 
-        var pagedRowsResult = await _formQueries.GetFormRowsByIdFormAsync(
+        var pagedRowsResult = await _submissionQueries.SearchSubmissionsByIdFormAsync(
             request.FormId,
             request.Filters,
             skip,

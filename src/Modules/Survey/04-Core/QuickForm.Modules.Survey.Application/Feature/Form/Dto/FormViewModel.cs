@@ -8,7 +8,8 @@ public class FormViewModel
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
+    public DateTime Updated { get; set; }
     public StatusViewModel Status { get; set; }
-    public int Visits { get; set; }
     public int Submissions { get; set; } 
+    public List<string> Action => Status.AllowedActions;
 }

@@ -100,7 +100,8 @@ internal sealed class GetFormColumnsQueryHandle(
             Order = 102,
             QuestionTypeKey = QuestionTypeType.Action.GetName(),
             QuestionTypeId = QuestionTypeType.Action.GetId(),
-            Pinned = "right"
+            Pinned = "right",
+            ShowInFilter = false
         };
         columns.Add(columnAction);
 

@@ -22,7 +22,7 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 5, // 5 requests
+                PermitLimit = 100, // 100 requests
                 Window = TimeSpan.FromMinutes(1), // per 1 minute
                 QueueLimit = 0, // reject immediately when limit is hit
                 AutoReplenishment = true
