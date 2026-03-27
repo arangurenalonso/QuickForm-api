@@ -19,8 +19,12 @@ public class FormDomain : BaseDomainEntity<FormId>
     public ICollection<FormSectionDomain> Sections { get; private set; } = [];
     public ICollection<SubmissionDomain> Submissions { get; private set; } = [];
     public ICollection<FormStatusHistoryDomain> StatusHistory { get; private set; } = [];
-    
+
     #endregion
+    #region One-to-One Relationship
+    public FormConfigDomain FormConfig { get; private set; }
+    #endregion
+
     private FormDomain() { }
     private FormDomain(
         FormId id, 
@@ -46,7 +50,13 @@ public class FormDomain : BaseDomainEntity<FormId>
                 );
         }
         var newForm = new FormDomain(FormId.Create(), nameResult.Value, descriptionResult.Value,customer.Id);
-        
+        var formConfig = FormConfigDomain.Create(newForm.Id);
+        if (formConfig.IsFailure)
+        {
+            return formConfig.Errors;
+        }
+        newForm.FormConfig = formConfig.Value;
+
         var registerStatusHistory = newForm.RegisterStatusHistory();
         if (registerStatusHistory.IsFailure)
         {
@@ -56,6 +66,7 @@ public class FormDomain : BaseDomainEntity<FormId>
         return newForm;
     }
     
+
     public Result ApplySectionsChanges(
             IReadOnlyCollection<(Guid Id, 
                                 string Title, 
@@ -339,7 +350,7 @@ public class FormDomain : BaseDomainEntity<FormId>
     }
     
     
-    public Result Update(string name, string? description)
+    public Result UpdateBasicInfo(string name, string? description)
     {
 
         var guard = EnsureCanPerformAction(FormActionType.FormEdit);

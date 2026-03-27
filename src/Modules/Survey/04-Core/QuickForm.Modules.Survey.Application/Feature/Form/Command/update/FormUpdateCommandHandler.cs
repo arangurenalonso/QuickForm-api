@@ -18,7 +18,7 @@ internal sealed class FormUpdateCommandHandler(IFormRepository formRepository, I
             return ResultT<ResultResponse>.FailureT(ResultType.NotFound,error);
         }
 
-        var resultUpdate = form.Update(request.Name, request.Description);
+        var resultUpdate = form.UpdateBasicInfo(request.Name, request.Description);
 
         if (resultUpdate.IsFailure)
         {

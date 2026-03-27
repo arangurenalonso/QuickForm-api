@@ -36,7 +36,11 @@ public sealed class StatusIconVO
             "Shield",
             "ShieldAlert",
             "ShieldCheck",
-            "BarChartLine"
+            "BarChartLine",
+            "LayoutTemplate",
+            "PanelsTopLeft",
+            "Rows3",
+            "ListOrdered",
         };
 
     public static ResultT<StatusIconVO> Create(string? value)

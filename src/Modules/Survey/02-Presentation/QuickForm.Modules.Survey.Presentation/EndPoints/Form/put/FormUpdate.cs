@@ -11,7 +11,7 @@ internal sealed class FormUpdate : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPut("form/{id}", async (Guid id, FormUpdateRequest request, ISender sender) =>
+        app.MapPut("form/{id}/BasicInfo", async (Guid id, FormUpdateRequest request, ISender sender) =>
         {
             var result = await sender.Send(new FormUpdateCommand(
                 id,

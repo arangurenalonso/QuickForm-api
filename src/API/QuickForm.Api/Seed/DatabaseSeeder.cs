@@ -50,6 +50,10 @@ internal sealed class DatabaseSeeder(
             await questionTypeFilterSeeder.SeedAsync();
 
 
+            var formRenderSeeder = new FormRenderSeeder(_surveyDbContext, _logger);
+            await formRenderSeeder.SeedAsync();
+            
+
             _logger.LogInformation("Database seeding completed successfully.");
         }
         catch (Exception ex)
