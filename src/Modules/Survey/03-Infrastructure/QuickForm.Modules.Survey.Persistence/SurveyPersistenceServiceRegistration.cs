@@ -15,7 +15,6 @@ public static class SurveyPersistenceServiceRegistration
     {
         var connectionString = configuration.GetSection("Survey:ConnectionStrings:Database").Value;
 
-
         services.AddScoped<AuditLogInterceptor>();
         services.AddScoped<AuditFieldsInterceptor>();
         services.AddScoped<InsertOutboxMessagesInterceptor>();
@@ -40,6 +39,7 @@ public static class SurveyPersistenceServiceRegistration
         services.AddScoped<IFormQueries, FormQueries>();
         services.AddScoped<ISubmissionQueries, SubmissionQueries>();
         services.AddScoped<IQuestionQueries, QuestionQueries>();
+        services.AddScoped<IMasterRepository, MasterRepository>();
 
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<SurveyDbContext>());

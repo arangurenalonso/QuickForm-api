@@ -63,7 +63,7 @@ internal sealed class GetFormColumnsQueryHandle(
 
         var columnUpdated = new ColumnDto
         {
-            Key = "updated",
+            Key = "updatedAt",
             Label = "Last Edit",
             Order = 4,
             QuestionTypeKey = QuestionTypeType.InputTypeDatetime.GetName(),

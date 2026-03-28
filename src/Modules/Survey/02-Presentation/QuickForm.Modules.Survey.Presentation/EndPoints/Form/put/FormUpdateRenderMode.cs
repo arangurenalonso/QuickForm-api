@@ -7,28 +7,25 @@ using QuickForm.Modules.Survey.Application;
 
 namespace QuickForm.Modules.Survey.Presentation;
 
-internal sealed class FormUpdate : IEndpoint
+internal sealed class FormUpdateRenderMode : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPut("form/{id}/BasicInfo", async (Guid id, FormUpdateRequest request, ISender sender) =>
+        app.MapPut("form/{id}/render-mode", async (Guid id, FormUpdateRenderModeRequest request, ISender sender) =>
         {
-            var result = await sender.Send(new FormUpdateCommand(
+            var result = await sender.Send(new UpdateRenderModeCommand(
                 id,
-                request.Name,
-                request.Description));
+                request.IdTypeRender));
 
             return result.Match(Results.Ok, ApiResults.Problem);
         })
         .AllowAnonymous()
-        .WithName("Form.FormUpdate")
+        .WithName("Form.UpdateRenderMode")
         .WithTags(Tags.Form);
     }
 
-    internal sealed class FormUpdateRequest
+    internal sealed class FormUpdateRenderModeRequest
     {
-        public string Name { get; init; }
-
-        public string? Description { get; init; }
+        public Guid IdTypeRender { get; init; }
     }
 }

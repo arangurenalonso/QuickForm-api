@@ -86,9 +86,14 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
             Name = x.Name.Value,
             Description = x.Description,
             CreatedAt = x.CreatedDate,
-            Updated = x.ModifiedDate == null
+            UpdatedAt = x.ModifiedDate == null
                                     ? x.CreatedDate
                                     : x.ModifiedDate.Value,
+            RenderMode = new MasterViewModel
+            {
+                Id = x.FormConfig.FormRender.Id.Value,
+                KeyName = x.FormConfig.FormRender.KeyName.Value
+            },
             Submissions = x.Submissions.Count(s => !s.IsDeleted),
             Status = new StatusViewModel
             {
@@ -99,7 +104,8 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
                 Color = x.Status.Color.Value,
                 AllowedActions = x.Status.Permissions
                     .Select(p => p.FormAction.KeyName.Value)
-                    .ToList()
+                    .ToList(),
+                
             }
         };
     }

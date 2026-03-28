@@ -422,4 +422,26 @@ public class FormDomain : BaseDomainEntity<FormId>
         return Result.Success();
 
     }
+
+    public Result UpdateFormConfig(Guid idTypeFormRender)
+    {
+
+        var guard = EnsureCanPerformAction(FormActionType.FormEdit);
+        if (guard.IsFailure)
+        {
+            return guard;
+        }
+        var idTypeFormRenderVOResult = new MasterId(idTypeFormRender);
+        var updateResult = FormConfig.UpdateFormRender(idTypeFormRenderVOResult);
+        if (updateResult.IsFailure)
+        { 
+            return updateResult.Errors;
+        }
+
+
+        return Result.Success();
+
+    }
+
+
 }

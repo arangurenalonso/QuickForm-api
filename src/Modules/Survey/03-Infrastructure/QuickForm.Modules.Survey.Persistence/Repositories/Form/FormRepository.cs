@@ -25,6 +25,7 @@ public class FormRepository(
     {
         FormId formId = new FormId(id);
         return await _context.Set<FormDomain>()
+                                .Include(x=>x.FormConfig)
                                 .Include(x => x.Status)
                                     .ThenInclude(x => x.Permissions.Where(y => !y.IsDeleted))
                                         .ThenInclude(x => x.FormAction)

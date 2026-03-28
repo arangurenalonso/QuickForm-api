@@ -5,10 +5,10 @@ using QuickForm.Modules.Survey.Domain;
 namespace QuickForm.Modules.Survey.Application;
 
 
-internal sealed class FormUpdateCommandHandler(IFormRepository formRepository, IUnitOfWork _unitOfWork)
-    : ICommandHandler<FormUpdateCommand, ResultResponse>
+internal sealed class UpdateBasicInfoCommandHandler(IFormRepository formRepository, IUnitOfWork _unitOfWork)
+    : ICommandHandler<UpdateBasicInfoCommand, ResultResponse>
 {
-    public async Task<ResultT<ResultResponse>> Handle(FormUpdateCommand request, CancellationToken cancellationToken)
+    public async Task<ResultT<ResultResponse>> Handle(UpdateBasicInfoCommand request, CancellationToken cancellationToken)
     {
         var form =await formRepository.GetAsync(request.Id, cancellationToken);
         
@@ -31,6 +31,6 @@ internal sealed class FormUpdateCommandHandler(IFormRepository formRepository, I
             return ResultT<ResultResponse>.FailureT(resultTransaction.ResultType, resultTransaction.Errors);
         }
 
-        return ResultResponse.Success($"Form id '{request.Id}' Updated successfully.");
+        return ResultResponse.Success($"Form {form.Name} Updated successfully.");
     }
 }

@@ -1,9 +1,8 @@
 ﻿using QuickForm.Common.Application;
 
 namespace QuickForm.Modules.Survey.Application;
-public sealed record FormUpdateCommand(
-        Guid Id,
-        string Name,
-        string? Description
+public sealed record UpdateRenderModeCommand(
+        Guid IdForm,
+        Guid IdTypeRender
     )
     : ICommand<ResultResponse>;

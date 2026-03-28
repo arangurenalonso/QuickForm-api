@@ -3,20 +3,25 @@ using QuickForm.Common.Domain;
 using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Application;
-internal sealed class FormCloseCommandHandler(IFormRepository formRepository, IUnitOfWork _unitOfWork)
-    : ICommandHandler<FormCloseCommand, ResultResponse>
+
+
+internal sealed class UpdateRenderModeCommandHandler(
+        IFormRepository formRepository, 
+        IUnitOfWork _unitOfWork
+    )
+    : ICommandHandler<UpdateRenderModeCommand, ResultResponse>
 {
-    public async Task<ResultT<ResultResponse>> Handle(FormCloseCommand request, CancellationToken cancellationToken)
+    public async Task<ResultT<ResultResponse>> Handle(UpdateRenderModeCommand request, CancellationToken cancellationToken)
     {
-        var form = await formRepository.GetAsync(request.Id, cancellationToken);
+        var form = await formRepository.GetAsync(request.IdForm, cancellationToken);
 
         if (form == null)
         {
-            var error = ResultError.NullValue("FormId", $"Form with id '{request.Id}' not found.");
+            var error = ResultError.NullValue("FormId", $"Form with id '{request.IdForm}' not found.");
             return ResultT<ResultResponse>.FailureT(ResultType.NotFound, error);
         }
 
-        var resultUpdate = form.Close();
+        var resultUpdate = form.UpdateFormConfig(request.IdTypeRender);
 
         if (resultUpdate.IsFailure)
         {
@@ -29,6 +34,6 @@ internal sealed class FormCloseCommandHandler(IFormRepository formRepository, IU
             return ResultT<ResultResponse>.FailureT(resultTransaction.ResultType, resultTransaction.Errors);
         }
 
-        return ResultResponse.Success($"Form id '{request.Id}' closed successfully.");
+        return ResultResponse.Success($"Form {form.Name} Updated successfully.");
     }
 }
