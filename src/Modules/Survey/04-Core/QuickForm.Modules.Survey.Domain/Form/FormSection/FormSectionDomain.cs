@@ -31,7 +31,26 @@ public class FormSectionDomain : BaseDomainEntity<FormSectionId>
         Title = title;
         Description = description;
     }
+    public static ResultT<FormSectionDomain> DefaultSection(
+        FormId idForm)
+    { 
+        var newId = FormSectionId.Create();
+        var title = FormSectionTitleVO.Create("Default").Value;
+        var description = FormSectionDescriptionVO.Create("This is the default section.").Value;
+        var sortOrder = 1;
+        return Create(newId, idForm, title, description, sortOrder);
+    }
+    public static ResultT<FormSectionDomain> Create(
+            FormId idForm,
+            string title,
+            string description,
+            int sortOrder
+        )
+    { 
+        var newId = FormSectionId.Create();
+        return Create(newId, idForm, title, description, sortOrder);
 
+    }
     public static ResultT<FormSectionDomain> Create(
             FormSectionId id,
             FormId idForm, 

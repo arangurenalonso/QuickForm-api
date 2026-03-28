@@ -1,4 +1,5 @@
-﻿using QuickForm.Common.Domain;
+﻿using System.Linq.Expressions;
+using QuickForm.Common.Domain;
 using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Application;

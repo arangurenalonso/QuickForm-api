@@ -464,17 +464,4 @@ public sealed class FormQueries(SurveyDbContext _context) : IFormQueries
             ? null
             : Expression.Lambda<Func<TEntity, bool>>(body, parameter);
     }
-    private ResultT<IQueryable<SubmissionDomain>> ApplySubmittedAtFilter(
-    IQueryable<SubmissionDomain> query,
-    FiltersForm filter,
-    ConditionalOperatorType operatorType)
-    {
-        return ApplyComparableFilter(
-            query,
-            filter,
-            operatorType,
-            s => s.SubmittedAtUtc,
-            CommonJsonElementMethods.TryGetDateTime,
-            "datetime");
-    }
 }

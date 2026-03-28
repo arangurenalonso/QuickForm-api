@@ -5,4 +5,4 @@ public sealed record FormPublishCommand(
         Guid IdForm,
         List<SectionDto> Sections
     )
-    : ICommand<ResultResponse>;
+    : ICommand<ResultTResponse<FormViewModel>>;

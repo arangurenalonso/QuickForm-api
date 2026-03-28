@@ -56,6 +56,11 @@ public class FormDomain : BaseDomainEntity<FormId>
             return formConfig.Errors;
         }
         newForm.FormConfig = formConfig.Value;
+        var defaultSectionResult = newForm.CreateDefaultSection();
+        if (defaultSectionResult.IsFailure)
+        {
+            return defaultSectionResult.Errors;
+        }
 
         var registerStatusHistory = newForm.RegisterStatusHistory();
         if (registerStatusHistory.IsFailure)
@@ -65,7 +70,16 @@ public class FormDomain : BaseDomainEntity<FormId>
 
         return newForm;
     }
-    
+    private Result CreateDefaultSection()
+    {
+        var defaultSectionResult = FormSectionDomain.DefaultSection(Id);
+        if (defaultSectionResult.IsFailure)
+        {
+            return defaultSectionResult.Errors;
+        }
+        Sections.Add(defaultSectionResult.Value);
+        return Result.Success();
+    }
 
     public Result ApplySectionsChanges(
             IReadOnlyCollection<(Guid Id, 

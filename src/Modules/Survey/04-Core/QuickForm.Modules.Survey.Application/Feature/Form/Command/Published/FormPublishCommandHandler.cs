@@ -5,13 +5,14 @@ using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Application;
 internal sealed class FormPublishCommandHandler(
-    IFormRepository formRepository, 
-    IFormQueries formQueries,
-    IUnitOfWork _unitOfWork,
-    ISender sender)
-    : ICommandHandler<FormPublishCommand, ResultResponse>
+        IFormRepository formRepository, 
+        IFormQueries formQueries,
+        IUnitOfWork _unitOfWork,
+        ISender sender
+    )
+    : ICommandHandler<FormPublishCommand, ResultTResponse<FormViewModel>>
 {
-    public async Task<ResultT<ResultResponse>> Handle(FormPublishCommand request, CancellationToken cancellationToken)
+    public async Task<ResultT<ResultTResponse<FormViewModel>>> Handle(FormPublishCommand request, CancellationToken cancellationToken)
     {
 
         if (request.Sections.Any())
@@ -19,7 +20,7 @@ internal sealed class FormPublishCommandHandler(
             var result = await sender.Send(new SaveFormStructureCommand(request.IdForm, request.Sections), cancellationToken);
             if (result.IsFailure)
             {
-                return ResultT<ResultResponse>.FailureT(result.ResultType, result.Errors);
+                return result.Errors;
             }
         }
 
@@ -29,7 +30,7 @@ internal sealed class FormPublishCommandHandler(
         if (form == null)
         {
             var error = ResultError.NullValue("FormId", $"Form with id '{request.IdForm}' not found.");
-            return ResultT<ResultResponse>.FailureT(ResultType.NotFound, error);
+            return ResultT<ResultTResponse<FormViewModel>>.FailureT(ResultType.NotFound, error);
         }
 
         var sectionQuestionStatus = await formQueries.GetSectionQuestionStatusAsync(request.IdForm, cancellationToken);
@@ -50,15 +51,24 @@ internal sealed class FormPublishCommandHandler(
 
         if (resultUpdate.IsFailure)
         {
-            return ResultT<ResultResponse>.FailureT(ResultType.DomainValidation, resultUpdate.Errors);
+            return resultUpdate.Errors;
         }
 
         var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
         if (resultTransaction.IsFailure)
         {
-            return ResultT<ResultResponse>.FailureT(resultTransaction.ResultType, resultTransaction.Errors);
+            return resultTransaction.Errors;
+        }
+        var formViewModel = await formQueries.GetFormByIdAsync(
+            request.IdForm,
+            cancellationToken);
+
+        if (formViewModel is null)
+        {
+            throw new InvalidOperationException($"Form with id '{request.IdForm}' could not be loaded after publish.");
         }
 
-        return ResultResponse.Success($"Form id '{request.IdForm}' published successfully.");
+
+        return ResultTResponse<FormViewModel>.Success(formViewModel, $"Form '{formViewModel.Name}' published successfully.");
     }
 }
