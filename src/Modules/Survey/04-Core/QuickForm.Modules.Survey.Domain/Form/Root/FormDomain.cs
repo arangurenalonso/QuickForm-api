@@ -436,7 +436,40 @@ public class FormDomain : BaseDomainEntity<FormId>
         return Result.Success();
 
     }
+    public Result Pause()
+    {
+        var guard = EnsureCanPerformAction(FormActionType.FormPause);
+        if (guard.IsFailure)
+        {
+            return guard;
+        }
+        var registerStatusHistory = RegisterStatusHistory();
+        if (registerStatusHistory.IsFailure)
+        {
+            return registerStatusHistory.Errors;
+        }
+        IdStatus = new MasterId(FormStatusType.Paused.GetId());
 
+        return Result.Success();
+
+    }
+    public Result Resume()
+    {
+        var guard = EnsureCanPerformAction(FormActionType.FormResume);
+        if (guard.IsFailure)
+        {
+            return guard;
+        }
+        var registerStatusHistory = RegisterStatusHistory();
+        if (registerStatusHistory.IsFailure)
+        {
+            return registerStatusHistory.Errors;
+        }
+        IdStatus = new MasterId(FormStatusType.Published.GetId());
+
+        return Result.Success();
+
+    }
     public Result UpdateFormConfig(Guid idTypeFormRender)
     {
 

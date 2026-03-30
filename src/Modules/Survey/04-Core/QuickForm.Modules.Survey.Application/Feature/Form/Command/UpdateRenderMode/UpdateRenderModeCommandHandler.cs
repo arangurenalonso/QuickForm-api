@@ -34,6 +34,6 @@ internal sealed class UpdateRenderModeCommandHandler(
             return ResultT<ResultResponse>.FailureT(resultTransaction.ResultType, resultTransaction.Errors);
         }
 
-        return ResultResponse.Success($"Form {form.Name} Updated successfully.");
+        return ResultResponse.Success($"Form {form.Name.Value} Updated successfully.");
     }
 }

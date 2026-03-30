@@ -3,10 +3,10 @@ using QuickForm.Common.Domain;
 using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Application;
-internal sealed class FormCloseCommandHandler(IFormRepository formRepository, IUnitOfWork _unitOfWork)
-    : ICommandHandler<FormCloseCommand, ResultResponse>
+internal sealed class FormResumeCommandHandle(IFormRepository formRepository, IUnitOfWork _unitOfWork)
+    : ICommandHandler<FormResumeCommand, ResultResponse>
 {
-    public async Task<ResultT<ResultResponse>> Handle(FormCloseCommand request, CancellationToken cancellationToken)
+    public async Task<ResultT<ResultResponse>> Handle(FormResumeCommand request, CancellationToken cancellationToken)
     {
         var form = await formRepository.GetAsync(request.Id, cancellationToken);
 
@@ -16,7 +16,7 @@ internal sealed class FormCloseCommandHandler(IFormRepository formRepository, IU
             return ResultT<ResultResponse>.FailureT(ResultType.NotFound, error);
         }
 
-        var resultUpdate = form.Close();
+        var resultUpdate = form.Resume();
 
         if (resultUpdate.IsFailure)
         {
@@ -26,9 +26,9 @@ internal sealed class FormCloseCommandHandler(IFormRepository formRepository, IU
         var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
         if (resultTransaction.IsFailure)
         {
-            return ResultT<ResultResponse>.FailureT(resultTransaction.ResultType, resultTransaction.Errors);
+            return resultTransaction.Errors;
         }
 
-        return ResultResponse.Success($"Form '{form.Name.Value}' closed successfully.");
+        return ResultResponse.Success($"Form '{form.Name.Value}' resumed successfully.");
     }
 }
