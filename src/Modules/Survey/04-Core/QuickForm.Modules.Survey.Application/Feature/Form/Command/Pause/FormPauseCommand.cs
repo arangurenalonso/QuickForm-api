@@ -2,7 +2,7 @@
 
 namespace QuickForm.Modules.Survey.Application;
 public sealed record FormPauseCommand(
-        Guid Id
+        Guid IdForm
     )
-    : ICommand<ResultResponse>;
+    : ICommand<ResultTResponse<FormViewModel>>;
 

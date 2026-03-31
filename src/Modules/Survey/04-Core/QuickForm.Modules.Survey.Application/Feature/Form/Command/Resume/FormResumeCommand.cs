@@ -2,7 +2,8 @@
 
 namespace QuickForm.Modules.Survey.Application;
 public sealed record FormResumeCommand(
-        Guid Id
+        Guid IdForm
     )
-    : ICommand<ResultResponse>;
+   : ICommand<ResultTResponse<FormViewModel>>;
+
 

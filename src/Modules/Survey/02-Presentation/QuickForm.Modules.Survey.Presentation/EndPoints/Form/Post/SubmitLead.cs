@@ -20,7 +20,7 @@ internal sealed class SubmitLead : IEndpoint
                 ));
             return result.Match(Results.Ok, ApiResults.Problem);
         })
-        .RequireAuthorization()
+        //.RequireAuthorization()
         .WithName("Form.SubmitLead")
         .WithTags(Tags.Form);
     }

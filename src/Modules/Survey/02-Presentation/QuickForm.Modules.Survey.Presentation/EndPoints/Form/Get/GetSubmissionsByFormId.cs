@@ -31,7 +31,7 @@ internal sealed class GetSubmissionsByFormId : IEndpoint
 
                 return result.Match(Results.Ok, ApiResults.Problem);
             })
-            //.RequireAuthorization()
+            .RequireAuthorization()
             .WithName("Form.SubmissionRows")
             .WithTags(Tags.Form);
     }

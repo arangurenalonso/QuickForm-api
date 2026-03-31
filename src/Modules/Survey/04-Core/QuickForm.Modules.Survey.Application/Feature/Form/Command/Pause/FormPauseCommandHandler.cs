@@ -1,26 +1,31 @@
-﻿using QuickForm.Common.Application;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using QuickForm.Common.Application;
 using QuickForm.Common.Domain;
 using QuickForm.Modules.Survey.Domain;
 
 namespace QuickForm.Modules.Survey.Application;
-internal sealed class FormPauseCommandHandler(IFormRepository formRepository, IUnitOfWork _unitOfWork)
-    : ICommandHandler<FormPauseCommand, ResultResponse>
+internal sealed class FormPauseCommandHandler(
+    IFormRepository formRepository,
+    IUnitOfWork _unitOfWork,
+    IFormQueries formQueries
+    )
+    : ICommandHandler<FormPauseCommand, ResultTResponse<FormViewModel>>
 {
-    public async Task<ResultT<ResultResponse>> Handle(FormPauseCommand request, CancellationToken cancellationToken)
+    public async Task<ResultT<ResultTResponse<FormViewModel>>> Handle(FormPauseCommand request, CancellationToken cancellationToken)
     {
-        var form = await formRepository.GetAsync(request.Id, cancellationToken);
+        var form = await formRepository.GetAsync(request.IdForm, cancellationToken);
 
         if (form == null)
         {
-            var error = ResultError.NullValue("FormId", $"Form with id '{request.Id}' not found.");
-            return ResultT<ResultResponse>.FailureT(ResultType.NotFound, error);
+            var error = ResultError.NullValue("FormId", $"Form with id '{request.IdForm}' not found.");
+            return ResultT<ResultTResponse<FormViewModel>>.FailureT(ResultType.NotFound, error);
         }
 
         var resultUpdate = form.Pause();
 
         if (resultUpdate.IsFailure)
         {
-            return ResultT<ResultResponse>.FailureT(ResultType.DomainValidation, resultUpdate.Errors);
+            return ResultT<ResultTResponse<FormViewModel>>.FailureT(ResultType.DomainValidation, resultUpdate.Errors);
         }
 
         var resultTransaction = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
@@ -29,6 +34,16 @@ internal sealed class FormPauseCommandHandler(IFormRepository formRepository, IU
             return resultTransaction.Errors;
         }
 
-        return ResultResponse.Success($"Form '{form.Name.Value}' pause successfully.");
+        var formViewModel = await formQueries.GetFormByIdAsync(
+            request.IdForm,
+            cancellationToken);
+
+        if (formViewModel is null)
+        {
+            throw new InvalidOperationException($"Form with id '{request.IdForm}' could not be loaded after pause.");
+        }
+
+
+        return ResultTResponse<FormViewModel>.Success(formViewModel, $"Form '{formViewModel.Name}' paused successfully.");
     }
 }
