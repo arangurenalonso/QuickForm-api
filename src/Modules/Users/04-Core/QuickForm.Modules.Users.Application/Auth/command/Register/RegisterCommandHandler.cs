@@ -9,7 +9,8 @@ public class RegisterCommandHandler(
         IPasswordHashingService _passwordHashingService,
         IAuthActionTokenHashingService _tokenHashingService,
         IDateTimeProvider _dateTimeProvider,
-        IRoleRepository _roleRepository
+        IRoleRepository _roleRepository,
+        IAuthActionEmailService _authActionEmailService
     ) : ICommandHandler<RegisterCommand, ResultResponse>
 {
 
@@ -28,12 +29,24 @@ public class RegisterCommandHandler(
         {
             return ResultT<ResultResponse>.FailureT(newUserResult.ResultType,newUserResult.Errors);
         }
+        var createdToken = newUserResult.Value.AuthActionTokens.First();
+        var plainToken = createdToken.PlainTextToken;
+
+        if (string.IsNullOrWhiteSpace(plainToken))
+        {
+            var error = ResultError.InvalidOperation("Token", "Plain text token was not generated.");
+            return ResultT<ResultResponse>.FailureT(ResultType.DomainValidation, error);
+        }
 
         var confirmTransactionResult = await _unitOfWork.SaveChangesWithResultAsync(GetType().Name, cancellationToken);
         if (confirmTransactionResult.IsFailure)
         {
             return ResultT<ResultResponse>.FailureT(confirmTransactionResult.ResultType, confirmTransactionResult.Errors);
         }
+
+        await _authActionEmailService.SendEmailConfirmationAsync(newUserResult.Value.Email.Value, plainToken, cancellationToken);
+        createdToken.ClearPlainTextToken();
+
 
         var email = newUserResult.Value.Email.Value;
         var verificationLink =
@@ -84,7 +97,6 @@ public class RegisterCommandHandler(
             return ResultT<UserDomain>.FailureT(ResultType.DomainValidation,errorList);
         }
         var userDomain = userDomainResult.Value;
-
 
         _unitOfWork.Repository<UserDomain, UserId>().AddEntity(userDomain);
         return userDomain;

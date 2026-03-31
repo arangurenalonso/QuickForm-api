@@ -11,7 +11,7 @@ internal sealed class EmailConfirmation : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("auth/confirm-email", async (RequestEmailConfirmation request, ISender sender) =>
+        app.MapPost("auth/email-confirmation", async (RequestEmailConfirmation request, ISender sender) =>
         {
             var result = await sender.Send(new EmailConfirmationCommand(
                 request.Email,

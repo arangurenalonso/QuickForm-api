@@ -22,7 +22,7 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 100, // 100 requests
+                PermitLimit = 1000, // 1000 requests
                 Window = TimeSpan.FromMinutes(1), // per 1 minute
                 QueueLimit = 0, // reject immediately when limit is hit
                 AutoReplenishment = true
@@ -89,7 +89,8 @@ builder.Services.AddCors(options =>
         {
             policyBuilder
                    .WithOrigins(
-                       "http://localhost:3000"
+                       "http://localhost:3000",
+                       "https://quickform-frontend-dfg7axc7cecvb7a9.canadacentral-01.azurewebsites.net/"
                    // add your real frontend domains here
                    )
                    .AllowAnyHeader()
