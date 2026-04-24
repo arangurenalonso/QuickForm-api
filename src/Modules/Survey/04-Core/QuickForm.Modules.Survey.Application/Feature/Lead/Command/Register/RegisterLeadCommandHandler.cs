@@ -14,7 +14,12 @@ internal sealed class RegisterLeadCommandHandler(
     {
 
 
-        var leadCreated = LeadDomain.Create(request.Name, request.Email,request.PhoneNumber);
+        var leadCreated = LeadDomain.Create(
+                                    request.Name, 
+                                    request.Email,
+                                    request.PhoneNumber,
+                                    request.Message
+                                );
 
         if (leadCreated.IsFailure)
         {

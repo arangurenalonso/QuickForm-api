@@ -9,7 +9,11 @@ internal sealed class QuestionTypeRuleSeeder(SurveyDbContext _context, ILogger<D
 {
     public async Task SeedAsync()
     {
-        _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
+        }
+
         var predefinedQuestionTypeRule = new Dictionary<QuestionTypeType, (Guid IdRelation, RuleType Rule,bool IsRequired)[]>
         {
             [QuestionTypeType.InputTypeText] = new[]
@@ -84,6 +88,9 @@ internal sealed class QuestionTypeRuleSeeder(SurveyDbContext _context, ILogger<D
         }
 
         await _context.SaveChangesAsync();
-        _logger.LogInformation("{SeederName} seeding completed", GetType().Name);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("{SeederName} seeding completed", GetType().Name);
+        }
     }
 }

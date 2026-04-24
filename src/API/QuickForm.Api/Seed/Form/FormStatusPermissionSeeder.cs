@@ -9,7 +9,11 @@ internal sealed class FormStatusPermissionSeeder(SurveyDbContext _context, ILogg
 {
     public async Task SeedAsync()
     {
-        _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
+        }
+
         var permissionsByStatus = new Dictionary<FormStatusType, (Guid PermissionId, FormActionType Action)[]>
         {
             [FormStatusType.Draft] = new[]
@@ -82,6 +86,9 @@ internal sealed class FormStatusPermissionSeeder(SurveyDbContext _context, ILogg
         }
 
         await _context.SaveChangesAsync();
-        _logger.LogInformation("{SeederName} seeding completed", GetType().Name);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("{SeederName} seeding completed", GetType().Name);
+        }
     }
 }

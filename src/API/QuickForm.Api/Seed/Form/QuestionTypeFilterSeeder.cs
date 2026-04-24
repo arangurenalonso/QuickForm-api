@@ -11,8 +11,10 @@ internal sealed class QuestionTypeFilterSeeder(SurveyDbContext _context, ILogger
 
     public async Task SeedAsync()
     {
-        _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
-
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
+        }
 
         var predefinedValues = new Dictionary<QuestionTypeType, (Guid QuestionTypeFilterId, ConditionalOperatorType ConditionalOperator, UiControlTypeType UiControlType)[]>
         {
@@ -148,6 +150,9 @@ internal sealed class QuestionTypeFilterSeeder(SurveyDbContext _context, ILogger
         }
 
         await _context.SaveChangesAsync();
-        _logger.LogInformation("{SeederName} seeding completed", GetType().Name);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("{SeederName} seeding completed", GetType().Name);
+        }
     }
 }

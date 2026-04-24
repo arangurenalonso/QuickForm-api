@@ -10,7 +10,10 @@ internal sealed class RuleSeeder(SurveyDbContext _context, ILogger<DatabaseSeede
 
     public async Task SeedAsync()
     {
-        _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
+        }
 
 
         var predefinedRules = new Dictionary<RuleType, (DataTypeType DataType, string Description, string DefaultValidationMessage, string? RequiredPlaceholder)>
@@ -88,6 +91,9 @@ internal sealed class RuleSeeder(SurveyDbContext _context, ILogger<DatabaseSeede
         }
 
         await _context.SaveChangesAsync();
-        _logger.LogInformation("{SeederName} seeding completed", GetType().Name);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("{SeederName} seeding completed", GetType().Name);
+        }
     }
 }

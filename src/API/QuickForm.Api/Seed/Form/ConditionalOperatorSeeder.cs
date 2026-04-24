@@ -10,7 +10,10 @@ internal sealed class ConditionalOperatorSeeder(SurveyDbContext _context, ILogge
 
     public async Task SeedAsync()
     {
-        _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
+        }
         var enumTypesArray = Enum.GetValues<ConditionalOperatorType>()
                                     .Select(enumType => new
                                     {
@@ -55,7 +58,10 @@ internal sealed class ConditionalOperatorSeeder(SurveyDbContext _context, ILogge
         }
 
         await _context.SaveChangesAsync();
-        _logger.LogInformation("{SeederName} seeding completed", GetType().Name);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("{SeederName} seeding completed", GetType().Name);
+        }
     }
 }
 

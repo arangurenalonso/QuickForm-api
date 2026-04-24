@@ -11,12 +11,13 @@ internal sealed class SubmitLead : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("submit-lead", async (RegisterLeadCommand request, ISender sender) =>
+        app.MapPost("submit-lead", async (SubmitLeadRequest request, ISender sender) =>
         {
             var result = await sender.Send(new RegisterLeadCommand(
                 request.Name,
                 request.Email,
-                request.PhoneNumber
+                request.PhoneNumber ?? string.Empty,
+                request.Message ?? string.Empty
                 ));
             return result.Match(Results.Ok, ApiResults.Problem);
         })
@@ -30,6 +31,7 @@ internal sealed class SubmitLead : IEndpoint
         public string Name { get; init; }
 
         public string Email { get; init; }
-        public string PhoneNumber { get; init; }    
+        public string? PhoneNumber { get; init; } = string.Empty;
+        public string? Message { get; init; } = string.Empty;
     }
 }

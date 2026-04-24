@@ -10,7 +10,10 @@ internal sealed  class QuestionTypeAttributesSeeder(SurveyDbContext _context, IL
 
     public async Task SeedAsync()
     {
-        _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
+        }
 
 
         var predefinedValues = new Dictionary<QuestionTypeType, (Guid QuestionTypeAttributeId, AttributeType AttributeType,bool IsRequired)[]>
@@ -94,6 +97,9 @@ internal sealed  class QuestionTypeAttributesSeeder(SurveyDbContext _context, IL
         }
 
         await _context.SaveChangesAsync();
-        _logger.LogInformation("{SeederName} seeding completed", GetType().Name);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("{SeederName} seeding completed", GetType().Name);
+        }
     }
 }

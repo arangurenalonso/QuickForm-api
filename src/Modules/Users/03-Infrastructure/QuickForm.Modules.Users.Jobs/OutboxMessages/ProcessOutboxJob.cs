@@ -25,7 +25,11 @@ internal sealed class ProcessOutboxJob(
 {
     public async Task Execute(IJobExecutionContext context)
     {
-        _logger.LogInformation("{Module} Beginning to process outbox messages",Schemas.Auth);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("{Module} Beginning to process outbox messages", Schemas.Auth);
+        }
+
         await using DbConnection connection = await dbConnectionFactory.OpenConnectionAsync();
         await using DbTransaction transaction = await connection.BeginTransactionAsync();
         
@@ -68,7 +72,10 @@ internal sealed class ProcessOutboxJob(
 
         await transaction.CommitAsync();
 
-        _logger.LogInformation("{Module} - Completed processing outbox messages", Schemas.Auth);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("{Module} - Completed processing outbox messages", Schemas.Auth);
+        }
     }
 
     private async Task<IReadOnlyList<OutboxMessageResponse>> GetOutboxMessagesAsync(

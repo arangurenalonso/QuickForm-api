@@ -10,7 +10,11 @@ internal sealed class FormStatusSeeder(SurveyDbContext _context, ILogger<Databas
 
     public async Task SeedAsync()
     {
-        _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("Starting {SeederName} seeding...", GetType().Name);
+        }
+
         var enumTypesArray = Enum.GetValues<FormStatusType>()
                                     .Select(enumType => new
                                     {
@@ -57,6 +61,9 @@ internal sealed class FormStatusSeeder(SurveyDbContext _context, ILogger<Databas
         }
 
         await _context.SaveChangesAsync();
-        _logger.LogInformation("{SeederName} seeding completed", GetType().Name);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("{SeederName} seeding completed", GetType().Name);
+        }
     }
 }

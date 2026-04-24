@@ -18,6 +18,7 @@ internal sealed class GetFormSubmissionTemplate : IEndpoint
                 ));
             return result.Match(Results.Ok, ApiResults.Problem);
         })
+        //.RequireAuthorization()
         .WithName("Submission.GetFormSubmissionTemplate")
         .WithTags(Tags.Submission);
     }
