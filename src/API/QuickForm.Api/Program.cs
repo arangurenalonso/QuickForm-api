@@ -90,7 +90,10 @@ builder.Services.AddCors(options =>
             policyBuilder
                    .WithOrigins(
                        "http://localhost:3000",
-                       "https://quickform-frontend-dfg7axc7cecvb7a9.canadacentral-01.azurewebsites.net/"
+                       "https://quickform-frontend-dfg7axc7cecvb7a9.canadacentral-01.azurewebsites.net",
+                       "https://portfolio.alonso-dev.com", 
+                       "https://quickform.alonso-dev.com",
+                       "https://alonso-dev.com"
                    // add your real frontend domains here
                    )
                    .AllowAnyHeader()
